@@ -12,7 +12,10 @@ class StatusStore:
             self.write(StatusPayload(
                 jobId="", repoId=self.repo_dir.name,
                 phase="queued", pct=0,
-                filesParsed=0, imports=0, warnings=[]
+                filesParsed=0, imports=0, 
+                importsTotal=0, importsInternal=0, importsExternal=0,
+                filesSummarized=0, capabilitiesBuilt=0,
+                warnings=[]
             ))
 
     def write(self, payload: StatusPayload) -> None:
@@ -22,6 +25,19 @@ class StatusStore:
     def read(self) -> StatusPayload:
         with self.status_file.open("r", encoding="utf-8") as f:
             data = json.load(f)
+        
+        # Handle backward compatibility for existing status files
+        if "importsTotal" not in data:
+            data["importsTotal"] = data.get("imports", 0)
+        if "importsInternal" not in data:
+            data["importsInternal"] = 0
+        if "importsExternal" not in data:
+            data["importsExternal"] = data.get("imports", 0)
+        if "filesSummarized" not in data:
+            data["filesSummarized"] = 0
+        if "capabilitiesBuilt" not in data:
+            data["capabilitiesBuilt"] = 0
+            
         return StatusPayload(**data)
 
     def update(self, **kwargs) -> StatusPayload:
