@@ -12,6 +12,12 @@ from .status import StatusStore
 from .models import IngestResponse, StatusPayload
 from .ingest import stage_upload, extract_snapshot
 from .jobs import job_queue
+from .capabilities import (
+    build_all_capabilities,
+    list_capabilities_index,
+    read_capability_by_id,
+)
+from .qa import answer_question
 
 app = FastAPI(title="Provis Backend")
 
@@ -84,13 +90,7 @@ async def get_status(job_id: str):
             return s
     raise HTTPException(404, detail="Job not found")
 
-@app.get("/repo/{repo_id}/files")
-def get_files(repo_id: str):
-    require_done(repo_id)
-    path = repo_dir(repo_id) / "files.json"
-    if not path.exists():
-        raise HTTPException(404, detail="files.json not found")
-    return json.loads(path.read_text())
+# NOTE: unified files handler with optional capability filter is defined below
 
 @app.get("/repo/{repo_id}/graph")
 def get_graph(repo_id: str):
@@ -103,10 +103,10 @@ def get_graph(repo_id: str):
 @app.get("/repo/{repo_id}/capabilities")
 def get_capabilities(repo_id: str):
     require_done(repo_id)
-    path = repo_dir(repo_id) / "capabilities.json"
-    if not path.exists():
+    try:
+        return list_capabilities_index(repo_dir(repo_id))
+    except FileNotFoundError:
         raise HTTPException(404, detail="capabilities not found")
-    return json.loads(path.read_text())
 
 @app.get("/repo/{repo_id}/glossary")
 def get_glossary(repo_id: str):
@@ -115,3 +115,59 @@ def get_glossary(repo_id: str):
     if not path.exists():
         raise HTTPException(404, detail="glossary not found")
     return json.loads(path.read_text())
+
+@app.post("/repo/{repo_id}/capabilities/auto")
+async def post_capabilities_auto(repo_id: str):
+    require_done(repo_id)
+    try:
+        results = await build_all_capabilities(repo_dir(repo_id))
+        return {"ok": True, "capabilities": results.get("index", [])}
+    except Exception as e:
+        raise HTTPException(500, detail=f"Failed to build capabilities: {e}")
+
+@app.get("/repo/{repo_id}/capabilities/{cap_id}")
+def get_capability(repo_id: str, cap_id: str):
+    require_done(repo_id)
+    try:
+        return read_capability_by_id(repo_dir(repo_id), cap_id)
+    except FileNotFoundError:
+        raise HTTPException(404, detail="capability not found")
+
+@app.get("/repo/{repo_id}/files", tags=["files"])
+def get_files_filtered(repo_id: str, capability: str | None = None):
+    """Optionally filter files by capability id for file cards."""
+    require_done(repo_id)
+    base = repo_dir(repo_id)
+    files_path = base / "files.json"
+    if not files_path.exists():
+        raise HTTPException(404, detail="files.json not found")
+    files_payload = json.loads(files_path.read_text())
+    if not capability:
+        return files_payload
+
+    # Filter to files present in capability nodes
+    try:
+        cap = read_capability_by_id(base, capability)
+    except FileNotFoundError:
+        raise HTTPException(404, detail="capability not found")
+
+    node_paths = set([n.get("path") for n in cap.get("lanes", {}).get("web", [])] +
+                     [n.get("path") for n in cap.get("lanes", {}).get("api", [])] +
+                     [n.get("path") for n in cap.get("lanes", {}).get("workers", [])] +
+                     [n.get("path") for n in cap.get("lanes", {}).get("other", [])])
+
+    filtered = [f for f in files_payload.get("files", []) if f.get("path") in node_paths]
+    return {**files_payload, "files": filtered}
+
+@app.post("/repo/{repo_id}/qa")
+async def post_qa(repo_id: str, body: dict):
+    require_done(repo_id)
+    question = body.get("question")
+    capability = body.get("capabilityId")
+    if not question:
+        raise HTTPException(400, detail="Missing 'question'")
+    try:
+        res = await answer_question(repo_dir(repo_id), question, capability)
+        return res
+    except Exception as e:
+        raise HTTPException(500, detail=f"QA failed: {e}")
