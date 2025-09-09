@@ -149,6 +149,9 @@ async def run_summarization(repo_dir: Path) -> Tuple[Dict[str, Any], Dict[str, A
         f["blurb"] = s.get("blurb")
         f["vibecoder_summary"] = s.get("vibecoder_summary")
         f["edit_points"] = s.get("edit_points", [])
+        # Ensure stable purpose string (UI needs concise purpose)
+        if not f.get("purpose"):
+            f["purpose"] = s.get("purpose") or s.get("blurb") or ""
 
     files_payload["files"] = files
     files_payload["generatedAt"] = _now()
@@ -178,6 +181,9 @@ async def run_summarization(repo_dir: Path) -> Tuple[Dict[str, Any], Dict[str, A
     # ---- glossary ----
     glossary_payload = await _build_glossary(llm, files_payload)
     glossary_payload["generatedAt"] = _now()
+    # Remove internal error fields from artifact
+    if "_error" in glossary_payload:
+        glossary_payload.pop("_error", None)
     write_json_atomic(repo_dir / "glossary.json", glossary_payload)
 
     return files_payload, capabilities_payload, glossary_payload

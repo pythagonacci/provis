@@ -95,10 +95,35 @@ def parse_js_ts_file(p: Path, ext: str) -> Dict[str, Any]:
             functions.append(n)
 
     hints = _detect_framework_hints(str(p).replace("\\", "/"), text, ext)
+    # Heuristic function side-effects tagging
+    def _side_effects(src: str) -> list[str]:
+        tags: list[str] = []
+        lower = src.lower()
+        # net
+        if re.search(r"\b(fetch|axios|http\.request|xmlhttprequest|websocket)\b", lower):
+            tags.append("net")
+        # io
+        if re.search(r"\b(fs\.|readfile|writefile|stream|blob)\b", lower):
+            tags.append("io")
+        # db (common libs)
+        if re.search(r"\b(prisma|mongoose|mongodb|pg\.|knex|sequelize)\b", lower):
+            tags.append("db")
+        # dom/render
+        if ext in (".tsx", ".jsx") and (RE_JSX_LITERAL.search(src) or RE_RETURNS_JSX.search(src)):
+            tags.append("render")
+        return list(dict.fromkeys(tags))
+
+    # Attach sideEffects to discovered functions by scanning around declarations (coarse)
+    functions_with_tags = []
+    for name in functions:
+        # naive window to scan
+        m = re.search(rf"\b{name}\b[\s\S]{{0,400}}", text)
+        snippet = m.group(0) if m else text[:400]
+        functions_with_tags.append({"name": name, "sideEffects": _side_effects(snippet)})
 
     return {
         "imports": imports,
         "exports": exports,
-        "symbols": {"functions": functions, "classes": classes},
+        "symbols": {"functions": functions, "classes": classes, "functionTags": functions_with_tags},
         "hints": hints,
     }

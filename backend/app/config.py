@@ -27,4 +27,7 @@ class Settings:
     LLM_CACHE: bool = _bool("LLM_CACHE", True)
     LLM_CONCURRENCY: int = int(os.getenv("LLM_CONCURRENCY", "2"))
 
+    # CORS
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+
 settings = Settings()

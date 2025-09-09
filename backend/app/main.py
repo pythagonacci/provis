@@ -9,7 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .utils.id_gen import short_id
 from .status import StatusStore
-from .models import IngestResponse, StatusPayload
+from .models import (
+    IngestResponse, StatusPayload,
+    RepoOverviewModel, CapabilitySummaryModel, CapabilityDetailModel
+)
 from .ingest import stage_upload, extract_snapshot
 from .jobs import job_queue
 from .capabilities import (
@@ -23,7 +26,7 @@ app = FastAPI(title="Provis Backend")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[settings.CORS_ORIGINS] if settings.CORS_ORIGINS else ["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -100,6 +103,247 @@ def get_graph(repo_id: str):
         raise HTTPException(404, detail="graph.json not found")
     return json.loads(path.read_text())
 
+# ------------------------- V1 API -------------------------
+@app.get("/v1/repo/{repo_id}", tags=["v1"], response_model=RepoOverviewModel)
+def get_repo_overview(repo_id: str):
+    require_done(repo_id)
+    base = repo_dir(repo_id)
+    t = base / "tree.json"
+    f = base / "files.json"
+    c = base / "capabilities.json"
+    m = base / "metrics.json"
+    if not (t.exists() and f.exists() and c.exists() and m.exists()):
+        raise HTTPException(404, detail="one or more artifacts missing")
+    caps = json.loads(c.read_text()).get("capabilities")
+    return {
+        "tree": json.loads(t.read_text()),
+        "files": json.loads(f.read_text()),
+        "capabilities": [
+            {
+                **c,
+                "entryPoints": c.get("entryPoints") or [e.get("path") if isinstance(e, dict) else e for e in c.get("entrypoints", [])],
+            }
+            for c in (caps or [])
+        ],
+        "metrics": json.loads(m.read_text()),
+    }
+
+@app.get("/v1/repo/{repo_id}/capabilities", tags=["v1"], response_model=list[CapabilitySummaryModel])
+def list_caps_v1(repo_id: str):
+    require_done(repo_id)
+    base = repo_dir(repo_id)
+    # Use the capabilities index which has the summary format
+    index_path = base / "capabilities" / "index.json"
+    if not index_path.exists():
+        raise HTTPException(404, detail="capabilities index not found")
+    
+    index_data = json.loads(index_path.read_text())
+    caps = index_data.get("index", [])
+    
+    # Ensure all required fields have defaults
+    for cap in caps:
+        cap.setdefault("purpose", "")
+        cap.setdefault("entryPoints", [e.get("path") if isinstance(e, dict) else e for e in cap.get("anchors", [])])
+        cap.setdefault("keyFiles", [])
+        cap.setdefault("dataIn", [])
+        cap.setdefault("dataOut", [])
+        cap.setdefault("sources", [])
+        cap.setdefault("sinks", [])
+    
+    return caps
+
+@app.get("/v1/repo/{repo_id}/file", tags=["v1"])
+def get_file_details(repo_id: str, path: str):
+    require_done(repo_id)
+    base = repo_dir(repo_id)
+    f = base / "files.json"
+    if not f.exists():
+        raise HTTPException(404, detail="files.json not found")
+    data = json.loads(f.read_text())
+    for entry in data.get("files", []):
+        if entry.get("path") == path:
+            return {
+                "purpose": entry.get("purpose") or entry.get("blurb") or "",
+                "exports": entry.get("exports", []),
+                "imports": [i.get("resolved") or i.get("raw") for i in entry.get("imports", [])],
+                "functions": entry.get("symbols", {}).get("functions", []),
+            }
+    raise HTTPException(404, detail="file not found")
+
+@app.get("/v1/repo/{repo_id}/capabilities/{cap_id}", tags=["v1"], response_model=CapabilityDetailModel)
+def get_cap_v1(repo_id: str, cap_id: str):
+    require_done(repo_id)
+    base = repo_dir(repo_id)
+    try:
+        cap = read_capability_by_id(base, cap_id)
+    except FileNotFoundError:
+        raise HTTPException(404, detail="capability not found")
+    # Ensure camelCase mirrors
+    if "control_flow" in cap and "controlFlow" not in cap:
+        cap["controlFlow"] = cap.get("control_flow")
+    if "data_flow" in cap and "dataFlow" not in cap:
+        cap["dataFlow"] = cap.get("data_flow")
+    if "entryPoints" not in cap and "entrypoints" in cap:
+        cap["entryPoints"] = [e.get("path") if isinstance(e, dict) else e for e in cap.get("entrypoints", [])]
+    # Ensure swimlanes present and complete
+    swim = cap.get("swimlanes") or {}
+    for k in ("web","api","workers","other"):
+        swim.setdefault(k, [])
+    cap["swimlanes"] = swim
+    # Ensure nodeIndex exists (fallback build)
+    if "nodeIndex" not in cap:
+        node_index = {}
+        entry_set = set(cap.get("entryPoints", []))
+        in_map = {}
+        out_map = {}
+        for e in cap.get("controlFlow", []):
+            out_map.setdefault(e["from"], []).append(e["to"])
+            in_map.setdefault(e["to"], []).append(e["from"])
+        all_nodes = set()
+        for arr in swim.values():
+            for it in arr:
+                all_nodes.add(it if isinstance(it, str) else it.get("path"))
+        lane_for = {}
+        for lane, arr in swim.items():
+            for it in arr:
+                p = it if isinstance(it, str) else it.get("path")
+                lane_for[p] = lane
+        for n in all_nodes:
+            incoming = in_map.get(n, [])
+            outgoing = out_map.get(n, [])
+            role = "entrypoint" if n in entry_set else ("sink" if len(outgoing) == 0 else "handler")
+            node_index[n] = {"lane": lane_for.get(n, "other"), "role": role, "incoming": incoming, "outgoing": outgoing}
+        cap["nodeIndex"] = node_index
+    # Guarantee presence of optional arrays/objects
+    cap.setdefault("steps", [])
+    cap.setdefault("nodeIndex", {})
+    cap.setdefault("policies", [])
+    cap.setdefault("contracts", [])
+    cap.setdefault("suspectRank", [])
+    cap.setdefault("recentChanges", [])
+    return cap
+
+@app.get("/repo/{repo_id}/tree")
+def get_tree(repo_id: str):
+    require_done(repo_id)
+    path = repo_dir(repo_id) / "tree.json"
+    if not path.exists():
+        raise HTTPException(404, detail="tree.json not found")
+    return json.loads(path.read_text())
+
+@app.get("/repo/{repo_id}/metrics")
+def get_metrics(repo_id: str):
+    require_done(repo_id)
+    path = repo_dir(repo_id) / "metrics.json"
+    if not path.exists():
+        raise HTTPException(404, detail="metrics not found")
+    return json.loads(path.read_text())
+
+@app.get("/repo/{repo_id}/suggestions")
+def get_suggestions(repo_id: str, capability: str = None):
+    """Get edit suggestions for a capability or the entire repo."""
+    require_done(repo_id)
+    
+    # Load files and capabilities data
+    files_path = repo_dir(repo_id) / "files.json"
+    caps_path = repo_dir(repo_id) / "capabilities.json"
+    
+    if not files_path.exists():
+        raise HTTPException(404, detail="files.json not found")
+    if not caps_path.exists():
+        raise HTTPException(404, detail="capabilities.json not found")
+    
+    files_data = json.loads(files_path.read_text())
+    caps_data = json.loads(caps_path.read_text())
+    
+    # Find target capability if specified
+    target_cap = None
+    if capability:
+        for cap in caps_data.get("capabilities", []):
+            if cap.get("id") == capability:
+                target_cap = cap
+                break
+        if not target_cap:
+            raise HTTPException(404, detail=f"Capability {capability} not found")
+    
+    # Generate suggestions based on file analysis
+    suggestions = []
+    files = files_data.get("files", [])
+    
+    for f in files:
+        if target_cap:
+            # Only suggest files in the target capability
+            cap_files = set()
+            for lane_files in target_cap.get("swimlanes", {}).values():
+                if isinstance(lane_files, list):
+                    for it in lane_files:
+                        cap_files.add(it if isinstance(it, str) else it.get("path"))
+            if f["path"] not in cap_files:
+                continue
+        
+        # Analyze file for suggestion potential
+        confidence = "Low"
+        rationale = "General file for potential edits"
+        
+        # Check for high-impact indicators
+        symbols = f.get("symbols", {})
+        functions = symbols.get("functions", [])
+        classes = symbols.get("classes", [])
+        
+        if functions and classes:
+            confidence = "High"
+            rationale = f"Contains {len(functions)} functions and {len(classes)} classes - high edit potential"
+        elif functions:
+            confidence = "Med"
+            rationale = f"Contains {len(functions)} functions - moderate edit potential"
+        elif classes:
+            confidence = "Med"
+            rationale = f"Contains {len(classes)} classes - moderate edit potential"
+        
+        # Check for framework hints
+        hints = f.get("hints", {})
+        if hints.get("isRoute") or hints.get("isAPI"):
+            confidence = "High"
+            rationale = "Route/API file - critical for functionality"
+        elif hints.get("isReactComponent"):
+            confidence = "Med"
+            rationale = "React component - UI modification target"
+        
+        # Extra heuristics for v1 flavor
+        p = f.get("path", "").lower()
+        if "/styles/" in p or p.endswith(".css"):
+            confidence = "Med"
+            rationale = "print/layout might clip slides"
+        if "templates" in p:
+            confidence = "High"
+            rationale = "renderer entry point"
+        if "deck/compile" in p:
+            confidence = "High"
+            rationale = "orchestrator"
+
+        # Check for warnings (potential issues)
+        warnings = f.get("warnings", [])
+        if warnings:
+            confidence = "High"
+            rationale = f"Has {len(warnings)} warnings - likely needs attention"
+        
+        suggestions.append({
+            "fileId": f["path"],
+            "rationale": rationale,
+            "confidence": confidence
+        })
+    
+    # Sort by confidence (High, Med, Low)
+    confidence_order = {"High": 0, "Med": 1, "Low": 2}
+    suggestions.sort(key=lambda x: confidence_order.get(x["confidence"], 3))
+    
+    return {
+        "repoId": repo_id,
+        "capability": capability,
+        "suggestions": suggestions[:20],  # Limit to top 20
+        "generatedAt": datetime.now(timezone.utc).isoformat()
+    }
+
 @app.get("/repo/{repo_id}/capabilities")
 def get_capabilities(repo_id: str):
     require_done(repo_id)
@@ -151,10 +395,15 @@ def get_files_filtered(repo_id: str, capability: str | None = None):
     except FileNotFoundError:
         raise HTTPException(404, detail="capability not found")
 
-    node_paths = set([n.get("path") for n in cap.get("lanes", {}).get("web", [])] +
-                     [n.get("path") for n in cap.get("lanes", {}).get("api", [])] +
-                     [n.get("path") for n in cap.get("lanes", {}).get("workers", [])] +
-                     [n.get("path") for n in cap.get("lanes", {}).get("other", [])])
+    # Prefer swimlanes; tolerate both string paths and {path} objects
+    import itertools as _it
+    swim = cap.get("swimlanes", {}) or {}
+    seqs = list(swim.values())
+    flat: List[str] = []
+    for seq in seqs:
+        for it in (seq or []):
+            flat.append(it if isinstance(it, str) else it.get("path"))
+    node_paths = set([p for p in flat if p])
 
     filtered = [f for f in files_payload.get("files", []) if f.get("path") in node_paths]
     return {**files_payload, "files": filtered}

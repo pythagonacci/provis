@@ -223,6 +223,12 @@ def parse_files(snapshot: Path, discovered: List[Dict[str, Any]]) -> Tuple[List[
     return out, warnings
 
 def build_files_payload(repo_id: str, files_list: List[Dict[str, Any]], top_warnings: List[str]) -> Dict[str, Any]:
+    # Ensure function sideEffects are included in the payload
+    for f in files_list:
+        if "symbols" in f and "functionTags" in f["symbols"]:
+            # Move functionTags to top level for easier access
+            f["functionTags"] = f["symbols"]["functionTags"]
+    
     lang_counts: Dict[str, int] = {}
     for f in files_list:
         lang = f.get("language", "other")
@@ -334,7 +340,9 @@ def build_graph(files_payload: Dict[str, Any]) -> Dict[str, Any]:
             if not raw:
                 continue
             resolved, external = resolve(frm, raw)
-            edge = {"from": frm, "to": raw, "external": external}
+            # Prefer resolved internal path when available
+            edge_to = resolved or raw
+            edge = {"from": frm, "to": edge_to, "external": external}
             if resolved:
                 edge["resolved"] = resolved
                 # bump degrees for internal link

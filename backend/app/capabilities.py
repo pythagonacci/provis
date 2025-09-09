@@ -3,8 +3,136 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple
+import itertools
 
 from .llm.client import LLMClient
+
+# ---- Capability Defaults & Fallbacks ----
+REQUIRED_KEYS = {
+    "id": "",
+    "name": "",
+    "purpose": "",
+    "entryPoints": [],
+    "controlFlow": [],
+    "swimlanes": {"web": [], "api": [], "workers": [], "other": []},
+    "nodeIndex": {},
+    "steps": [],
+    "dataFlow": {"inputs": [], "stores": [], "externals": []},
+    "contracts": [],
+    "policies": [],
+    "suspectRank": [],
+    "recentChanges": []
+}
+
+def ensure_capability_defaults(cap: dict) -> dict:
+    """Fill in missing keys with safe defaults."""
+    fixed = cap.copy()
+    for key, default in REQUIRED_KEYS.items():
+        if key not in fixed:
+            fixed[key] = default
+    return fixed
+
+def to_repo_relative(path: str, repo_root: Path) -> str:
+    """Convert absolute paths to repo-relative paths."""
+    if not path:
+        return path
+    path = str(path)
+    repo_str = str(repo_root)
+    if path.startswith(repo_str):
+        return str(Path(path).relative_to(repo_root))
+    # Handle common absolute path patterns
+    path = path.lstrip("/").replace("Users/", "").replace("C:\\", "")
+    # Remove snapshot prefixes if present
+    if "/snapshot/" in path:
+        path = path.split("/snapshot/", 1)[1]
+    return path
+
+def normalize_capability_paths(cap: dict, repo_root: Path) -> dict:
+    """Normalize all paths in capability to repo-relative format."""
+    # Normalize entryPoints
+    cap["entryPoints"] = [to_repo_relative(p, repo_root) for p in cap.get("entryPoints", [])]
+    
+    # Normalize controlFlow edges
+    for edge in cap.get("controlFlow", []):
+        if "from" in edge:
+            edge["from"] = to_repo_relative(edge["from"], repo_root)
+        if "to" in edge:
+            edge["to"] = to_repo_relative(edge["to"], repo_root)
+    
+    # Normalize swimlanes
+    for lane, paths in cap.get("swimlanes", {}).items():
+        cap["swimlanes"][lane] = [to_repo_relative(p, repo_root) for p in paths]
+    
+    # Normalize dataFlow externals
+    for ext in cap.get("dataFlow", {}).get("externals", []):
+        if "client" in ext:
+            ext["client"] = to_repo_relative(ext["client"], repo_root)
+        if "path" in ext:
+            ext["path"] = to_repo_relative(ext["path"], repo_root)
+    
+    # Normalize policies and contracts paths
+    for policy in cap.get("policies", []):
+        if "path" in policy:
+            policy["path"] = to_repo_relative(policy["path"], repo_root)
+        if "appliedAt" in policy:
+            policy["appliedAt"] = to_repo_relative(policy["appliedAt"], repo_root)
+    
+    for contract in cap.get("contracts", []):
+        if "path" in contract:
+            contract["path"] = to_repo_relative(contract["path"], repo_root)
+    
+    return cap
+
+def provide_trivial_fallbacks(cap: dict) -> dict:
+    """Provide minimal fallbacks for sparse repos."""
+    # Ensure purpose exists
+    if not cap.get("purpose"):
+        cap["purpose"] = "Capability auto-generated for sparse repo"
+    
+    # Ensure at least one step exists
+    if not cap.get("steps") and cap.get("entryPoints"):
+        cap["steps"] = [{
+            "title": "Entry point",
+            "description": "Starts here",
+            "fileId": cap["entryPoints"][0]
+        }]
+    
+    # Build basic nodeIndex
+    node_index = cap.get("nodeIndex", {})
+    for ep in cap.get("entryPoints", []):
+        node_index[ep] = {"role": "entrypoint", "lane": "web"}
+    
+    for edge in cap.get("controlFlow", []):
+        if "from" in edge:
+            node_index.setdefault(edge["from"], {"role": "handler", "lane": "api"})
+        if "to" in edge:
+            node_index.setdefault(edge["to"], {"role": "sink", "lane": "other"})
+    
+    cap["nodeIndex"] = node_index
+    
+    return cap
+
+def add_camelcase_mirrors(cap: dict) -> dict:
+    """Add snake_case mirrors for backward compatibility."""
+    cap["entrypoints"] = cap.get("entryPoints", [])
+    cap["control_flow"] = cap.get("controlFlow", [])
+    cap["data_flow"] = cap.get("dataFlow", {})
+    return cap
+
+def _write_capability_with_defaults(repo_dir: Path, cap: dict, cap_id: str):
+    """Write capability with comprehensive defaults and path normalization."""
+    # Apply all post-processing steps
+    cap = ensure_capability_defaults(cap)
+    cap = normalize_capability_paths(cap, repo_dir)
+    cap = provide_trivial_fallbacks(cap)
+    cap = add_camelcase_mirrors(cap)
+    
+    # Ensure directory exists
+    cap_path = repo_dir / "capabilities" / cap_id / "capability.json"
+    cap_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write with proper formatting
+    _write_json(cap_path, cap)
 
 
 # ---- Types (minimal, runtime-validated) ----
@@ -46,6 +174,21 @@ def _build_swimlanes(nodes: List[Dict[str, Any]]) -> Dict[Lane, List[str]]:
         if path:
             lanes.setdefault(lane, []).append(path)
     return lanes
+
+
+def _to_repo_relative(p: str, base: Path) -> str:
+    if not p:
+        return p
+    s = str(p)
+    snap = str((base / "snapshot").resolve())
+    if s.startswith(snap):
+        rel = s[len(snap):].lstrip("/")
+        return rel
+    b = str(base.resolve())
+    if s.startswith(b):
+        rel = s[len(b):].lstrip("/")
+        return rel
+    return s
 
 
 def _classify_policy_type(policy: Dict[str, Any]) -> str:
@@ -142,7 +285,15 @@ def _enhance_control_flow(edges: List[Dict[str, Any]], lane_for: Dict[str, str])
         # Promote UI component relationships
         if k == "import" and src_lane == "web" and dst_lane == "web":
             kind = "component"
-        # Mark worker interactions
+        # HTTP edges: web -> api
+        if src_lane == "web" and dst_lane == "api" and k in ("call", "import"):
+            kind = "http"
+        # Webhook edges: payment/webhook related
+        if ("webhook" in (dst or "").lower()) or ("webhook" in (src or "").lower()):
+            kind = "webhook"
+        # Queue/worker heuristics
+        if any(s in (dst or "").lower() for s in ["enqueue", "queue"]) or any(s in (src or "").lower() for s in ["enqueue", "queue"]):
+            kind = "queue"
         if k == "call" and (src_lane == "workers" or dst_lane == "workers"):
             kind = "worker"
         out.append({"from": src, "to": dst, "kind": kind})
@@ -446,6 +597,173 @@ async def _llm_suspects(llm: LLMClient, context: Dict[str, Any]) -> List[Dict[st
     return await llm.acomplete_json(messages, SUSPECTS_SCHEMA)  # type: ignore
 
 
+def _derive_control_flow_from_graph(nodes: List[Dict[str, Any]], graph: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Derive control flow edges from the graph if LLM returned empty edges."""
+    node_paths = {n.get("path") for n in nodes}
+    graph_edges = graph.get("edges", [])
+    
+    # Filter graph edges to only include those between capability nodes
+    control_edges = []
+    for edge in graph_edges:
+        from_path = edge.get("from", "")
+        to_path = edge.get("to", "") or edge.get("resolved", "")
+        
+        if from_path in node_paths and to_path in node_paths:
+            kind = edge.get("kind", "import")
+            # Map graph edge kinds to capability edge kinds
+            if kind == "import":
+                kind = "import"
+            elif kind == "call":
+                kind = "call"
+            elif kind in ("http", "fetch"):
+                kind = "http"
+            else:
+                kind = "call"  # default
+            
+            control_edges.append({
+                "from": from_path,
+                "to": to_path,
+                "kind": kind
+            })
+    
+    return control_edges[:100]  # limit to prevent explosion
+
+
+def _backfill_dataflow_heuristics(data: Dict[str, Any], nodes: List[Dict[str, Any]], files_idx: Dict[str, Any]) -> Dict[str, Any]:
+    """Add heuristic candidates for inputs, stores, externals if LLM results are sparse."""
+    result = dict(data)
+    
+    # If inputs are sparse, scan for common patterns
+    if len(result.get("inputs", [])) < 2:
+        heuristic_inputs = []
+        for node in nodes:
+            path = node.get("path", "")
+            if "schema" in path.lower() or "types" in path.lower():
+                heuristic_inputs.append({
+                    "type": "requestSchema",
+                    "name": path.split("/")[-1].replace(".ts", "").replace(".js", ""),
+                    "path": path,
+                    "why": "Schema/types file suggests request structure"
+                })
+            elif ".env" in path:
+                heuristic_inputs.append({
+                    "type": "env",
+                    "key": "CONFIG_KEY",
+                    "path": path,
+                    "why": "Environment file suggests configuration"
+                })
+        result["inputs"] = (result.get("inputs", []) + heuristic_inputs)[:10]
+    
+    # If stores are sparse, scan for database/model patterns
+    if len(result.get("stores", [])) < 1:
+        heuristic_stores = []
+        for node in nodes:
+            path = node.get("path", "")
+            if any(x in path.lower() for x in ["model", "repo", "database", "prisma", "schema"]):
+                heuristic_stores.append({
+                    "type": "dbModel",
+                    "name": path.split("/")[-1].replace(".ts", "").replace(".js", ""),
+                    "path": path,
+                    "why": "Database/model file suggests data store"
+                })
+            elif "queue" in path.lower() or "job" in path.lower():
+                heuristic_stores.append({
+                    "type": "queue",
+                    "name": "jobs",
+                    "path": path,
+                    "why": "Queue/job file suggests async processing"
+                })
+        result["stores"] = (result.get("stores", []) + heuristic_stores)[:5]
+    
+    # If externals are sparse, scan for client patterns
+    if len(result.get("externals", [])) < 1:
+        heuristic_externals = []
+        for node in nodes:
+            path = node.get("path", "")
+            if "client" in path.lower():
+                if "stripe" in path.lower():
+                    heuristic_externals.append({
+                        "type": "api",
+                        "name": "Stripe",
+                        "client": path,
+                        "why": "Stripe client file suggests payment processing"
+                    })
+                elif "email" in path.lower() or "mail" in path.lower():
+                    heuristic_externals.append({
+                        "type": "smtp",
+                        "name": "Email",
+                        "client": path,
+                        "why": "Email client suggests notification service"
+                    })
+                else:
+                    heuristic_externals.append({
+                        "type": "api",
+                        "name": "External API",
+                        "client": path,
+                        "why": "Client file suggests external service integration"
+                    })
+        result["externals"] = (result.get("externals", []) + heuristic_externals)[:5]
+    
+    return result
+
+
+def _enrich_policies_contracts_heuristics(policies: List[Dict[str, Any]], contracts: List[Dict[str, Any]], nodes: List[Dict[str, Any]], files_idx: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Add heuristic policies and contracts if sparse."""
+    enriched_policies = list(policies)
+    enriched_contracts = list(contracts)
+    
+    # Scan nodes for common policy patterns
+    if len(enriched_policies) < 2:
+        for node in nodes:
+            path = node.get("path", "")
+            symbols = files_idx.get(path, {}).get("symbols", {})
+            functions = symbols.get("functions", [])
+            
+            # Look for auth/middleware patterns
+            if any("auth" in f.lower() for f in functions) or "middleware" in path.lower():
+                enriched_policies.append({
+                    "name": "authentication",
+                    "path": path,
+                    "type": "middleware",
+                    "appliedAt": path
+                })
+            
+            # Look for validation patterns
+            if any("validate" in f.lower() or "schema" in f.lower() for f in functions):
+                enriched_policies.append({
+                    "name": "inputValidation",
+                    "path": path,
+                    "type": "schemaGuard",
+                    "appliedAt": path
+                })
+    
+    # Scan nodes for contract patterns
+    if len(enriched_contracts) < 2:
+        for node in nodes:
+            path = node.get("path", "")
+            symbols = files_idx.get(path, {}).get("symbols", {})
+            
+            # TypeScript interfaces/types
+            if path.endswith((".ts", ".tsx")) and any(x in symbols for x in ["interfaces", "types"]):
+                enriched_contracts.append({
+                    "name": path.split("/")[-1].replace(".ts", "").replace(".tsx", ""),
+                    "kind": "ts.Interface",
+                    "path": path,
+                    "fields": list(symbols.get("interfaces", {}).keys())[:5]
+                })
+            
+            # Prisma models
+            if "prisma" in path.lower() or "schema.prisma" in path:
+                enriched_contracts.append({
+                    "name": "DatabaseSchema",
+                    "kind": "prisma.Model",
+                    "path": path,
+                    "fields": []
+                })
+    
+    return enriched_policies[:5], enriched_contracts[:5]
+
+
 # ---- Core build ----
 async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dict[str, Any]]:
     files = _read_json(_repo_paths(base)["files"]) if _repo_paths(base)["files"].exists() else {"files": []}
@@ -457,8 +775,15 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
     # Validate graph integrity basics
     node_paths = {n.get("path") for n in expansion.get("nodes", [])}
     edges = [e for e in expansion.get("edges", []) if e.get("from") in node_paths and e.get("to") in node_paths]
+    
+    # Fallback: derive control flow from graph if LLM edges are empty
+    if not edges:
+        edges = _derive_control_flow_from_graph(expansion.get("nodes", []), graph)
 
     data = await _llm_extract_data(llm, expansion.get("nodes", []))
+    
+    # Heuristic backfill for data flow if LLM returned sparse results
+    data = _backfill_dataflow_heuristics(data, expansion.get("nodes", []), files_idx)
 
     # File summaries (per node)
     files_idx = {f["path"]: f for f in files.get("files", [])}
@@ -481,6 +806,13 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
 
     # Narrative & lanes mapping
     lanes_map: Dict[Lane, List[str]] = _build_swimlanes(expansion.get("nodes", []))
+    # Normalize swimlanes to repo-relative paths and ensure all keys exist
+    lanes_map = {
+        "web": [ _to_repo_relative(p, base) for p in lanes_map.get("web", []) ],
+        "api": [ _to_repo_relative(p, base) for p in lanes_map.get("api", []) ],
+        "workers": [ _to_repo_relative(p, base) for p in lanes_map.get("workers", []) ],
+        "other": [ _to_repo_relative(p, base) for p in lanes_map.get("other", []) ],
+    }
     narrative = await _llm_narrative(
         llm,
         name=anchors[0].route if anchors else "Capability",
@@ -504,10 +836,13 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
     for lane, paths in lanes_map.items():
         for p in paths:
             lane_for_path[p] = lane
+    # Normalize edges to repo-relative and enhance kinds
+    edges = [{"from": _to_repo_relative(e["from"], base), "to": _to_repo_relative(e["to"], base), "kind": e.get("kind")} for e in edges]
     control_flow = _enhance_control_flow(edges, lane_for_path)
 
     # Entrypoints enriched with framework
-    entrypoints = [{"path": a.path, "framework": _infer_framework_from_path(a.path), "kind": a.kind} for a in anchors]
+    entrypoints = [{"path": _to_repo_relative(a.path, base), "framework": _infer_framework_from_path(a.path), "kind": a.kind} for a in anchors]
+    entry_points = [e["path"] for e in entrypoints]
 
     # Embed touches/examples in data_flow
     def _embed_touches(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -525,36 +860,171 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
             out.append({**it, "touches": tchs, "example": _synthesize_example(it)})
         return out
 
+    def _rel_item(it: Dict[str, Any]) -> Dict[str, Any]:
+        out = dict(it)
+        if out.get("path"):
+            out["path"] = _to_repo_relative(out["path"], base)
+        if out.get("client"):
+            out["client"] = _to_repo_relative(out["client"], base)
+        return out
+
     data_flow = {
-        "inputs": _embed_touches(data.get("inputs", [])),
-        "stores": _embed_touches(data.get("stores", [])),
-        "externals": _embed_touches(data.get("externals", [])),
+        "inputs": [_rel_item(x) for x in _embed_touches(data.get("inputs", []))],
+        "stores": [_rel_item(x) for x in _embed_touches(data.get("stores", []))],
+        "externals": [_rel_item(x) for x in _embed_touches(data.get("externals", []))],
     }
 
-    # Policy typing
+    # Policy typing and heuristic enrichment
     policies_typed = [{**p, "type": _classify_policy_type(p)} for p in data.get("policies", [])]
+    contracts = data.get("contracts", [])
+    
+    # Heuristic enrichment for policies and contracts if sparse
+    policies_typed, contracts = _enrich_policies_contracts_heuristics(policies_typed, contracts, expansion.get("nodes", []), files_idx)
+
+    # Derive additional fields for UI list
+    def _derive_summary_purpose(narr_steps: List[Dict[str, Any]]) -> str:
+        if narr_steps:
+            return (narr_steps[0].get("label") or narr_steps[0].get("detail") or "").strip()[:160]
+        return anchors[0].route if anchors else "Capability"
+
+    def _derive_key_files() -> List[str]:
+        # pick top degree nodes from edges within this capability
+        deg: Dict[str, int] = {}
+        for ed in edges:
+            deg[ed["from"]] = deg.get(ed["from"], 0) + 1
+            deg[ed["to"]] = deg.get(ed["to"], 0) + 1
+        ordered = sorted(deg.items(), key=lambda kv: kv[1], reverse=True)
+        return [p for p, _ in ordered[:6]]
+
+    def _derive_data_flow_fields() -> Dict[str, List[str]]:
+        """Extract dataIn, dataOut, orchestrators, sources, sinks from capability data."""
+        data_in = []
+        data_out = []
+        orchestrators = []
+        sources = []
+        sinks = []
+        
+        # Data inputs from data_flow
+        for inp in data_flow.get("inputs", []):
+            if inp.get("type") == "requestSchema":
+                data_in.append(inp.get("name", ""))
+            elif inp.get("type") == "env":
+                data_in.append(inp.get("key", ""))
+        
+        # Data outputs from data_flow
+        for store in data_flow.get("stores", []):
+            data_out.append(store.get("name", ""))
+        for ext in data_flow.get("externals", []):
+            data_out.append(ext.get("name", ""))
+        
+        # Orchestrators: files with high out-degree in control_flow
+        out_degree = {}
+        for edge in control_flow:
+            out_degree[edge["from"]] = out_degree.get(edge["from"], 0) + 1
+        top_orchestrators = sorted(out_degree.items(), key=lambda x: x[1], reverse=True)[:3]
+        orchestrators = [path for path, _ in top_orchestrators]
+        
+        # Sources: files that are entrypoints or have no incoming edges
+        in_degree = {}
+        for edge in control_flow:
+            in_degree[edge["to"]] = in_degree.get(edge["to"], 0) + 1
+        sources = [ep["path"] for ep in entrypoints]
+        sources.extend([path for path, degree in in_degree.items() if degree == 0 and path not in sources])
+        
+        # Sinks: files with no outgoing edges or terminal operations
+        sinks = [path for path in out_degree.keys() if out_degree[path] == 0]
+        
+        return {
+            "dataIn": data_in,
+            "dataOut": data_out,
+            "orchestrators": orchestrators,
+            "sources": sources,
+            "sinks": sinks
+        }
+
+    narr_steps = narrative.get("steps", [])
+    purpose_cap = _derive_summary_purpose(narr_steps)
+    key_files = _derive_key_files()
+    data_fields = _derive_data_flow_fields()
 
     # Assemble
     cap_id = f"cap_{anchors[0].route.strip('/').replace('/', '_') or 'root'}"
     capability = {
         "id": cap_id,
         "name": anchors[0].route.strip("/") or "/",
+        "purpose": purpose_cap,
         "title": anchors[0].route.strip("/") or "/",
         "status": _compute_status(),
-        "anchors": [a.__dict__ for a in anchors],
+        "anchors": [{"path": _to_repo_relative(a.path, base), "kind": a.kind, "route": a.route} for a in anchors],
         # Back-compat fields
         "lanes": {k: [{"path": p} for p in v] for k, v in lanes_map.items()},
         "flow": edges,
         "data": {k: v for k, v in data.items() if k in ("inputs", "stores", "externals")},
         # UI-aligned fields
         "entrypoints": entrypoints,
+        "entryPoints": entry_points,
         "swimlanes": lanes_map,
         "control_flow": control_flow,
         "data_flow": data_flow,
         "policies": policies_typed,
         "contracts": data.get("contracts", []),
-        "summaries": {"file": summaries_file, "folder": folder_rollup, "narrative": narrative.get("steps", [])},
+        "summaries": {"file": summaries_file, "folder": folder_rollup, "narrative": narr_steps},
+        # Derived fields for list cards
+        "keyFiles": key_files,
+        "steps": [],
+        # Data flow fields for UI
+        "dataIn": data_fields["dataIn"],
+        "dataOut": data_fields["dataOut"],
+        "orchestrators": data_fields["orchestrators"],
+        "sources": data_fields["sources"],
+        "sinks": data_fields["sinks"],
+        # camelCase mirrors
+        "controlFlow": control_flow,
+        "dataFlow": data_flow,
     }
+
+    # Steps mapping with optional fileId linking (first step → first entrypoint)
+    steps: List[Dict[str, Any]] = []
+    for idx, s in enumerate(narr_steps):
+        file_id = None
+        if idx == 0 and entry_points:
+            file_id = entry_points[0]
+        steps.append({
+            "title": s.get("label"),
+            "description": s.get("detail"),
+            "fileId": file_id,
+        })
+    capability["steps"] = steps
+
+    # Build nodeIndex
+    all_nodes = set(itertools.chain.from_iterable(lanes_map.values()))
+    in_map: Dict[str, List[str]] = {}
+    out_map: Dict[str, List[str]] = {}
+    for e in control_flow:
+        out_map.setdefault(e["from"], []).append(e["to"])
+        in_map.setdefault(e["to"], []).append(e["from"])
+    node_index: Dict[str, Any] = {}
+    entry_set = {ep["path"] for ep in entrypoints}
+    for n in all_nodes:
+        incoming = in_map.get(n, [])
+        outgoing = out_map.get(n, [])
+        role = "entrypoint" if n in entry_set else ("sink" if len(outgoing) == 0 else "handler")
+        node_index[n] = {
+            "lane": lane_for_path.get(n, "other"),
+            "role": role,
+            "incoming": incoming,
+            "outgoing": outgoing,
+            "policies": [],
+            "envs": [i.get("key") for i in data_flow.get("inputs", []) if i.get("type") == "env"],
+            "relatedData": [s.get("name") or s.get("path") for s in data_flow.get("stores", [])] + [e.get("name") for e in data_flow.get("externals", [])],
+        }
+    capability["nodeIndex"] = node_index
+
+    # Apply comprehensive post-processing
+    capability = ensure_capability_defaults(capability)
+    capability = normalize_capability_paths(capability, base)
+    capability = provide_trivial_fallbacks(capability)
+    capability = add_camelcase_mirrors(capability)
 
     return cap_id, capability
 
@@ -634,14 +1104,45 @@ async def build_all_capabilities(base: Path) -> Dict[str, Any]:
     for g in groups:
         cap_id, cap = await _build_capability(base, g)
         by_id[cap_id] = cap
-        index.append({"id": cap_id, "name": cap.get("name"), "anchors": cap.get("anchors"), "lanes": {k: len(v) for k, v in cap.get("lanes", {}).items()}})
+        index.append({
+            "id": cap_id, 
+            "name": cap.get("name"),
+            "purpose": cap.get("purpose"),
+            "entryPoints": cap.get("entryPoints", []),
+            "keyFiles": cap.get("keyFiles", []),
+            "dataIn": cap.get("dataIn", []),
+            "dataOut": cap.get("dataOut", []),
+            "sources": cap.get("sources", []),
+            "sinks": cap.get("sinks", []),
+            "anchors": cap.get("anchors"), 
+            "lanes": {k: len(v) for k, v in cap.get("lanes", {}).items()}
+        })
 
-    # Persist
-    _write_json(paths["index"], {"index": index})
+    # Persist - ensure stable shape for index
+    stable_index = []
+    for item in index:
+        stable_item = {
+            "id": item.get("id", ""),
+            "name": item.get("name", ""),
+            "purpose": item.get("purpose", ""),
+            "entryPoints": item.get("entryPoints", []),
+            "keyFiles": item.get("keyFiles", []),
+            "dataIn": item.get("dataIn", []),
+            "dataOut": item.get("dataOut", []),
+            "sources": item.get("sources", []),
+            "sinks": item.get("sinks", []),
+            "anchors": item.get("anchors", []),
+            "lanes": item.get("lanes", {"web": 0, "api": 0, "workers": 0, "other": 0}),
+        }
+        stable_index.append(stable_item)
+    
+    _write_json(paths["index"], {"index": stable_index})
+    
+    # Write individual capability files with comprehensive defaults
     for cid, cap in by_id.items():
-        _write_json(paths["caps_dir"] / cid / "capability.json", cap)
+        _write_capability_with_defaults(base, cap, cid)
 
-    return {"index": index}
+    return {"index": stable_index}
 
 
 def list_capabilities_index(base: Path) -> Dict[str, Any]:
