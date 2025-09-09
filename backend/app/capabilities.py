@@ -19,6 +19,165 @@ class Anchor:
     route: str
 
 
+# ---- UI-aligned helpers (pure, framework-agnostic) ----
+def _infer_framework_from_path(path: str) -> str:
+    p = (path or "").lower()
+    # Next.js App Router
+    if "/src/app/" in p or p.endswith("/page.tsx") or p.endswith("/layout.tsx"):
+        return "nextjs"
+    # Express/Koa/Fastify style
+    if "/routes/" in p or "/middleware/" in p:
+        return "express"
+    # Generic React
+    if p.endswith(".tsx") or p.endswith(".jsx"):
+        return "react"
+    # Python FastAPI
+    if p.endswith(".py") and ("fastapi" in p or "/api/" in p or "/routes/" in p):
+        return "fastapi"
+    # Fallback
+    return "unknown"
+
+
+def _build_swimlanes(nodes: List[Dict[str, Any]]) -> Dict[Lane, List[str]]:
+    lanes: Dict[Lane, List[str]] = {"web": [], "api": [], "workers": [], "other": []}
+    for n in nodes or []:
+        lane = n.get("lane", "other")
+        path = n.get("path")
+        if path:
+            lanes.setdefault(lane, []).append(path)
+    return lanes
+
+
+def _classify_policy_type(policy: Dict[str, Any]) -> str:
+    name = (policy.get("name") or "").lower()
+    path = (policy.get("path") or "").lower()
+    if "auth" in name or "auth" in path or "middleware" in path:
+        return "middleware"
+    if "zod" in name or "schema" in name or "validate" in name:
+        return "schemaGuard"
+    if "cors" in name or "cors" in path:
+        return "cors"
+    return "unknown"
+
+
+def _infer_lane_from_path(path: str) -> Lane:
+    p = (path or "").lower()
+    if "/src/app/" in p and (p.endswith(".tsx") or p.endswith(".jsx")):
+        return "web"
+    if "/api/" in p or "/routes/" in p or p.endswith("/route.ts") or p.endswith("/route.js"):
+        return "api"
+    if "/workers/" in p or "worker" in p or "queue" in p:
+        return "workers"
+    return "other"
+
+
+def _resolve_anchor_paths_to_index(anchors: List[Anchor], files_idx: Dict[str, Dict[str, Any]]) -> List[str]:
+    paths_in_index = set(files_idx.keys())
+    resolved: List[str] = []
+    for a in anchors:
+        p = a.path
+        if p in paths_in_index:
+            resolved.append(p)
+            continue
+        # Try suffix match to unify absolute/relative duplicates
+        matches = [fp for fp in paths_in_index if fp.endswith(p)]
+        if matches:
+            resolved.append(matches[0])
+            continue
+        # Try the other way around
+        matches = [fp for fp in paths_in_index if p.endswith(fp)]
+        if matches:
+            resolved.append(matches[0])
+            continue
+    return list(dict.fromkeys(resolved))
+
+
+def _collect_neighbor_paths(graph: Dict[str, Any], start_paths: List[str], hops: int = 2) -> List[str]:
+    # Build adjacency from graph edges
+    edges = graph.get("edges", []) or []
+    neighbors: Dict[str, List[str]] = {}
+    for e in edges:
+        src = e.get("from")
+        dst = e.get("resolved") or e.get("to")
+        if not src or not dst:
+            continue
+        neighbors.setdefault(src, []).append(dst)
+        neighbors.setdefault(dst, []).append(src)
+
+    frontier = list(start_paths)
+    seen: Dict[str, int] = {p: 0 for p in start_paths}
+    for _ in range(hops):
+        new_frontier: List[str] = []
+        for p in frontier:
+            for q in neighbors.get(p, [])[:200]:  # limit fanout
+                if q not in seen:
+                    seen[q] = seen[p] + 1
+                    new_frontier.append(q)
+        frontier = new_frontier
+        if not frontier:
+            break
+    return list(seen.keys())
+
+
+def _edge_subset_within(paths: List[str], graph: Dict[str, Any]) -> List[Dict[str, Any]]:
+    allowed = set(paths)
+    out: List[Dict[str, Any]] = []
+    for e in graph.get("edges", []) or []:
+        src = e.get("from")
+        dst = e.get("resolved") or e.get("to")
+        if src in allowed and dst in allowed:
+            out.append({"from": src, "to": dst, "kind": "import" if not e.get("external") else "call"})
+    return out[:2000]
+
+
+def _enhance_control_flow(edges: List[Dict[str, Any]], lane_for: Dict[str, str]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    for e in edges or []:
+        k = e.get("kind")
+        src = e.get("from")
+        dst = e.get("to")
+        src_lane = lane_for.get(src, "other")
+        dst_lane = lane_for.get(dst, "other")
+        kind = k
+        # Promote UI component relationships
+        if k == "import" and src_lane == "web" and dst_lane == "web":
+            kind = "component"
+        # Mark worker interactions
+        if k == "call" and (src_lane == "workers" or dst_lane == "workers"):
+            kind = "worker"
+        out.append({"from": src, "to": dst, "kind": kind})
+    return out
+
+
+def _synthesize_example(item: Dict[str, Any]) -> Dict[str, Any]:
+    t = (item.get("type") or "").lower()
+    name = (item.get("name") or item.get("client") or item.get("path") or "").lower()
+    if t == "dbmodel":
+        if "order" in name:
+            return {"id": "ord_123", "email": "user@example.com", "amount": 4999, "status": "PAID", "createdAt": "2025-01-01T00:00:00Z"}
+        if "inventory" in name:
+            return {"sku": "SKU-1", "reserved": 1, "available": 42}
+        return {"id": "row_1", "createdAt": "2025-01-01T00:00:00Z"}
+    if t == "queue":
+        return {"queue": item.get("name") or "jobs", "job": {"id": "job_1"}}
+    if t == "api":
+        if "stripe" in name:
+            return {"amount": 4999, "currency": "usd", "customer_email": "user@example.com"}
+        return {"request": {"example": True}, "response": {"ok": True}}
+    if t == "smtp":
+        return {"to": "user@example.com", "template": "example", "variables": {}}
+    if t == "requestschema":
+        return {"example": True}
+    if t == "env":
+        return {item.get("key") or "ENV": "***"}
+    return {"example": True}
+
+
+def _compute_status() -> str:
+    # Placeholder heuristic until runtime signals are integrated
+    return "healthy"
+
+
 # ---- IO Helpers ----
 def _repo_paths(base: Path) -> Dict[str, Path]:
     caps_dir = base / "capabilities"
@@ -128,16 +287,41 @@ SUSPECTS_SCHEMA: Dict[str, Any] = {
 
 # ---- LLM wrappers ----
 async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, Any], graph: Dict[str, Any]) -> Dict[str, Any]:
-    # Minimal content: anchors + shallow file metadata + raw edges subset
+    # Build focused neighbor context around anchors (up to 2 hops)
     files_idx = {f["path"]: f for f in files.get("files", [])}
-    subset = [{"path": p, "lang": files_idx.get(p, {}).get("language"), "frameworkHints": files_idx.get(p, {}).get("hints", {}), "size": files_idx.get(p, {}).get("size"), "symbols": files_idx.get(p, {}).get("symbols", {})} for p in files_idx.keys()]
-    raw_edges = [{"from": e.get("from"), "to": e.get("resolved") or e.get("to"), "kind": "import" if not e.get("external") else "call"} for e in graph.get("edges", []) if e.get("from") and (e.get("resolved") or e.get("to"))]
+    resolved_anchors = _resolve_anchor_paths_to_index(anchors, files_idx)
+    if not resolved_anchors:
+        resolved_anchors = [a.path for a in anchors]
+    context_paths = _collect_neighbor_paths(graph, resolved_anchors, hops=2)
+    # Ensure anchors are present
+    for p in resolved_anchors:
+        if p not in context_paths:
+            context_paths.append(p)
+    # Prepare context metadata and edge subset
+    subset = [{
+        "path": p,
+        "lang": (files_idx.get(p, {}) or {}).get("language"),
+        "frameworkHints": (files_idx.get(p, {}) or {}).get("hints", {}),
+        "size": (files_idx.get(p, {}) or {}).get("size"),
+        "symbols": (files_idx.get(p, {}) or {}).get("symbols", {}),
+    } for p in context_paths][:400]
+    raw_edges = _edge_subset_within(context_paths, graph)
     route = anchors[0].route if anchors else "/"
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative, and avoid hallucinations. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"ANCHORS:\n{[a.__dict__ for a in anchors]}\n\nFILE METADATA (subset):\n{subset[:200]}\n\nRAW EDGES (may be incomplete):\n{raw_edges[:1000]}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes and propose edges. Exclude shared infra. RETURN strict JSON per schema."},
+        {"role": "user", "content": f"ANCHORS:\n{[a.__dict__ for a in anchors]}\n\nCONTEXT NODES (focused):\n{subset}\n\nRAW EDGES WITHIN CONTEXT (may be incomplete):\n{raw_edges}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes (web|api|workers|other) and propose edges (import|call|http|queue|webhook). Exclude shared infra. RETURN strict JSON per schema."},
     ]
-    return await llm.acomplete_json(messages, EXPANSION_SCHEMA)
+    try:
+        res = await llm.acomplete_json(messages, EXPANSION_SCHEMA)
+    except Exception:
+        res = {"nodes": [], "edges": []}
+
+    # Fallback: if model returns empty, synthesize from context
+    if not res.get("nodes"):
+        nodes = [{"path": p, "lane": _infer_lane_from_path(p)} for p in context_paths[:60]]
+        edges = raw_edges[:1000]
+        return {"nodes": nodes, "edges": edges}
+    return res
 
 
 async def _llm_extract_data(llm: LLMClient, nodes: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -216,10 +400,8 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
             if key not in folder_rollup:
                 folder_rollup[key] = s
 
-    # Narrative
-    lanes_map: Dict[Lane, List[str]] = {"web": [], "api": [], "workers": [], "other": []}
-    for n in expansion.get("nodes", []):
-        lanes_map.setdefault(n.get("lane", "other"), []).append(n.get("path"))
+    # Narrative & lanes mapping
+    lanes_map: Dict[Lane, List[str]] = _build_swimlanes(expansion.get("nodes", []))
     narrative = await _llm_narrative(
         llm,
         name=anchors[0].route if anchors else "Capability",
@@ -238,22 +420,61 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
         di = ex.get("name") or ex.get("path") or "external"
         touches[di] = await _llm_touches(llm, di, expansion.get("nodes", []), edges)
 
-    # Suspects
-    suspects = await _llm_suspects(llm, {"nodes": expansion.get("nodes", []), "edges": edges, "summaries": summaries_file, "touches": touches})
+    # Build UI-aligned fields
+    lane_for_path: Dict[str, str] = {}
+    for lane, paths in lanes_map.items():
+        for p in paths:
+            lane_for_path[p] = lane
+    control_flow = _enhance_control_flow(edges, lane_for_path)
+
+    # Entrypoints enriched with framework
+    entrypoints = [{"path": a.path, "framework": _infer_framework_from_path(a.path), "kind": a.kind} for a in anchors]
+
+    # Embed touches/examples in data_flow
+    def _embed_touches(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        out: List[Dict[str, Any]] = []
+        for it in items or []:
+            key_candidates = [it.get("name"), it.get("path"), it.get("client")]
+            tchs: List[Dict[str, Any]] = []
+            for k in key_candidates:
+                if not k:
+                    continue
+                v = touches.get(k) or touches.get(str(k))
+                if isinstance(v, dict):
+                    tchs = v.get("touches") or []
+                    break
+            out.append({**it, "touches": tchs, "example": _synthesize_example(it)})
+        return out
+
+    data_flow = {
+        "inputs": _embed_touches(data.get("inputs", [])),
+        "stores": _embed_touches(data.get("stores", [])),
+        "externals": _embed_touches(data.get("externals", [])),
+    }
+
+    # Policy typing
+    policies_typed = [{**p, "type": _classify_policy_type(p)} for p in data.get("policies", [])]
 
     # Assemble
     cap_id = f"cap_{anchors[0].route.strip('/').replace('/', '_') or 'root'}"
     capability = {
         "id": cap_id,
         "name": anchors[0].route.strip("/") or "/",
+        "title": anchors[0].route.strip("/") or "/",
+        "status": _compute_status(),
         "anchors": [a.__dict__ for a in anchors],
+        # Back-compat fields
         "lanes": {k: [{"path": p} for p in v] for k, v in lanes_map.items()},
         "flow": edges,
         "data": {k: v for k, v in data.items() if k in ("inputs", "stores", "externals")},
-        "policies": data.get("policies", []),
+        # UI-aligned fields
+        "entrypoints": entrypoints,
+        "swimlanes": lanes_map,
+        "control_flow": control_flow,
+        "data_flow": data_flow,
+        "policies": policies_typed,
         "contracts": data.get("contracts", []),
         "summaries": {"file": summaries_file, "folder": folder_rollup, "narrative": narrative.get("steps", [])},
-        "suspects": suspects,
     }
 
     return cap_id, capability
@@ -265,12 +486,12 @@ def _derive_routes_from_files(files_payload: Dict[str, Any]) -> List[Dict[str, A
     for f in files:
         path = f.get("path", "")
         hints = f.get("hints", {})
-        # Prefer explicit hints when present
-        if hints.get("isRoute"):
-            routes.append({"path": path, "kind": "ui", "route": hints.get("route") or "/"})
+        # Prefer explicit hints when present (only if route is specified)
+        if hints.get("isRoute") and hints.get("route"):
+            routes.append({"path": path, "kind": "ui", "route": hints.get("route")})
             continue
-        if hints.get("isAPI"):
-            routes.append({"path": path, "kind": "api", "route": hints.get("route") or "/api"})
+        if hints.get("isAPI") and hints.get("route"):
+            routes.append({"path": path, "kind": "api", "route": hints.get("route")})
             continue
 
         # Next.js app router: src/app/**/page.tsx => route
