@@ -200,24 +200,103 @@ def _write_json(p: Path, obj: Any) -> None:
 
 
 # ---- Route grouping ----
-def _normalize_route(route: str) -> str:
+def _normalize_param(segment: str) -> str:
+    """Normalize route parameter segments to a common format."""
+    # Express/Next.js dynamic routes
+    if segment.startswith("[") and segment.endswith("]"):
+        return "{" + segment[1:-1] + "}"
+    # Express/FastAPI params
+    if segment.startswith(":"):
+        return "{" + segment[1:] + "}"
+    # FastAPI path params
+    if segment.startswith("{") and segment.endswith("}"):
+        return segment
+    return segment
+
+
+def _normalize_route(route: str, strip_method: bool = True) -> str:
+    """Normalize route paths to a canonical form."""
     if not route:
         return "/"
+    
+    # Extract HTTP method if present (e.g., "GET /users" -> "/users")
     r = route.strip()
+    method = ""
+    if strip_method and " " in r:
+        method, r = r.split(" ", 1)
+        r = r.strip()
+    
+    # Ensure leading slash, trim trailing slash
     if not r.startswith("/"):
         r = "/" + r
     if len(r) > 1 and r.endswith("/"):
         r = r[:-1]
-    return r
+    
+    # Normalize path parameters
+    segments = r.split("/")
+    normalized = "/".join(_normalize_param(s) for s in segments if s)
+    
+    return f"{method} /{normalized}".strip() if method and not strip_method else f"/{normalized}"
+
+
+def _route_key(route: str, kind: str) -> str:
+    """Generate grouping key for a route."""
+    r = _normalize_route(route)
+    
+    # Strip /api prefix for API routes to pair with UI
+    if kind == "api" and r.startswith("/api/"):
+        r = r[4:]
+    
+    # Extract meaningful path segments
+    segments = [s for s in r.split("/") if s and not s.startswith("{")]
+    if not segments:
+        return "root"
+    
+    # Use first two non-param segments as key
+    key = "/".join(segments[:2])
+    return key
 
 
 def _group_routes(routes: List[Dict[str, Any]]) -> List[List[Anchor]]:
+    """Group routes by semantic similarity."""
     buckets: Dict[str, List[Anchor]] = {}
+    
+    # First pass: group by semantic key
     for r in routes:
-        key = _normalize_route(r.get("route", ""))
-        a = Anchor(path=r.get("path", ""), kind=r.get("kind", "ui"), route=key)
+        route = r.get("route", "")
+        kind = r.get("kind", "ui")
+        path = r.get("path", "")
+        
+        # Create anchor with normalized route
+        norm_route = _normalize_route(route)
+        a = Anchor(path=path, kind=kind, route=norm_route)
+        
+        # Group by semantic key
+        key = _route_key(route, kind)
         buckets.setdefault(key, []).append(a)
-    return list(buckets.values())
+    
+    # Second pass: ensure each group has consistent route prefix
+    groups: List[List[Anchor]] = []
+    for anchors in buckets.values():
+        if len(anchors) == 1:
+            groups.append(anchors)
+            continue
+            
+        # For multi-anchor groups, try to find a common prefix
+        routes = [a.route for a in anchors]
+        prefix = routes[0]
+        for r in routes[1:]:
+            while not r.startswith(prefix) and "/" in prefix:
+                prefix = "/".join(prefix.split("/")[:-1])
+            if not prefix:
+                prefix = "/"
+                break
+        
+        # Update routes to use common prefix
+        normalized = [Anchor(path=a.path, kind=a.kind, route=prefix) for a in anchors]
+        groups.append(normalized)
+    
+    return groups
 
 
 # ---- LLM prompts (schemas) ----
