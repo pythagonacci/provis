@@ -8,6 +8,7 @@ from .status import StatusStore
 from .parsers.base import discover_files, parse_files, build_files_payload, build_graph
 from .utils.io import write_json_atomic
 from .summarizer import run_summarization
+from .models import FileNodeModel
 
 class JobQueue:
     def __init__(self):
@@ -39,33 +40,105 @@ class JobQueue:
         }
 
         try:
-            # --- Discovering ---
-            store.update(phase="acquiring", pct=10)
+            # --- Phase 1: Discovering (Stream early results) ---
+            store.update(phase="acquiring", pct=5)
             await asyncio.sleep(0.05)
 
             snapshot = repo_dir / "snapshot"
-            store.update(phase="discovering", pct=20)
+            store.update(phase="discovering", pct=15)
             discovered = discover_files(snapshot)
-            store.update(phase="discovering", pct=30, filesParsed=len(discovered))
+            
+            # Stream early tree structure
+            store.update(phase="discovering", pct=25, filesParsed=len(discovered))
+            
+            # Build and persist basic tree structure early
+            def _build_early_tree(discovered_files: list) -> Dict[str, Any]:
+                root: Dict[str, Any] = {"id": "root", "path": "/", "purpose": "Repository", "children": []}
+                folders: Dict[str, Dict[str, Any]] = {"/": root}
+
+                def folder_purpose(name: str) -> str:
+                    n = name.lower()
+                    if n in ("app", "src/app"): return "UI routes (Next.js)"
+                    if n == "pages": return "Next.js legacy pages + API routes"
+                    if n == "api": return "API routes"
+                    if n == "lib": return "Libraries / utilities"
+                    if n == "components": return "UI components"
+                    if n == "workers" or "worker" in n: return "Background workers"
+                    if n == "services": return "Business logic / services"
+                    if n == "routes": return "Server routes"
+                    if n == "templates": return "Rendering templates"
+                    if n == "content": return "Static content"
+                    if n == "styles" or n == "css": return "Styling"
+                    if n == "prisma": return "Database schema"
+                    return ""
+
+                for f in discovered_files:
+                    path = f.get("path", "")
+                    parts = path.split("/")
+                    cur_path = "/"
+                    parent = root
+                    for i, seg in enumerate(parts[:-1]):
+                        cur_path = (cur_path.rstrip("/") + "/" + seg).lstrip("/")
+                        cur_key = "/" + cur_path if not cur_path.startswith("/") else cur_path
+                        if cur_key not in folders:
+                            node = {"id": cur_key.strip("/"), "path": seg, "purpose": folder_purpose(seg), "children": []}
+                            folders[cur_key] = node
+                            parent["children"].append(node)
+                        parent = folders[cur_key]
+                    # file leaf (basic info only)
+                    file_node = {
+                        "id": path,
+                        "path": path,
+                        "purpose": f"File ({f.get('language', 'unknown')})",
+                        "exports": [],
+                        "imports": [],
+                        "functions": [],
+                    }
+                    parent["children"].append(file_node)
+
+                return root
+
+            # Persist early tree structure
+            early_tree = _build_early_tree(discovered)
+            write_json_atomic(repo_dir / "tree.json", early_tree)
 
             t_discover = perf_counter()
             metrics["phaseDurationsMs"]["discovering"] = int((t_discover - t0) * 1000)
 
-            # --- Parsing ---
-            store.update(phase="parsing", pct=40)
+            # --- Phase 2: Parsing (Stream functions/classes) ---
+            store.update(phase="parsing", pct=35)
             files_list, top_warnings = parse_files(snapshot, discovered)
-            store.update(phase="parsing", pct=50, filesParsed=len(files_list))
+            
+            # Validate parsed files against schema
+            validation_warnings = []
+            for i, file_entry in enumerate(files_list):
+                try:
+                    # Validate against FileNodeModel schema
+                    FileNodeModel(**file_entry)
+                except Exception as e:
+                    validation_warnings.append(f"Schema validation failed for {file_entry.get('path', 'unknown')}: {str(e)}")
+                    # Mark as skipped if validation fails
+                    file_entry["skipped"] = True
+                    file_entry["skipReason"] = "schema_validation_failed"
+                    file_entry["warnings"] = file_entry.get("warnings", []) + [f"Schema validation failed: {str(e)}"]
+            
+            if validation_warnings:
+                top_warnings.extend(validation_warnings)
+            
+            store.update(phase="parsing", pct=45, filesParsed=len(files_list))
+
+            # Stream basic files.json with functions/classes
+            files_payload = build_files_payload(repo_dir.name, files_list, top_warnings)
+            write_json_atomic(repo_dir / "files.json", files_payload)
 
             t_parse = perf_counter()
             metrics["phaseDurationsMs"]["parsing"] = int((t_parse - t_discover) * 1000)
 
-            files_payload = build_files_payload(repo_dir.name, files_list, top_warnings)
-
-            # Persist files.json
-            write_json_atomic(repo_dir / "files.json", files_payload)
-
-            # --- Build and persist tree.json (hierarchical view) ---
-            def _build_tree(files_payload: Dict[str, Any]) -> Dict[str, Any]:
+            # --- Phase 3: Mapping (Stream graph edges) ---
+            store.update(phase="mapping", pct=55)
+            
+            # Update tree.json with detailed file information
+            def _build_detailed_tree(files_payload: Dict[str, Any]) -> Dict[str, Any]:
                 root: Dict[str, Any] = {"id": "root", "path": "/", "purpose": "Repository", "children": []}
                 folders: Dict[str, Dict[str, Any]] = {"/": root}
 
@@ -98,7 +171,7 @@ class JobQueue:
                             folders[cur_key] = node
                             parent["children"].append(node)
                         parent = folders[cur_key]
-                    # file leaf
+                    # file leaf with detailed info
                     file_node = {
                         "id": path,
                         "path": path,
@@ -111,11 +184,13 @@ class JobQueue:
 
                 return root
 
-            tree_payload = _build_tree(files_payload)
-            write_json_atomic(repo_dir / "tree.json", tree_payload)
-
-            # --- Mapping ---
-            store.update(phase="mapping", pct=60)
+            # Update tree with detailed information
+            detailed_tree = _build_detailed_tree(files_payload)
+            write_json_atomic(repo_dir / "tree.json", detailed_tree)
+            
+            store.update(phase="mapping", pct=65)
+            
+            # Build and stream graph
             graph_payload = build_graph(files_payload)
             write_json_atomic(repo_dir / "graph.json", graph_payload)
 
@@ -149,9 +224,15 @@ class JobQueue:
             t_map = perf_counter()
             metrics["phaseDurationsMs"]["mapping"] = int((t_map - t_parse) * 1000)
 
-            # --- Summarizing ---
-            store.update(phase="summarizing", pct=88)
+            # --- Phase 4: Summarizing (Stream LLM summaries) ---
+            store.update(phase="summarizing", pct=85)
             files_payload, capabilities_payload, glossary_payload = await run_summarization(repo_dir)
+            
+            # Stream capabilities as they're generated
+            store.update(phase="summarizing", pct=95, 
+                        filesSummarized=len(files_payload.get("files", [])),
+                        capabilitiesBuilt=len(capabilities_payload.get("capabilities", [])))
+            
             store.update(
                 phase="done", pct=100,
                 filesSummarized=len(files_payload.get("files", [])),
