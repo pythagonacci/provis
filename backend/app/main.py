@@ -404,7 +404,6 @@ def get_files_filtered(repo_id: str, capability: str | None = None):
         for it in (seq or []):
             flat.append(it if isinstance(it, str) else it.get("path"))
     node_paths = set([p for p in flat if p])
-
     filtered = [f for f in files_payload.get("files", []) if f.get("path") in node_paths]
     return {**files_payload, "files": filtered}
 
