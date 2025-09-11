@@ -512,6 +512,23 @@ def parse_js_ts_file(p: Path, ext: str, snapshot: Path = None, available_files: 
             if re.search(rf"\b{pattern}\b", text):
                 hooks.append(pattern)
     
+    # Detect Next.js special exports
+    nextjs_special_exports = []
+    if hints.get("framework") == "nextjs":
+        special_exports = [
+            "getServerSideProps", "getStaticProps", "getStaticPaths", 
+            "generateStaticParams", "generateMetadata", "generateViewport"
+        ]
+        for export in special_exports:
+            if re.search(rf"export\s+(?:async\s+)?(?:const\s+)?(?:function\s+)?{export}\b", text):
+                nextjs_special_exports.append(export)
+    
+    # Detect "use client" pragma
+    is_client_component = False
+    if ext in (".tsx", ".jsx") and '"use client"' in text:
+        is_client_component = True
+        hints["isClientComponent"] = True
+    
     # Normalize to unified schema
     return {
         "imports": resolved_imports,
@@ -525,7 +542,7 @@ def parse_js_ts_file(p: Path, ext: str, snapshot: Path = None, available_files: 
             "dbModels": [],   # Database model detection
             "middleware": [], # Middleware detection
             "components": [], # React components
-            "utilities": []   # Utility functions
+            "utilities": nextjs_special_exports  # Next.js special exports
         },
         "hints": hints
     }

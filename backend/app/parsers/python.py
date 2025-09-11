@@ -4,6 +4,12 @@ import ast
 import re
 from typing import Dict, Any, List, Optional
 
+try:
+    import libcst as cst
+    LIBCST_AVAILABLE = True
+except ImportError:
+    LIBCST_AVAILABLE = False
+
 def _read_text(p: Path) -> str:
     try:
         return p.read_text(encoding="utf-8", errors="ignore")
@@ -74,8 +80,11 @@ def _extract_route_from_flask_decorator(decorator: ast.Call) -> Optional[Dict[st
     return None
 
 
-def _detect_django_routes(text: str, file_path: str) -> List[Dict[str, str]]:
-    """Detect Django URL patterns including include() chains."""
+def _detect_django_routes(text: str, file_path: str, snapshot: Path = None, available_files: List[str] = None, visited: set = None) -> List[Dict[str, str]]:
+    """Detect Django URL patterns including include() chains with recursive resolution."""
+    if visited is None:
+        visited = set()
+    
     routes = []
     
     # Look for urlpatterns
@@ -96,15 +105,110 @@ def _detect_django_routes(text: str, file_path: str) -> List[Dict[str, str]]:
         include_matches = re.findall(include_pattern, text)
         
         for prefix, include_path in include_matches:
-            # Note: We can't resolve the include path without file system access
-            # This would require a more sophisticated Django URL resolver
+            # Resolve include() chains recursively
+            if snapshot and available_files:
+                included_routes = _resolve_django_include(prefix, include_path, snapshot, available_files, visited)
+                routes.extend(included_routes)
+            else:
+                # Fallback when we can't resolve
+                routes.append({
+                    "method": "GET",
+                    "path": prefix,
+                    "handler": f"include({include_path})"
+                })
+    
+    return routes
+
+
+def _resolve_django_include(prefix: str, include_path: str, snapshot: Path, available_files: List[str], visited: set) -> List[Dict[str, str]]:
+    """Resolve Django include() chains by reading included URL files."""
+    routes = []
+    
+    # Prevent infinite recursion
+    include_key = f"{prefix}:{include_path}"
+    if include_key in visited:
+        return routes
+    visited.add(include_key)
+    
+    # Convert include path to file path
+    # e.g., "app.urls" -> "app/urls.py"
+    include_file_path = include_path.replace(".", "/") + ".py"
+    
+    # Look for the file in available files
+    matching_files = [f for f in available_files if f.endswith(include_file_path)]
+    
+    if matching_files:
+        include_file = snapshot / matching_files[0]
+        try:
+            include_text = _read_text(include_file)
+            # Recursively parse the included file
+            included_routes = _detect_django_routes(include_text, str(include_file), snapshot, available_files, visited)
+            
+            # Prepend the prefix to all included routes
+            for route in included_routes:
+                # Handle path joining properly
+                if prefix.endswith("/") and route["path"].startswith("/"):
+                    full_path = prefix + route["path"][1:]
+                elif prefix.endswith("/") or route["path"].startswith("/"):
+                    full_path = prefix + route["path"]
+                else:
+                    full_path = prefix + "/" + route["path"]
+                
+                routes.append({
+                    "method": route["method"],
+                    "path": full_path,
+                    "handler": route["handler"]
+                })
+        except Exception:
+            # If we can't read the file, add a placeholder
             routes.append({
                 "method": "GET",
                 "path": prefix,
                 "handler": f"include({include_path})"
             })
+    else:
+        # File not found, add placeholder
+        routes.append({
+            "method": "GET",
+            "path": prefix,
+            "handler": f"include({include_path})"
+        })
     
     return routes
+
+
+def _parse_dependencies(snapshot: Path) -> List[str]:
+    """Parse requirements.txt and pyproject.toml to extract external dependencies."""
+    dependencies = []
+    
+    # Parse requirements.txt
+    requirements_file = snapshot / "requirements.txt"
+    if requirements_file.exists():
+        try:
+            requirements_text = requirements_file.read_text(encoding="utf-8")
+            for line in requirements_text.splitlines():
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    # Extract package name (before ==, >=, etc.)
+                    package = line.split("==")[0].split(">=")[0].split("<=")[0].split(">")[0].split("<")[0].split("~=")[0]
+                    if package:
+                        dependencies.append(package)
+        except Exception:
+            pass
+    
+    # Parse pyproject.toml
+    pyproject_file = snapshot / "pyproject.toml"
+    if pyproject_file.exists():
+        try:
+            pyproject_text = pyproject_file.read_text(encoding="utf-8")
+            # Simple regex to extract dependencies from [project.dependencies] or [tool.poetry.dependencies]
+            dep_pattern = r'["\']([a-zA-Z0-9_-]+)["\']\s*=\s*["\'][^"\']+["\']'
+            matches = re.findall(dep_pattern, pyproject_text)
+            dependencies.extend(matches)
+        except Exception:
+            pass
+    
+    return list(set(dependencies))  # Remove duplicates
 
 
 def _detect_django_models(tree: ast.AST) -> List[str]:
@@ -180,7 +284,7 @@ def _detect_flask_routes(tree: ast.AST) -> List[Dict[str, str]]:
 def _detect_framework_hints(imports: List[Dict[str, Any]], text: str, file_path: str) -> Dict[str, Any]:
     """Detect framework and route hints."""
     hints = {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False}
-    
+
     import_names = [imp["raw"] for imp in imports]
     
     # FastAPI detection
@@ -248,63 +352,203 @@ def _detect_side_effects(text: str) -> List[str]:
     return list(dict.fromkeys(tags))
 
 
-def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str] = None) -> Dict[str, Any]:
-    """Parse Python file with robust AST parsing and framework awareness."""
-    text = _read_text(p)
-    file_path = str(p).replace("\\", "/")
-    
+def _parse_with_libcst(text: str, file_path: str) -> Dict[str, Any]:
+    """Use libcst for robust Python parsing with decorator and import resolution."""
+    if not LIBCST_AVAILABLE:
+        return None
+        
     try:
-        tree = ast.parse(text)
-    except SyntaxError:
-        # Return minimal structure for syntax errors
-        return {
-            "imports": [],
-            "exports": [],
-            "functions": [],
-            "classes": [],
-            "routes": [],
-            "symbols": {},
-            "hints": {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False}
-        }
+        tree = cst.parse_expression(text) if text.strip().startswith('(') else cst.parse_statement(text)
+        if not isinstance(tree, cst.Module):
+            tree = cst.parse_module(text)
+    except cst.ParserSyntaxError:
+        # Fallback to ast if libcst fails
+        return None
+    
+    result = {
+        "imports": [],
+        "exports": [],
+        "functions": [],
+        "classes": [],
+        "routes": []
+    }
+    
+    class ImportCollector(cst.CSTVisitor):
+        def visit_Import(self, node: cst.Import) -> None:
+            for alias in node.names:
+                result["imports"].append({
+                    "raw": alias.name.value,
+                    "kind": "py"
+                })
+        
+        def visit_ImportFrom(self, node: cst.ImportFrom) -> None:
+            module = node.module.value if node.module else ""
+            for alias in node.names:
+                if alias.name:
+                    result["imports"].append({
+                        "raw": f"{module}.{alias.name.value}" if module else alias.name.value,
+                        "kind": "py"
+                    })
+    
+    class FunctionCollector(cst.CSTVisitor):
+        def visit_FunctionDef(self, node: cst.FunctionDef) -> None:
+            decorators = [self._extract_decorator_name(d) for d in node.decorators]
+            params = [param.name.value for param in node.params.params]
+            calls = self._extract_function_calls(node)
+            
+            result["functions"].append({
+                "name": node.name.value,
+                "params": params,
+                "decorators": decorators,
+                "calls": calls,
+                "sideEffects": []
+            })
+        
+        def visit_AsyncFunctionDef(self, node: cst.AsyncFunctionDef) -> None:
+            decorators = [self._extract_decorator_name(d) for d in node.decorators]
+            params = [param.name.value for param in node.params.params]
+            calls = self._extract_function_calls(node)
+            
+            result["functions"].append({
+                "name": node.name.value,
+                "params": params,
+                "decorators": decorators,
+                "calls": calls,
+                "sideEffects": []
+            })
+        
+        def _extract_decorator_name(self, decorator: cst.Decorator) -> str:
+            if isinstance(decorator.decorator, cst.Name):
+                return decorator.decorator.value
+            elif isinstance(decorator.decorator, cst.Attribute):
+                return decorator.decorator.attr.value
+            return "unknown"
+        
+        def _extract_function_calls(self, node: cst.FunctionDef | cst.AsyncFunctionDef) -> List[str]:
+            calls = []
+            for child in node.visit(lambda n: isinstance(n, cst.Call)):
+                if isinstance(child.func, cst.Name):
+                    calls.append(child.func.value)
+                elif isinstance(child.func, cst.Attribute):
+                    calls.append(child.func.attr.value)
+            return calls
+    
+    class ClassCollector(cst.CSTVisitor):
+        def visit_ClassDef(self, node: cst.ClassDef) -> None:
+            methods = []
+            base_classes = []
+            
+            for base in node.bases:
+                if isinstance(base, cst.Name):
+                    base_classes.append(base.value)
+                elif isinstance(base, cst.Attribute):
+                    base_classes.append(base.attr.value)
+            
+            for item in node.body.body:
+                if isinstance(item, (cst.FunctionDef, cst.AsyncFunctionDef)):
+                    methods.append(item.name.value)
+            
+            result["classes"].append({
+                "name": node.name.value,
+                "methods": methods,
+                "baseClasses": base_classes
+            })
+    
+    # Run collectors
+    tree.visit(ImportCollector())
+    tree.visit(FunctionCollector())
+    tree.visit(ClassCollector())
+    
+    return result
+
+
+def _parse_with_ast_fallback(text: str, tree: ast.AST) -> Dict[str, Any]:
+    """Fallback AST parsing when libcst fails."""
+    result = {
+        "imports": [],
+        "exports": [],
+        "functions": [],
+        "classes": [],
+        "routes": []
+    }
     
     # Extract imports
-    imports: List[Dict[str, Any]] = []
     for node in tree.body:
         if isinstance(node, ast.Import):
             for n in node.names:
-                imports.append({"raw": n.name, "kind": "py"})
+                result["imports"].append({"raw": n.name, "kind": "py"})
         elif isinstance(node, ast.ImportFrom):
             mod = node.module or ""
-            imports.append({"raw": mod, "kind": "py"})
+            result["imports"].append({"raw": mod, "kind": "py"})
     
-    # Extract functions with detailed information
-    functions = []
+    # Extract functions
     for node in tree.body:
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             decorators = [_extract_decorator_name(d) for d in node.decorator_list]
             params = [arg.arg for arg in node.args.args]
             calls = _extract_function_calls(node)
             
-            functions.append({
+            result["functions"].append({
                 "name": node.name,
                 "params": params,
                 "decorators": decorators,
                 "calls": calls,
-                "sideEffects": _detect_side_effects(ast.unparse(node) if hasattr(ast, 'unparse') else text)
+                "sideEffects": []
             })
     
-    # Extract classes with detailed information
-    classes = []
+    # Extract classes
     for node in tree.body:
         if isinstance(node, ast.ClassDef):
             methods = [n.name for n in node.body if isinstance(n, ast.FunctionDef)]
-            base_classes = [base.id if isinstance(base, ast.Name) else "unknown" for base in node.bases]
+            base_classes = []
+            for base in node.bases:
+                if isinstance(base, ast.Name):
+                    base_classes.append(base.id)
+                elif isinstance(base, ast.Attribute):
+                    base_classes.append(base.attr)
             
-            classes.append({
+            result["classes"].append({
                 "name": node.name,
                 "methods": methods,
                 "baseClasses": base_classes
             })
+    
+    return result
+
+
+def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str] = None) -> Dict[str, Any]:
+    """Parse Python file with robust libcst parsing and framework awareness."""
+    text = _read_text(p)
+    file_path = str(p).replace("\\", "/")
+    
+    # Try libcst first, fallback to ast
+    parsed = _parse_with_libcst(text, file_path)
+    if not parsed:
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            # Return minimal structure for syntax errors
+            return {
+                "imports": [],
+                "exports": [],
+                "functions": [],
+                "classes": [],
+                "routes": [],
+                "symbols": {},
+                "hints": {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False}
+            }
+        
+        # Fallback to ast parsing
+        parsed = _parse_with_ast_fallback(text, tree)
+    
+    # Use parsed results from libcst or ast fallback
+    imports = parsed.get("imports", [])
+    functions = parsed.get("functions", [])
+    classes = parsed.get("classes", [])
+    
+    # Add side effects to functions
+    for func in functions:
+        func["sideEffects"] = _detect_side_effects(text)
     
     # Detect routes based on framework
     routes = []
@@ -315,7 +559,7 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
     elif hints["framework"] == "flask":
         routes = _detect_flask_routes(tree)
     elif hints["framework"] == "django":
-        routes = _detect_django_routes(text, file_path)
+        routes = _detect_django_routes(text, file_path, snapshot, available_files)
     
     # Update hints based on detected routes
     if routes:
@@ -365,6 +609,11 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
             # Check for common middleware patterns
             if any(pattern in func["name"].lower() for pattern in ["middleware", "interceptor", "filter"]):
                 middleware.append(func["name"])
+    
+    # Parse external dependencies
+    external_dependencies = []
+    if snapshot:
+        external_dependencies = _parse_dependencies(snapshot)
 
     return {
         "imports": resolved_imports,
@@ -378,7 +627,7 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
             "dbModels": db_models,
             "middleware": middleware,
             "components": [], # Not applicable to Python
-            "utilities": []   # Could be detected
+            "utilities": external_dependencies  # External dependencies from requirements.txt/pyproject.toml
         },
         "hints": hints
     }
