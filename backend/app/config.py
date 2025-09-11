@@ -25,7 +25,11 @@ class Settings:
     LLM_TEMPERATURE: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
     LLM_MAX_TOKENS: int = int(os.getenv("LLM_MAX_TOKENS", "800"))
     LLM_CACHE: bool = _bool("LLM_CACHE", True)
-    LLM_CONCURRENCY: int = int(os.getenv("LLM_CONCURRENCY", "2"))
+    LLM_CONCURRENCY: int = int(os.getenv("LLM_CONCURRENCY", "4"))
+    
+    # Step 3 LLM budget settings
+    LLM_FILE_SUMMARY_BUDGET: int = int(os.getenv("LLM_FILE_SUMMARY_BUDGET", "100"))
+    LLM_CAP_BUDGET: int = int(os.getenv("LLM_CAP_BUDGET", "20"))
 
     # CORS
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:3000")

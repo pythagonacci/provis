@@ -7,7 +7,9 @@ SYSTEM_FILE = (
     "produce a JSON summary that helps a human edit the code safely. "
     "NO code generation; speak about purpose, where to edit, and risks.\n\n"
     "Return JSON with these exact fields: title, purpose, key_functions, internal_dependencies, "
-    "external_dependencies, how_to_modify, risks, blurb, vibecoder_summary, edit_points."
+    "external_dependencies, how_to_modify, risks, blurb, dev_summary, vibecoder_summary, edit_points.\n\n"
+    "dev_summary: Terse, developer-facing summary (what it does, interfaces, gotchas).\n"
+    "vibecoder_summary: Playful, beginner-friendly explanation using metaphors."
 )
 
 SYSTEM_CAPABILITY = (
@@ -33,10 +35,11 @@ FILE_SCHEMA: Dict[str, Any] = {
         "how_to_modify": {"type": "string"},
         "risks": {"type": "string"},
         "blurb": {"type": "string"},
+        "dev_summary": {"type": "string"},
         "vibecoder_summary": {"type": "string"},
         "edit_points": {"type": "array"},
     },
-    "required": ["title", "blurb", "vibecoder_summary"],
+    "required": ["title", "blurb", "dev_summary", "vibecoder_summary"],
     "additionalProperties": False,
 }
 

@@ -376,7 +376,7 @@ def _map_task_impl(repo_id: str, snapshot_id: str, job_id: str) -> Dict[str, Any
         on_error(job_id, str(e), "mapping")
         raise
 
-def _summarize_task_impl(repo_id: str, snapshot_id: str, job_id: str) -> Dict[str, Any]:
+async def _summarize_task_impl(repo_id: str, snapshot_id: str, job_id: str) -> Dict[str, Any]:
     """
     Summarize task implementation: Generate LLM summaries and capabilities.
     
@@ -402,14 +402,20 @@ def _summarize_task_impl(repo_id: str, snapshot_id: str, job_id: str) -> Dict[st
         estimated_tokens = 1000  # This would be calculated from file content
         
         with limits.llm_request(), limits.llm_tokens(estimated_tokens):
-            # In a real implementation, you'd run the summarization
-            # For now, we'll use placeholders
-            summaries_payload = {"files": []}
-            capabilities_payload = {"capabilities": []}
+            # Get repo directory path
+            from app.config import settings
+            repo_dir = Path(settings.DATA_DIR) / f"repo_{repo_id}"
+            
+            if not repo_dir.exists():
+                raise FileNotFoundError(f"Repository directory not found: {repo_dir}")
+            
+            # Run the actual summarization
+            summaries_payload, capabilities_payload, glossary_payload = await run_summarization(repo_dir)
         
         # Write artifacts
         summaries_bytes = json.dumps(summaries_payload, indent=2).encode('utf-8')
         capabilities_bytes = json.dumps(capabilities_payload, indent=2).encode('utf-8')
+        glossary_bytes = json.dumps(glossary_payload, indent=2).encode('utf-8')
         
         summaries_result = write_versioned_artifact(
             snapshot_id, "summaries", summaries_bytes,
@@ -425,9 +431,16 @@ def _summarize_task_impl(repo_id: str, snapshot_id: str, job_id: str) -> Dict[st
             settings_hash="placeholder"
         )
         
+        glossary_result = write_versioned_artifact(
+            snapshot_id, "glossary", glossary_bytes,
+            repo_id=repo_id,
+            commit_hash="placeholder",
+            settings_hash="placeholder"
+        )
+        
         # Store artifact records
         with get_session() as session:
-            for kind, result in [("summaries", summaries_result), ("capabilities", capabilities_result)]:
+            for kind, result in [("summaries", summaries_result), ("capabilities", capabilities_result), ("glossary", glossary_result)]:
                 artifact = Artifact(
                     snapshot_id=snapshot_id,
                     kind=kind,
@@ -445,16 +458,19 @@ def _summarize_task_impl(repo_id: str, snapshot_id: str, job_id: str) -> Dict[st
                          summaries_result["version"], summaries_result["bytes"])
         on_artifact_ready(job_id, "capabilities", capabilities_result["uri"], 
                          capabilities_result["version"], capabilities_result["bytes"])
+        on_artifact_ready(job_id, "glossary", glossary_result["uri"], 
+                         glossary_result["version"], glossary_result["bytes"])
         
         # Update status
         set_status(job_id, phase="summarizing", pct=95,
-                  filesSummarized=len(summaries_payload["files"]),
-                  capabilitiesBuilt=len(capabilities_payload["capabilities"]))
+                  filesSummarized=len(summaries_payload.get("files", [])),
+                  capabilitiesBuilt=len(capabilities_payload.get("capabilities", [])))
         
-        logger.info(f"Completed summarize task for job {job_id}")
+        logger.info(f"Completed summarize task for job {job_id}: {len(summaries_payload.get('files', []))} files, {len(capabilities_payload.get('capabilities', []))} capabilities, {len(glossary_payload.get('terms', []))} glossary terms")
         return {
-            "files_summarized": len(summaries_payload["files"]),
-            "capabilities_built": len(capabilities_payload["capabilities"])
+            "files_summarized": len(summaries_payload.get("files", [])),
+            "capabilities_built": len(capabilities_payload.get("capabilities", [])),
+            "glossary_terms": len(glossary_payload.get("terms", []))
         }
         
     except Exception as e:

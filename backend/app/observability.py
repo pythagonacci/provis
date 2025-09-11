@@ -119,6 +119,38 @@ class MetricsCollector:
             ['component', 'error_type']
         )
         
+        # LLM metrics
+        self.llm_calls_total = Counter(
+            'provis_llm_calls_total',
+            'Total number of LLM API calls',
+            ['operation', 'model', 'status']
+        )
+        
+        self.llm_tokens_total = Counter(
+            'provis_llm_tokens_total',
+            'Total number of LLM tokens processed',
+            ['operation', 'model', 'type']  # type: input, output
+        )
+        
+        self.llm_duration_ms = Histogram(
+            'provis_llm_duration_ms',
+            'LLM API call duration in milliseconds',
+            ['operation', 'model'],
+            buckets=[100, 500, 1000, 2000, 5000, 10000, 30000, 60000]
+        )
+        
+        self.llm_cache_hits_total = Counter(
+            'provis_llm_cache_hits_total',
+            'Total number of LLM cache hits',
+            ['operation']
+        )
+        
+        self.llm_timeouts_total = Counter(
+            'provis_llm_timeouts_total',
+            'Total number of LLM timeouts',
+            ['operation', 'model']
+        )
+        
         logger.info("Initialized Prometheus metrics collector")
     
     def record_job_start(self, job_id: str, phase: str):
@@ -177,6 +209,28 @@ class MetricsCollector:
         """Record error occurrence."""
         if PROMETHEUS_AVAILABLE:
             self.errors_total.labels(component=component, error_type=error_type).inc()
+    
+    def record_llm_call(self, operation: str, model: str, status: str, duration_ms: float = None):
+        """Record LLM API call."""
+        if PROMETHEUS_AVAILABLE:
+            self.llm_calls_total.labels(operation=operation, model=model, status=status).inc()
+            if duration_ms is not None:
+                self.llm_duration_ms.labels(operation=operation, model=model).observe(duration_ms)
+    
+    def record_llm_tokens(self, operation: str, model: str, token_type: str, count: int):
+        """Record LLM token usage."""
+        if PROMETHEUS_AVAILABLE:
+            self.llm_tokens_total.labels(operation=operation, model=model, type=token_type).inc(count)
+    
+    def record_llm_cache_hit(self, operation: str):
+        """Record LLM cache hit."""
+        if PROMETHEUS_AVAILABLE:
+            self.llm_cache_hits_total.labels(operation=operation).inc()
+    
+    def record_llm_timeout(self, operation: str, model: str):
+        """Record LLM timeout."""
+        if PROMETHEUS_AVAILABLE:
+            self.llm_timeouts_total.labels(operation=operation, model=model).inc()
 
 # Global metrics collector
 _metrics_collector: Optional[MetricsCollector] = None

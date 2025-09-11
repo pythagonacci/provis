@@ -1,11 +1,23 @@
 from __future__ import annotations
+import asyncio
 import json
+import logging
+import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple
 import itertools
 
+logger = logging.getLogger(__name__)
+
 from .llm.client import LLMClient
+from .utils.io import write_json_atomic
+from .config import settings
+from .observability import get_metrics_collector
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 # ---- Capability Defaults & Fallbacks ----
 REQUIRED_KEYS = {
@@ -328,6 +340,74 @@ def _compute_status() -> str:
     # Placeholder heuristic until runtime signals are integrated
     return "healthy"
 
+def _normalize_edges(edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Normalize edges: dedupe, prune self-loops, sort deterministically."""
+    # Remove self-loops (unless explicitly allowed)
+    filtered_edges = []
+    for edge in edges:
+        if edge.get("from") != edge.get("to"):
+            filtered_edges.append(edge)
+    
+    # Deduplicate by (from, to, kind)
+    seen = set()
+    unique_edges = []
+    for edge in filtered_edges:
+        key = (edge.get("from"), edge.get("to"), edge.get("kind"))
+        if key not in seen:
+            seen.add(key)
+            unique_edges.append(edge)
+    
+    # Sort deterministically
+    unique_edges.sort(key=lambda e: (e.get("from", ""), e.get("to", ""), e.get("kind", "")))
+    return unique_edges
+
+def _normalize_paths(paths: List[str]) -> List[str]:
+    """Normalize path arrays: deduplicate and sort."""
+    return sorted(list(set(paths)))
+
+def _validate_references(cap: Dict[str, Any], files_idx: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate that all referenced paths exist in files_idx, mark missing ones."""
+    warnings = []
+    
+    # Validate entryPoints
+    valid_entrypoints = []
+    for ep in cap.get("entryPoints", []):
+        if ep in files_idx:
+            valid_entrypoints.append(ep)
+        else:
+            warnings.append(f"Missing entrypoint: {ep}")
+    cap["entryPoints"] = valid_entrypoints
+    
+    # Validate swimlanes
+    for lane, paths in cap.get("swimlanes", {}).items():
+        valid_paths = []
+        for path in paths:
+            if path in files_idx:
+                valid_paths.append(path)
+            else:
+                warnings.append(f"Missing swimlane path in {lane}: {path}")
+        cap["swimlanes"][lane] = valid_paths
+    
+    # Validate control flow edges
+    valid_edges = []
+    for edge in cap.get("controlFlow", []):
+        from_path = edge.get("from")
+        to_path = edge.get("to")
+        if from_path in files_idx and to_path in files_idx:
+            valid_edges.append(edge)
+        else:
+            if from_path not in files_idx:
+                warnings.append(f"Missing control flow source: {from_path}")
+            if to_path not in files_idx:
+                warnings.append(f"Missing control flow target: {to_path}")
+    cap["controlFlow"] = valid_edges
+    
+    # Add warnings to capability if any
+    if warnings:
+        cap["warnings"] = cap.get("warnings", []) + warnings
+    
+    return cap
+
 
 # ---- IO Helpers ----
 def _repo_paths(base: Path) -> Dict[str, Path]:
@@ -346,8 +426,8 @@ def _read_json(p: Path) -> Dict[str, Any]:
 
 
 def _write_json(p: Path, obj: Any) -> None:
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+    """Write JSON atomically using the same utility as summarizer."""
+    write_json_atomic(p, obj)
 
 
 # ---- Route grouping ----
@@ -516,7 +596,7 @@ SUSPECTS_SCHEMA: Dict[str, Any] = {
 
 
 # ---- LLM wrappers ----
-async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, Any], graph: Dict[str, Any]) -> Dict[str, Any]:
+async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, Any], graph: Dict[str, Any], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
     # Build focused neighbor context around anchors (up to 2 hops)
     files_idx = {f["path"]: f for f in files.get("files", [])}
     resolved_anchors = _resolve_anchor_paths_to_index(anchors, files_idx)
@@ -541,10 +621,18 @@ async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, An
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative, and avoid hallucinations. Always return strict JSON that matches the provided schema."},
         {"role": "user", "content": f"ANCHORS:\n{[a.__dict__ for a in anchors]}\n\nCONTEXT NODES (focused):\n{subset}\n\nRAW EDGES WITHIN CONTEXT (may be incomplete):\n{raw_edges}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes (web|api|workers|other) and propose edges (import|call|http|queue|webhook). Exclude shared infra. RETURN strict JSON per schema."},
     ]
-    try:
-        res = await llm.acomplete_json(messages, EXPANSION_SCHEMA)
-    except Exception:
-        res = {"nodes": [], "edges": []}
+    metrics = get_metrics_collector()
+    start_time = time.time()
+    
+    async with semaphore:
+        try:
+            res = await llm.acomplete_json(messages, EXPANSION_SCHEMA)
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_expand", settings.LLM_MODEL, "success", duration_ms)
+        except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_expand", settings.LLM_MODEL, "error", duration_ms)
+            res = {"nodes": [], "edges": []}
 
     # Fallback: if model returns empty, synthesize from context
     if not res.get("nodes"):
@@ -554,47 +642,111 @@ async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, An
     return res
 
 
-async def _llm_extract_data(llm: LLMClient, nodes: List[Dict[str, Any]]) -> Dict[str, Any]:
+async def _llm_extract_data(llm: LLMClient, nodes: List[Dict[str, Any]], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative. Always return strict JSON that matches the provided schema."},
         {"role": "user", "content": f"NODES:\n{nodes}\n\nTASK:\nIdentify inputs, stores, externals, contracts, policies across these nodes. Include concise 'why' citing which file suggests it. RETURN strict JSON per schema."},
     ]
-    return await llm.acomplete_json(messages, DATA_SCHEMA)
+    
+    metrics = get_metrics_collector()
+    start_time = time.time()
+    
+    async with semaphore:
+        try:
+            result = await llm.acomplete_json(messages, DATA_SCHEMA)
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_data_extract", settings.LLM_MODEL, "success", duration_ms)
+            return result
+        except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_data_extract", settings.LLM_MODEL, "error", duration_ms)
+            raise
 
 
-async def _llm_summarize_file(llm: LLMClient, path: str, lane: Lane, neighbors_in: List[str], neighbors_out: List[str], symbols: Dict[str, Any]) -> str:
+async def _llm_summarize_file(llm: LLMClient, path: str, lane: Lane, neighbors_in: List[str], neighbors_out: List[str], symbols: Dict[str, Any], semaphore: asyncio.Semaphore) -> str:
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Return one or two concise sentences, present tense, no speculation."},
         {"role": "user", "content": f"FILE: {path}\nLANE: {lane}\nNEIGHBORS IN: {neighbors_in}\nNEIGHBORS OUT: {neighbors_out}\nSYMBOLS: {symbols}\nCONSTRAINTS: ≤2 sentences, present tense, no speculation, mention role. RETURN: plain text (≤200 chars)."},
     ]
     # Use JSON mode wrapper to keep caching uniform; wrap text
     schema = {"type": "object", "properties": {"t": {"type": "string"}}, "required": ["t"]}
-    res = await llm.acomplete_json(messages, schema)
-    return str(res.get("t", ""))[:400]
+    
+    metrics = get_metrics_collector()
+    start_time = time.time()
+    
+    async with semaphore:
+        try:
+            res = await llm.acomplete_json(messages, schema)
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_file_summary", settings.LLM_MODEL, "success", duration_ms)
+            return str(res.get("t", ""))[:400]
+        except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_file_summary", settings.LLM_MODEL, "error", duration_ms)
+            raise
 
 
-async def _llm_narrative(llm: LLMClient, name: str, anchors: List[str], lanes: Dict[Lane, List[str]], edges: List[Dict[str, Any]], data: Dict[str, Any]) -> Dict[str, Any]:
+async def _llm_narrative(llm: LLMClient, name: str, anchors: List[str], lanes: Dict[Lane, List[str]], edges: List[Dict[str, Any]], data: Dict[str, Any], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Always return strict JSON that matches the provided schema."},
         {"role": "user", "content": f"CAPABILITY: {name}\nANCHORS: {anchors}\nLANES: {lanes}\nEDGES: {edges}\nDATA: {data}\n\nTASK:\nWrite 6–10 ordered steps (happy path). Add 2–3 edge/failure cases. RETURN as {{steps:[{{label, detail, scenario?}}]}}"},
     ]
-    return await llm.acomplete_json(messages, NARRATIVE_SCHEMA)
+    
+    metrics = get_metrics_collector()
+    start_time = time.time()
+    
+    async with semaphore:
+        try:
+            result = await llm.acomplete_json(messages, NARRATIVE_SCHEMA)
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_narrative", settings.LLM_MODEL, "success", duration_ms)
+            return result
+        except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_narrative", settings.LLM_MODEL, "error", duration_ms)
+            raise
 
 
-async def _llm_touches(llm: LLMClient, data_item: str, nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> Dict[str, Any]:
+async def _llm_touches(llm: LLMClient, data_item: str, nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Always return strict JSON that matches the provided schema."},
         {"role": "user", "content": f"DATA ITEM: {data_item}\nNODES: {nodes}\nEDGES: {edges}\n\nTASK:\nList files that likely READ vs WRITE (or enqueue/consume/call) this item within this capability only. For each, provide {{actorPath, action, via, reason}}. RETURN as TouchesOut."},
     ]
-    return await llm.acomplete_json(messages, TOUCHES_SCHEMA)
+    
+    metrics = get_metrics_collector()
+    start_time = time.time()
+    
+    async with semaphore:
+        try:
+            result = await llm.acomplete_json(messages, TOUCHES_SCHEMA)
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_touches", settings.LLM_MODEL, "success", duration_ms)
+            return result
+        except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_touches", settings.LLM_MODEL, "error", duration_ms)
+            raise
 
 
-async def _llm_suspects(llm: LLMClient, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+async def _llm_suspects(llm: LLMClient, context: Dict[str, Any], semaphore: asyncio.Semaphore) -> List[Dict[str, Any]]:
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Always return strict JSON that matches the provided schema."},
         {"role": "user", "content": f"CONTEXT: {context}\n\nTASK:\nRank top 5 likely-problem files (0..1 score), with brief reason, prioritizing central writers and external callers on critical path. RETURN array of SuspectOut."},
     ]
-    return await llm.acomplete_json(messages, SUSPECTS_SCHEMA)  # type: ignore
+    
+    metrics = get_metrics_collector()
+    start_time = time.time()
+    
+    async with semaphore:
+        try:
+            result = await llm.acomplete_json(messages, SUSPECTS_SCHEMA)
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_suspects", settings.LLM_MODEL, "success", duration_ms)
+            return result  # type: ignore
+        except Exception as e:
+            duration_ms = (time.time() - start_time) * 1000
+            metrics.record_llm_call("capability_suspects", settings.LLM_MODEL, "error", duration_ms)
+            raise
 
 
 def _derive_control_flow_from_graph(nodes: List[Dict[str, Any]], graph: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -765,12 +917,12 @@ def _enrich_policies_contracts_heuristics(policies: List[Dict[str, Any]], contra
 
 
 # ---- Core build ----
-async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dict[str, Any]]:
-    files = _read_json(_repo_paths(base)["files"]) if _repo_paths(base)["files"].exists() else {"files": []}
-    graph = _read_json(_repo_paths(base)["graph"]) if _repo_paths(base)["graph"].exists() else {"edges": []}
+async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[str, Any], repo_dir: Path, anchors: List[Anchor], semaphore: asyncio.Semaphore) -> Tuple[str, Dict[str, Any]]:
+    files = files_payload.get("files", [])
+    graph = graph_payload
 
-    llm = LLMClient(cache_dir=base / "cache_llm")
-    expansion = await _llm_expand(llm, anchors, files, graph)
+    llm = LLMClient(cache_dir=repo_dir / "cache_llm")
+    expansion = await _llm_expand(llm, anchors, files, graph, semaphore)
 
     # Validate graph integrity basics
     node_paths = {n.get("path") for n in expansion.get("nodes", [])}
@@ -780,7 +932,7 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
     if not edges:
         edges = _derive_control_flow_from_graph(expansion.get("nodes", []), graph)
 
-    data = await _llm_extract_data(llm, expansion.get("nodes", []))
+    data = await _llm_extract_data(llm, expansion.get("nodes", []), semaphore)
     
     # Heuristic backfill for data flow if LLM returned sparse results
     data = _backfill_dataflow_heuristics(data, expansion.get("nodes", []), files_idx)
@@ -792,7 +944,7 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
         p = n.get("path")
         neighbors_in = [e.get("from") for e in edges if e.get("to") == p]
         neighbors_out = [e.get("to") for e in edges if e.get("from") == p]
-        text = await _llm_summarize_file(llm, p, n.get("lane", "other"), neighbors_in, neighbors_out, files_idx.get(p, {}).get("symbols", {}))
+        text = await _llm_summarize_file(llm, p, n.get("lane", "other"), neighbors_in, neighbors_out, files_idx.get(p, {}).get("symbols", {}), semaphore)
         summaries_file[p] = text
 
     # Folder rollups: simple heuristic grouping by top folder
@@ -808,10 +960,10 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
     lanes_map: Dict[Lane, List[str]] = _build_swimlanes(expansion.get("nodes", []))
     # Normalize swimlanes to repo-relative paths and ensure all keys exist
     lanes_map = {
-        "web": [ _to_repo_relative(p, base) for p in lanes_map.get("web", []) ],
-        "api": [ _to_repo_relative(p, base) for p in lanes_map.get("api", []) ],
-        "workers": [ _to_repo_relative(p, base) for p in lanes_map.get("workers", []) ],
-        "other": [ _to_repo_relative(p, base) for p in lanes_map.get("other", []) ],
+        "web": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("web", []) ]),
+        "api": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("api", []) ]),
+        "workers": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("workers", []) ]),
+        "other": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("other", []) ]),
     }
     narrative = await _llm_narrative(
         llm,
@@ -820,16 +972,17 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
         lanes=lanes_map,
         edges=edges,
         data=data,
+        semaphore=semaphore,
     )
 
     # Touches
     touches: Dict[str, Any] = {}
     for st in data.get("stores", []):
         di = st.get("name") or st.get("path") or "store"
-        touches[di] = await _llm_touches(llm, di, expansion.get("nodes", []), edges)
+        touches[di] = await _llm_touches(llm, di, expansion.get("nodes", []), edges, semaphore)
     for ex in data.get("externals", []):
         di = ex.get("name") or ex.get("path") or "external"
-        touches[di] = await _llm_touches(llm, di, expansion.get("nodes", []), edges)
+        touches[di] = await _llm_touches(llm, di, expansion.get("nodes", []), edges, semaphore)
 
     # Build UI-aligned fields
     lane_for_path: Dict[str, str] = {}
@@ -837,11 +990,12 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
         for p in paths:
             lane_for_path[p] = lane
     # Normalize edges to repo-relative and enhance kinds
-    edges = [{"from": _to_repo_relative(e["from"], base), "to": _to_repo_relative(e["to"], base), "kind": e.get("kind")} for e in edges]
+    edges = [{"from": _to_repo_relative(e["from"], repo_dir), "to": _to_repo_relative(e["to"], repo_dir), "kind": e.get("kind")} for e in edges]
+    edges = _normalize_edges(edges)  # Dedupe, prune self-loops, sort
     control_flow = _enhance_control_flow(edges, lane_for_path)
 
     # Entrypoints enriched with framework
-    entrypoints = [{"path": _to_repo_relative(a.path, base), "framework": _infer_framework_from_path(a.path), "kind": a.kind} for a in anchors]
+    entrypoints = [{"path": _to_repo_relative(a.path, repo_dir), "framework": _infer_framework_from_path(a.path), "kind": a.kind} for a in anchors]
     entry_points = [e["path"] for e in entrypoints]
 
     # Embed touches/examples in data_flow
@@ -863,9 +1017,9 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
     def _rel_item(it: Dict[str, Any]) -> Dict[str, Any]:
         out = dict(it)
         if out.get("path"):
-            out["path"] = _to_repo_relative(out["path"], base)
+            out["path"] = _to_repo_relative(out["path"], repo_dir)
         if out.get("client"):
-            out["client"] = _to_repo_relative(out["client"], base)
+            out["client"] = _to_repo_relative(out["client"], repo_dir)
         return out
 
     data_flow = {
@@ -894,7 +1048,7 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
             deg[ed["from"]] = deg.get(ed["from"], 0) + 1
             deg[ed["to"]] = deg.get(ed["to"], 0) + 1
         ordered = sorted(deg.items(), key=lambda kv: kv[1], reverse=True)
-        return [p for p, _ in ordered[:6]]
+        return _normalize_paths([p for p, _ in ordered[:6]])
 
     def _derive_data_flow_fields() -> Dict[str, List[str]]:
         """Extract dataIn, dataOut, orchestrators, sources, sinks from capability data."""
@@ -955,7 +1109,7 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
         "purpose": purpose_cap,
         "title": anchors[0].route.strip("/") or "/",
         "status": _compute_status(),
-        "anchors": [{"path": _to_repo_relative(a.path, base), "kind": a.kind, "route": a.route} for a in anchors],
+        "anchors": [{"path": _to_repo_relative(a.path, repo_dir), "kind": a.kind, "route": a.route} for a in anchors],
         # Back-compat fields
         "lanes": {k: [{"path": p} for p in v] for k, v in lanes_map.items()},
         "flow": edges,
@@ -1022,7 +1176,7 @@ async def _build_capability(base: Path, anchors: List[Anchor]) -> Tuple[str, Dic
 
     # Apply comprehensive post-processing
     capability = ensure_capability_defaults(capability)
-    capability = normalize_capability_paths(capability, base)
+    capability = normalize_capability_paths(capability, repo_dir)
     capability = provide_trivial_fallbacks(capability)
     capability = add_camelcase_mirrors(capability)
 
@@ -1086,36 +1240,42 @@ def _derive_routes_from_files(files_payload: Dict[str, Any]) -> List[Dict[str, A
     return out
 
 
-async def build_all_capabilities(base: Path) -> Dict[str, Any]:
-    paths = _repo_paths(base)
-    files = _read_json(paths["files"]) if paths["files"].exists() else {"files": []}
+async def build_all_capabilities(files_payload: Dict[str, Any], graph_payload: Dict[str, Any], repo_dir: Path) -> Dict[str, Any]:
+    """Build all capabilities from files and graph payloads."""
+    files = files_payload.get("files", [])
 
-    # routes.json optional; derive basic anchors from files.hints if missing
-    routes: List[Dict[str, Any]] = []
-    if paths["routes"].exists():
-        routes = _read_json(paths["routes"])  # type: ignore
-    if not routes:
-        routes = _derive_routes_from_files(files)
+    # Derive routes from files.hints
+    routes = _derive_routes_from_files(files)
 
     groups = _group_routes(routes)
+    
+    # Apply budget limit
+    budget = settings.LLM_CAP_BUDGET
+    if len(groups) > budget:
+        groups = groups[:budget]
+        logger.warning(f"Capability count ({len(groups)}) exceeds budget ({budget}), processing first {budget}")
+
+    # Create semaphore for concurrency control
+    semaphore = asyncio.Semaphore(settings.LLM_CONCURRENCY)
 
     index: List[Dict[str, Any]] = []
     by_id: Dict[str, Any] = {}
     for g in groups:
-        cap_id, cap = await _build_capability(base, g)
+        cap_id, cap = await _build_capability(files_payload, graph_payload, repo_dir, g, semaphore)
         by_id[cap_id] = cap
         index.append({
             "id": cap_id, 
-            "name": cap.get("name"),
-            "purpose": cap.get("purpose"),
+            "name": cap.get("name", ""),
+            "purpose": cap.get("purpose", ""),
             "entryPoints": cap.get("entryPoints", []),
             "keyFiles": cap.get("keyFiles", []),
             "dataIn": cap.get("dataIn", []),
             "dataOut": cap.get("dataOut", []),
             "sources": cap.get("sources", []),
             "sinks": cap.get("sinks", []),
-            "anchors": cap.get("anchors"), 
-            "lanes": {k: len(v) for k, v in cap.get("lanes", {}).items()}
+            "anchors": cap.get("anchors", []), 
+            "lanes": {k: len(v) for k, v in cap.get("swimlanes", {}).items()},
+            "status": cap.get("status", "healthy")
         })
 
     # Persist - ensure stable shape for index
@@ -1136,13 +1296,23 @@ async def build_all_capabilities(base: Path) -> Dict[str, Any]:
         }
         stable_index.append(stable_item)
     
-    _write_json(paths["index"], {"index": stable_index})
+    # Write capabilities index
+    index_path = repo_dir / "capabilities" / "index.json"
+    index_path.parent.mkdir(exist_ok=True)
+    _write_json(index_path, {"index": stable_index})
     
     # Write individual capability files with comprehensive defaults
+    files_idx = {f["path"]: f for f in files}
     for cid, cap in by_id.items():
-        _write_capability_with_defaults(base, cap, cid)
+        # Validate references before persisting
+        cap = _validate_references(cap, files_idx)
+        _write_capability_with_defaults(repo_dir, cap, cid)
 
-    return {"index": stable_index}
+    return {
+        "repoId": files_payload.get("repoId", "unknown"),
+        "generatedAt": _now(),
+        "capabilities": stable_index
+    }
 
 
 def list_capabilities_index(base: Path) -> Dict[str, Any]:
