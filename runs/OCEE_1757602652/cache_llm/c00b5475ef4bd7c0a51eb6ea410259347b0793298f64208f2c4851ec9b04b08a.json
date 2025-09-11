@@ -1,0 +1,30 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "backend/app/models/email.py",
+      "reason": "The routers are likely to read the email model to handle email-related requests."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "backend/app/models/email.py",
+      "reason": "The email generation service likely reads the email model to create or manipulate email data."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "backend/app/models/email.py",
+      "reason": "Schemas are typically used to validate or serialize data from models, indicating a read operation."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The email model likely interacts with the database to save or update email records."
+    }
+  ]
+}

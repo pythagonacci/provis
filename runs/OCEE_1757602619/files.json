@@ -1,0 +1,3294 @@
+{
+  "repoId": "OCEE_1757602619",
+  "generatedAt": "2025-09-11T14:57:01.107900+00:00",
+  "summary": {
+    "totalFiles": 42,
+    "languages": {
+      "other": 11,
+      "py": 23,
+      "js": 2,
+      "ts": 6
+    }
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "language": "other",
+      "ext": "",
+      "size": 1199,
+      "lines": 10,
+      "hash": "4fb4ce5fd3165d7f1c7f3f349d2ce4de1e1993c4e6e41a6d6da485931d844b33",
+      "mtime": 1757602619.9014285,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": ".gitignore",
+      "language": "other",
+      "ext": "",
+      "size": 13,
+      "lines": 1,
+      "hash": "5573b9168caf19028ac7eedcf943999f8d923266ec0c26404ef8f5e566353340",
+      "mtime": 1757602619.9015968,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "backend/requirements.txt",
+      "language": "other",
+      "ext": "",
+      "size": 111,
+      "lines": 10,
+      "hash": "5fb86cbc65f9248cb8b5349472eb8db57e28abb8b1502f12f65cd9071124dfa8",
+      "mtime": 1757602619.9002426,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "backend/migrate_add_phone.py",
+      "language": "py",
+      "ext": "",
+      "size": 1080,
+      "lines": 37,
+      "hash": "ec20a7e980071d7ba9e346feb08dab099b26591fc0225be97315208c020bcbe3",
+      "mtime": 1757602619.9012346,
+      "imports": [
+        {
+          "raw": "sqlite3",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "os",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "migrate",
+          "params": [],
+          "decorators": [],
+          "calls": [
+            "print",
+            "cursor",
+            "exists",
+            "close",
+            "execute",
+            "fetchall",
+            "commit",
+            "connect",
+            "rollback"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        }
+      ],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 1 function(s). imports 2 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/config.py",
+      "language": "py",
+      "ext": "",
+      "size": 1576,
+      "lines": 55,
+      "hash": "cbb864dc6dcee04167cf7e0f997b612c417bdbd74dbbc84b6551b179a286c9ad",
+      "mtime": 1757602619.8835058,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "pydantic_settings",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "pydantic",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "Settings",
+          "methods": [
+            "_normalize_storage_dir",
+            "_normalize_base_url",
+            "_normalize_origins"
+          ],
+          "baseClasses": [
+            "BaseSettings"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 4 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/database.py",
+      "language": "py",
+      "ext": "",
+      "size": 504,
+      "lines": 19,
+      "hash": "494ec199f75fda59a9ec46565b224649487aa7a6420dbf430e8852c06e3232e2",
+      "mtime": 1757602619.883704,
+      "imports": [
+        {
+          "raw": "sqlalchemy",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.ext.declarative",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "get_db",
+          "params": [],
+          "decorators": [],
+          "calls": [
+            "close",
+            "SessionLocal"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        }
+      ],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 1 function(s). imports 4 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/__init__.py",
+      "language": "py",
+      "ext": "",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602619.8838403,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/main.py",
+      "language": "py",
+      "ext": "",
+      "size": 2035,
+      "lines": 60,
+      "hash": "4906adc1483052a7e44565e4f910c01a0377fa520f8b80e6a3624f95b48759e5",
+      "mtime": 1757602619.8941333,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "os",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "fastapi",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "fastapi.middleware.cors",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "fastapi.staticfiles",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "routers",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "routers",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "routers",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "healthz",
+          "params": [],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "get"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        }
+      ],
+      "classes": [],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/healthz",
+          "handler": "healthz"
+        }
+      ],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": "fastapi",
+        "isRoute": true,
+        "isReactComponent": false,
+        "isAPI": true
+      },
+      "warnings": [],
+      "blurb": "fastapi route. with 1 function(s). imports 11 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/routers/prospect.py",
+      "language": "py",
+      "ext": "",
+      "size": 2720,
+      "lines": 70,
+      "hash": "ca48a74a837a7df257f1fa1c1eef1a9673525bf9c90cddc7b17a8a3f5dea7fbb",
+      "mtime": 1757602619.8783603,
+      "imports": [
+        {
+          "raw": "fastapi",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "schemas.prospect",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "create_prospect",
+          "params": [
+            "payload",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "add",
+            "Depends",
+            "post",
+            "refresh",
+            "Prospect",
+            "commit",
+            "str",
+            "strip"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "list_prospects",
+          "params": [
+            "db"
+          ],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "Depends",
+            "query",
+            "desc",
+            "all",
+            "get",
+            "order_by"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "get_prospect",
+          "params": [
+            "prospect_id",
+            "db"
+          ],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "HTTPException",
+            "get",
+            "Depends",
+            "query"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "update_prospect",
+          "params": [
+            "prospect_id",
+            "payload",
+            "db"
+          ],
+          "decorators": [
+            "patch"
+          ],
+          "calls": [
+            "patch",
+            "Depends",
+            "query",
+            "refresh",
+            "HTTPException",
+            "commit",
+            "get",
+            "str",
+            "strip"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        }
+      ],
+      "classes": [],
+      "routes": [
+        {
+          "method": "POST",
+          "path": "",
+          "handler": "create_prospect"
+        },
+        {
+          "method": "GET",
+          "path": "",
+          "handler": "list_prospects"
+        },
+        {
+          "method": "GET",
+          "path": "/{prospect_id}",
+          "handler": "get_prospect"
+        },
+        {
+          "method": "PATCH",
+          "path": "/{prospect_id}",
+          "handler": "update_prospect"
+        }
+      ],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": "fastapi",
+        "isRoute": true,
+        "isReactComponent": false,
+        "isAPI": true
+      },
+      "warnings": [],
+      "blurb": "fastapi route. with 4 function(s). imports 6 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/routers/deck.py",
+      "language": "py",
+      "ext": "",
+      "size": 9584,
+      "lines": 289,
+      "hash": "1f61a967104d1026591bc5495054ef1813c6f26d4eec36f84ab92b80a14f5277",
+      "mtime": 1757602619.8787324,
+      "imports": [
+        {
+          "raw": "json",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "fastapi",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "pydantic",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "models.prospect",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "models.deck",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "schemas.deck",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "services.ai",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "services.pdf",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "services.slides",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "generate_deck",
+          "params": [
+            "prospect_id",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "add",
+            "Depends",
+            "generate_deck_content",
+            "Deck",
+            "post",
+            "rstrip",
+            "refresh",
+            "HTTPException",
+            "dumps",
+            "commit",
+            "get",
+            "str"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "get_deck",
+          "params": [
+            "deck_id",
+            "db"
+          ],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "loads",
+            "Depends",
+            "rstrip",
+            "HTTPException",
+            "get"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "update_deck",
+          "params": [
+            "deck_id",
+            "payload",
+            "db"
+          ],
+          "decorators": [
+            "patch"
+          ],
+          "calls": [
+            "validate_and_normalize_slides",
+            "patch",
+            "_truncate",
+            "add",
+            "Depends",
+            "dict",
+            "_strip_markup",
+            "rstrip",
+            "refresh",
+            "HTTPException",
+            "dumps",
+            "commit",
+            "get"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "render_deck",
+          "params": [
+            "deck_id",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "loads",
+            "add",
+            "Depends",
+            "post",
+            "rstrip",
+            "refresh",
+            "HTTPException",
+            "commit",
+            "get",
+            "render_deck_to_pdf",
+            "str"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "get_slide",
+          "params": [
+            "deck_id",
+            "index",
+            "db"
+          ],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "loads",
+            "Depends",
+            "HTTPException",
+            "get",
+            "len"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "patch_slide",
+          "params": [
+            "deck_id",
+            "index",
+            "patch",
+            "db"
+          ],
+          "decorators": [
+            "patch"
+          ],
+          "calls": [
+            "_truncate",
+            "patch",
+            "loads",
+            "Depends",
+            "add",
+            "validate_and_normalize_slides",
+            "update",
+            "rstrip",
+            "_strip_markup",
+            "refresh",
+            "HTTPException",
+            "dumps",
+            "commit",
+            "get",
+            "len"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "ai_edit_slide",
+          "params": [
+            "deck_id",
+            "index",
+            "request",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "loads",
+            "Depends",
+            "add",
+            "edit_deck_slide_content",
+            "post",
+            "rstrip",
+            "refresh",
+            "HTTPException",
+            "dumps",
+            "commit",
+            "get",
+            "str",
+            "len"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "debug_ai_edit_test",
+          "params": [
+            "request",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "type",
+            "Depends",
+            "edit_deck_slide_content",
+            "post",
+            "str",
+            "get"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "SlidePatch",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "SlideAIEditRequest",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/{prospect_id}/generate",
+          "handler": "generate_deck"
+        },
+        {
+          "method": "GET",
+          "path": "/{deck_id}",
+          "handler": "get_deck"
+        },
+        {
+          "method": "PATCH",
+          "path": "/{deck_id}",
+          "handler": "update_deck"
+        },
+        {
+          "method": "POST",
+          "path": "/{deck_id}/render",
+          "handler": "render_deck"
+        },
+        {
+          "method": "GET",
+          "path": "/{deck_id}/slides/{index}",
+          "handler": "get_slide"
+        },
+        {
+          "method": "PATCH",
+          "path": "/{deck_id}/slides/{index}",
+          "handler": "patch_slide"
+        },
+        {
+          "method": "POST",
+          "path": "/{deck_id}/slides/{index}/ai-edit",
+          "handler": "ai_edit_slide"
+        },
+        {
+          "method": "POST",
+          "path": "/debug/ai-edit-test",
+          "handler": "debug_ai_edit_test"
+        }
+      ],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [
+          "SlidePatch",
+          "SlideAIEditRequest"
+        ],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": "fastapi",
+        "isRoute": true,
+        "isReactComponent": false,
+        "isAPI": true
+      },
+      "warnings": [],
+      "blurb": "fastapi route. with 8 function(s). defines 2 Django model(s). imports 13 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/routers/__init__.py",
+      "language": "py",
+      "ext": "",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602619.8791006,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/routers/email.py",
+      "language": "py",
+      "ext": "",
+      "size": 5227,
+      "lines": 152,
+      "hash": "b26f5efdc3fbe70cf60d68f40e46c58b6bb9a2ec797ca070023f1eae1c49884e",
+      "mtime": 1757602619.8833008,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "fastapi",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "pydantic",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "models.prospect",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "models.email",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "schemas.email",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "services.emailgeneration",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "_to_out",
+          "params": [
+            "e"
+          ],
+          "decorators": [],
+          "calls": [
+            "EmailOut"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "generate_email_sequence",
+          "params": [
+            "prospect_id",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "flush",
+            "Depends",
+            "add",
+            "query",
+            "delete",
+            "Email",
+            "filter",
+            "post",
+            "generate_emails",
+            "EmailBatchOut",
+            "HTTPException",
+            "commit",
+            "get",
+            "append",
+            "refresh",
+            "str",
+            "_to_out"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "list_emails_for_prospect",
+          "params": [
+            "prospect_id",
+            "db"
+          ],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "Depends",
+            "query",
+            "filter",
+            "asc",
+            "EmailBatchOut",
+            "all",
+            "get",
+            "order_by",
+            "_to_out"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "get_email",
+          "params": [
+            "email_id",
+            "db"
+          ],
+          "decorators": [
+            "get"
+          ],
+          "calls": [
+            "_to_out",
+            "HTTPException",
+            "get",
+            "Depends"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "update_email",
+          "params": [
+            "email_id",
+            "payload",
+            "db"
+          ],
+          "decorators": [
+            "patch"
+          ],
+          "calls": [
+            "patch",
+            "add",
+            "Depends",
+            "refresh",
+            "HTTPException",
+            "commit",
+            "get",
+            "_to_out",
+            "strip"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "delete_email",
+          "params": [
+            "email_id",
+            "db"
+          ],
+          "decorators": [
+            "delete"
+          ],
+          "calls": [
+            "Depends",
+            "delete",
+            "HTTPException",
+            "commit",
+            "get"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        },
+        {
+          "name": "ai_edit_email",
+          "params": [
+            "email_id",
+            "request",
+            "db"
+          ],
+          "decorators": [
+            "post"
+          ],
+          "calls": [
+            "add",
+            "Depends",
+            "post",
+            "edit_email_content",
+            "refresh",
+            "HTTPException",
+            "commit",
+            "get",
+            "str",
+            "_to_out"
+          ],
+          "sideEffects": [
+            "db"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "EmailAIEditRequest",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        }
+      ],
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/{prospect_id}/generate",
+          "handler": "generate_email_sequence"
+        },
+        {
+          "method": "GET",
+          "path": "/{prospect_id}",
+          "handler": "list_emails_for_prospect"
+        },
+        {
+          "method": "GET",
+          "path": "/item/{email_id}",
+          "handler": "get_email"
+        },
+        {
+          "method": "PATCH",
+          "path": "/item/{email_id}",
+          "handler": "update_email"
+        },
+        {
+          "method": "DELETE",
+          "path": "/item/{email_id}",
+          "handler": "delete_email"
+        },
+        {
+          "method": "POST",
+          "path": "/item/{email_id}/ai-edit",
+          "handler": "ai_edit_email"
+        }
+      ],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [
+          "EmailAIEditRequest"
+        ],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": "fastapi",
+        "isRoute": true,
+        "isReactComponent": false,
+        "isAPI": true
+      },
+      "warnings": [],
+      "blurb": "fastapi route. with 7 function(s). defines 1 Django model(s). imports 10 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/models/prospect.py",
+      "language": "py",
+      "ext": "",
+      "size": 1132,
+      "lines": 31,
+      "hash": "176595ef5c6ac9b6af75b3606eec6f61328b2a5fe6af74fbe6dd8ac595f19532",
+      "mtime": 1757602619.884213,
+      "imports": [
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "datetime",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "Prospect",
+          "methods": [],
+          "baseClasses": [
+            "Base"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 4 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/models/deck.py",
+      "language": "py",
+      "ext": "",
+      "size": 746,
+      "lines": 18,
+      "hash": "fcc46d9ce199d9a3c69d148dee3e31ea0ae6028c25a11e39070d3f5e832ca4b1",
+      "mtime": 1757602619.8844016,
+      "imports": [
+        {
+          "raw": "sqlalchemy",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "datetime",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "Deck",
+          "methods": [],
+          "baseClasses": [
+            "Base"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 4 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/models/__init__.py",
+      "language": "py",
+      "ext": "",
+      "size": 79,
+      "lines": 3,
+      "hash": "1227b3126f772e38b6f0ec4492b9b4cad0583539d5241071f896d1284cf5594d",
+      "mtime": 1757602619.8845854,
+      "imports": [
+        {
+          "raw": "prospect",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "deck",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "email",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/models/email.py",
+      "language": "py",
+      "ext": "",
+      "size": 837,
+      "lines": 22,
+      "hash": "db8a0e8a68f33c457781dad205a8a412b767c0687acbc0cf0e0f4ef48d2d9bb6",
+      "mtime": 1757602619.8875422,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "sqlalchemy.orm",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "database",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "Email",
+          "methods": [],
+          "baseClasses": [
+            "Base"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 4 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/schemas/prospect.py",
+      "language": "py",
+      "ext": "",
+      "size": 962,
+      "lines": 32,
+      "hash": "1c331803936593e138bf3a4d7eba31bd9de510a7677a52433f832b9e4e2480c1",
+      "mtime": 1757602619.890463,
+      "imports": [
+        {
+          "raw": "pydantic",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "ProspectCreate",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "ProspectUpdate",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "ProspectOut",
+          "methods": [],
+          "baseClasses": [
+            "ProspectCreate"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [
+          "ProspectCreate",
+          "ProspectUpdate"
+        ],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. defines 2 Django model(s). imports 2 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/schemas/deck.py",
+      "language": "py",
+      "ext": "",
+      "size": 764,
+      "lines": 34,
+      "hash": "11ad39922f476b0e3cf4f20d2c66055bbbe9c3825e097ff8e592285e6a47d6a1",
+      "mtime": 1757602619.890667,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "pydantic",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "Slide",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "DeckOut",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "SlideIn",
+          "methods": [
+            "_ensure_list"
+          ],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "DeckUpdate",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [
+          "Slide",
+          "DeckOut",
+          "SlideIn",
+          "DeckUpdate"
+        ],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. defines 4 Django model(s). imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/schemas/__init__.py",
+      "language": "py",
+      "ext": "",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602619.8908103,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/schemas/email.py",
+      "language": "py",
+      "ext": "",
+      "size": 908,
+      "lines": 36,
+      "hash": "7443c066e636f4b6402df071b87eaa36c73b2010634d0616f8135fb7f41e12d8",
+      "mtime": 1757602619.8934898,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "pydantic",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [],
+      "classes": [
+        {
+          "name": "EmailOut",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "EmailIn",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "EmailUpdate",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "EmailBatchOut",
+          "methods": [],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        },
+        {
+          "name": "ProspectContext",
+          "methods": [
+            "coerce_str"
+          ],
+          "baseClasses": [
+            "BaseModel"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [
+          "EmailOut",
+          "EmailIn",
+          "EmailUpdate",
+          "EmailBatchOut",
+          "ProspectContext"
+        ],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. defines 5 Django model(s). imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/templates/deck.html",
+      "language": "other",
+      "ext": "",
+      "size": 3833,
+      "lines": 155,
+      "hash": "002ca261b89b7f2f890f4638dd3dd7baaecc5f1a9017bc79ca477f6a35151740",
+      "mtime": 1757602619.893901,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "backend/app/services/emailgeneration.py",
+      "language": "py",
+      "ext": "",
+      "size": 7608,
+      "lines": 160,
+      "hash": "fa3e25cac6cce7fb36098a3d733432c7054960d4d853d3654d47cc69f7108225",
+      "mtime": 1757602619.894709,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "json",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "logging",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "_openai_json_response",
+          "params": [
+            "prompt"
+          ],
+          "decorators": [],
+          "calls": [
+            "loads",
+            "EmailAIUnavailableError",
+            "_stub_response",
+            "OpenAI",
+            "info",
+            "create"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        },
+        {
+          "name": "_stub_response",
+          "params": [
+            "prompt"
+          ],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "io"
+          ]
+        },
+        {
+          "name": "_coalesce",
+          "params": [
+            "v",
+            "default"
+          ],
+          "decorators": [],
+          "calls": [
+            "isinstance",
+            "strip"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        },
+        {
+          "name": "generate_emails",
+          "params": [
+            "prospect"
+          ],
+          "decorators": [],
+          "calls": [
+            "replace",
+            "EmailAIFormatError",
+            "_coalesce",
+            "_openai_json_response",
+            "dumps",
+            "get",
+            "append",
+            "strip"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "EmailAIUnavailableError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        },
+        {
+          "name": "EmailAIFormatError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 4 function(s). imports 5 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/services/ai.py",
+      "language": "py",
+      "ext": "",
+      "size": 18481,
+      "lines": 336,
+      "hash": "bf03ff017ca2df9c5f60b59e11f85618bf5dc9715f5cca5244dd7f6296d373a7",
+      "mtime": 1757602619.8950021,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "json",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "logging",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "_strip_markup",
+          "params": [
+            "text"
+          ],
+          "decorators": [],
+          "calls": [
+            "str",
+            "sub",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "_truncate",
+          "params": [
+            "text",
+            "max_chars"
+          ],
+          "decorators": [],
+          "calls": [
+            "rstrip",
+            "len",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "_coerce_bullets",
+          "params": [
+            "value"
+          ],
+          "decorators": [],
+          "calls": [
+            "split",
+            "_truncate",
+            "isinstance",
+            "_strip_markup",
+            "append",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "_normalize_deck_obj",
+          "params": [
+            "obj"
+          ],
+          "decorators": [],
+          "calls": [
+            "_truncate",
+            "isinstance",
+            "_strip_markup",
+            "_coerce_bullets",
+            "get",
+            "append"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "_openai_json_response",
+          "params": [
+            "prompt"
+          ],
+          "decorators": [],
+          "calls": [
+            "loads",
+            "AIUnavailableError",
+            "getattr",
+            "OpenAI",
+            "info",
+            "create"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "generate_deck_content",
+          "params": [
+            "prospect"
+          ],
+          "decorators": [],
+          "calls": [
+            "enumerate",
+            "_normalize_deck_obj",
+            "_openai_json_response",
+            "dumps",
+            "get",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "edit_deck_slide_content",
+          "params": [
+            "current_slide",
+            "user_prompt",
+            "prospect",
+            "slide_index"
+          ],
+          "decorators": [],
+          "calls": [
+            "error",
+            "_truncate",
+            "isinstance",
+            "_openai_json_response",
+            "_strip_markup",
+            "dumps",
+            "_coerce_bullets",
+            "get",
+            "AIFormatError",
+            "len"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "edit_email_content",
+          "params": [
+            "current_subject",
+            "current_body",
+            "user_prompt",
+            "prospect",
+            "sequence_index"
+          ],
+          "decorators": [],
+          "calls": [
+            "error",
+            "_truncate",
+            "isinstance",
+            "_openai_json_response",
+            "_strip_markup",
+            "dumps",
+            "get",
+            "AIFormatError",
+            "strip"
+          ],
+          "sideEffects": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "AIUnavailableError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        },
+        {
+          "name": "AIFormatError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 8 function(s). imports 5 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/services/__init__.py",
+      "language": "py",
+      "ext": "",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602619.8951514,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/services/pdf.py",
+      "language": "py",
+      "ext": "",
+      "size": 2704,
+      "lines": 67,
+      "hash": "c3ff6c6a7928b4f2be0343fe8922b60ed6361ff79a4d67bc977ae2f75e280cf7",
+      "mtime": 1757602619.8953896,
+      "imports": [
+        {
+          "raw": "__future__",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "os",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "jinja2",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "weasyprint",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "utils",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "_resolve_generated_dir",
+          "params": [],
+          "decorators": [],
+          "calls": [
+            "isabs",
+            "abspath",
+            "join",
+            "rstrip"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        },
+        {
+          "name": "render_deck_to_pdf",
+          "params": [
+            "slides",
+            "deck_title",
+            "out_dir"
+          ],
+          "decorators": [],
+          "calls": [
+            "_resolve_generated_dir",
+            "join",
+            "exists",
+            "get_template",
+            "HTML",
+            "slugify",
+            "makedirs",
+            "FileIOError",
+            "TemplateError",
+            "RenderError",
+            "render",
+            "write_pdf"
+          ],
+          "sideEffects": [
+            "io"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "TemplateError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        },
+        {
+          "name": "RenderError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        },
+        {
+          "name": "FileIOError",
+          "methods": [],
+          "baseClasses": [
+            "Exception"
+          ]
+        }
+      ],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 2 function(s). imports 7 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/services/utils.py",
+      "language": "py",
+      "ext": "",
+      "size": 371,
+      "lines": 11,
+      "hash": "edbcd5a30fcf2dfc317dadfd40b1016382beafb47ece5c72dfb992df6271d3a9",
+      "mtime": 1757602619.8998654,
+      "imports": [
+        {
+          "raw": "re",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "unicodedata",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "datetime",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "slugify",
+          "params": [
+            "value"
+          ],
+          "decorators": [],
+          "calls": [
+            "sub",
+            "normalize",
+            "lower",
+            "encode",
+            "decode",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "now_iso",
+          "params": [],
+          "decorators": [],
+          "calls": [
+            "utcnow",
+            "isoformat"
+          ],
+          "sideEffects": []
+        }
+      ],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 2 function(s). imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/app/services/slides.py",
+      "language": "py",
+      "ext": "",
+      "size": 1270,
+      "lines": 31,
+      "hash": "04971e88d1d8e07fd8c571b74af1f2de600e618a39b9b43a1c1b6c6582048eed",
+      "mtime": 1757602619.900056,
+      "imports": [
+        {
+          "raw": "typing",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "re",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        },
+        {
+          "raw": "config",
+          "resolved": null,
+          "external": true,
+          "kind": "py"
+        }
+      ],
+      "exports": [],
+      "functions": [
+        {
+          "name": "_strip_markup",
+          "params": [
+            "text"
+          ],
+          "decorators": [],
+          "calls": [
+            "str",
+            "sub",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "_truncate",
+          "params": [
+            "text",
+            "max_chars"
+          ],
+          "decorators": [],
+          "calls": [
+            "rstrip",
+            "len",
+            "strip"
+          ],
+          "sideEffects": []
+        },
+        {
+          "name": "validate_and_normalize_slides",
+          "params": [
+            "slides"
+          ],
+          "decorators": [],
+          "calls": [
+            "_truncate",
+            "isinstance",
+            "_strip_markup",
+            "get",
+            "append"
+          ],
+          "sideEffects": []
+        }
+      ],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. with 3 function(s). imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "backend/static/init",
+      "language": "other",
+      "ext": "",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602619.9005158,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/postcss.config.mjs",
+      "language": "js",
+      "ext": "",
+      "size": 81,
+      "lines": 5,
+      "hash": "141ef24ca27a99d08962210fdf20212d3435fdcfa21b46cd88b44d22f751dfae",
+      "mtime": 1757602619.9020672,
+      "imports": [],
+      "exports": [
+        "default"
+      ],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/next-env.d.ts",
+      "language": "ts",
+      "ext": "",
+      "size": 211,
+      "lines": 5,
+      "hash": "f2b3bca04d1bfe583daae1e1f798c92ec24bb6693bd88d0a09ba6802dee362a8",
+      "mtime": 1757602619.9025059,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/README.md",
+      "language": "other",
+      "ext": "",
+      "size": 1450,
+      "lines": 36,
+      "hash": "60b55ff7df79af72590f9524208e46642bc32bdc175cdad41349681c0e2f958f",
+      "mtime": 1757602619.902688,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/.gitignore",
+      "language": "other",
+      "ext": "",
+      "size": 480,
+      "lines": 41,
+      "hash": "207e265ff4901f9ad9f96d8ce08530e04f9fc600815472a66d0a446096d654cd",
+      "mtime": 1757602619.9032278,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/package-lock.json",
+      "language": "other",
+      "ext": "",
+      "size": 221925,
+      "lines": 6396,
+      "hash": "361a9647191c33c655ea1de154a8e09d854c0d3d388926b743e8b756d89c9977",
+      "mtime": 1757602619.9038377,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/package.json",
+      "language": "other",
+      "ext": "",
+      "size": 669,
+      "lines": 30,
+      "hash": "59371dfe34a04f59fef0c99ea76bee866dd8ccb764358e84bb17d2234fcd7258",
+      "mtime": 1757602619.9040563,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/tsconfig.json",
+      "language": "other",
+      "ext": "",
+      "size": 602,
+      "lines": 27,
+      "hash": "83d292a6930a317ea31ef48e220097d2ca10c6c505f41d5954795acef48ca3b9",
+      "mtime": 1757602619.9042406,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/eslint.config.mjs",
+      "language": "js",
+      "ext": "",
+      "size": 393,
+      "lines": 16,
+      "hash": "3de4ba23ff1f687685651cad622700613998de80daa30ac4d82c47776a04019d",
+      "mtime": 1757602619.904423,
+      "imports": [
+        {
+          "raw": "path",
+          "kind": "esm"
+        },
+        {
+          "raw": "url",
+          "kind": "esm"
+        },
+        {
+          "raw": "@eslint/eslintrc",
+          "kind": "esm"
+        }
+      ],
+      "exports": [
+        "default"
+      ],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/next.config.ts",
+      "language": "ts",
+      "ext": "",
+      "size": 133,
+      "lines": 7,
+      "hash": "614bce25b089c3f19b1e17a6346c74b858034040154c6621e7d35303004767cc",
+      "mtime": 1757602619.9046023,
+      "imports": [
+        {
+          "raw": "next",
+          "kind": "esm"
+        }
+      ],
+      "exports": [
+        "default"
+      ],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file. imports 1 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/src/types.ts",
+      "language": "ts",
+      "ext": "",
+      "size": 812,
+      "lines": 35,
+      "hash": "1bd2fa91776d3fae71e38a0a2879319fa0c17ac5d49adaa1b12c55eb3fce4d52",
+      "mtime": 1757602619.9060035,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/src/app/layout.tsx",
+      "language": "ts",
+      "ext": "",
+      "size": 324,
+      "lines": 14,
+      "hash": "f7f47f65ab000db910b5a147da23461abab11f99b071cb5877e98051b53b7a9a",
+      "mtime": 1757602619.9053564,
+      "imports": [
+        {
+          "raw": "./globals.css",
+          "kind": "esm"
+        },
+        {
+          "raw": "next",
+          "kind": "esm"
+        }
+      ],
+      "exports": [
+        "default"
+      ],
+      "functions": [
+        {
+          "name": "RootLayout",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        }
+      ],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": "nextjs",
+        "isRoute": true,
+        "isReactComponent": true,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "nextjs route. with 1 function(s). imports 2 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/src/app/page.tsx",
+      "language": "ts",
+      "ext": "",
+      "size": 41334,
+      "lines": 983,
+      "hash": "8cfa15ce3da2bbab33e15b6cab30e6865d9bf86381e9a45d2f8911be0bff56b6",
+      "mtime": 1757602619.9056208,
+      "imports": [
+        {
+          "raw": "react",
+          "kind": "esm"
+        },
+        {
+          "raw": "../lib/api",
+          "kind": "esm"
+        },
+        {
+          "raw": "../types",
+          "kind": "esm"
+        }
+      ],
+      "exports": [
+        "default"
+      ],
+      "functions": [
+        {
+          "name": "Page",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleCreateProspect",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleEditProspect",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleUpdateProspect",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleGenerateDeck",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleRenderAndDownload",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleRefreshPdf",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleOpenDeck",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleOpenEmail",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "toggleEmailSent",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleGenerateEmails",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "selectEmail",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "DeckEditor",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "save",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleAIEdit",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "EmailEditor",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "save",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        },
+        {
+          "name": "handleAIEdit",
+          "params": [],
+          "decorators": [],
+          "calls": [],
+          "sideEffects": [
+            "render"
+          ]
+        }
+      ],
+      "classes": [],
+      "routes": [
+        {
+          "method": "GET",
+          "path": "/",
+          "handler": "default"
+        }
+      ],
+      "symbols": {
+        "constants": [],
+        "hooks": [
+          "useState",
+          "useEffect",
+          "useMemo"
+        ],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": "nextjs",
+        "isRoute": true,
+        "isReactComponent": true,
+        "isAPI": false,
+        "isClientComponent": true
+      },
+      "warnings": [],
+      "blurb": "nextjs route. with 18 function(s). imports 3 external module(s).",
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "path": "offdeal-frontend/src/app/globals.css",
+      "language": "other",
+      "ext": "",
+      "size": 2408,
+      "lines": 128,
+      "hash": "2ab6c631cbd7a617b4bf441b1f19c465799f92833058e0fd489d0df0391a6867",
+      "mtime": 1757602619.9058166,
+      "imports": [],
+      "exports": [],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {},
+      "warnings": [
+        "Schema validation failed: 1 validation error for FileNodeModel\nlanguage\n  Input should be 'js', 'ts' or 'py' [type=literal_error, input_value='other', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/literal_error"
+      ],
+      "blurb": "Invalid file entry",
+      "skipped": true,
+      "skipReason": "validation_failed"
+    },
+    {
+      "path": "offdeal-frontend/src/lib/api.ts",
+      "language": "ts",
+      "ext": "",
+      "size": 3034,
+      "lines": 96,
+      "hash": "91e09c0b8d4869a95889089a058eead203a4cfb1b1ad9550fe7435036c325804",
+      "mtime": 1757602619.906321,
+      "imports": [],
+      "exports": [
+        "named"
+      ],
+      "functions": [],
+      "classes": [],
+      "routes": [],
+      "symbols": {
+        "constants": [],
+        "hooks": [],
+        "dbModels": [],
+        "middleware": [],
+        "components": [],
+        "utilities": []
+      },
+      "hints": {
+        "framework": null,
+        "isRoute": false,
+        "isReactComponent": false,
+        "isAPI": false
+      },
+      "warnings": [],
+      "blurb": "file.",
+      "skipped": false,
+      "skipReason": null
+    }
+  ],
+  "warnings": []
+}

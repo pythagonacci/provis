@@ -1,0 +1,30 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "models.email",
+      "reason": "The router is likely to call the email model for handling email-related operations."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "models.email",
+      "reason": "The schema is likely to read from the email model to validate or serialize email data."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "models.email",
+      "reason": "The service is likely to read from the email model to generate email content."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "The model is likely to write to the database using SQLAlchemy ORM."
+    }
+  ]
+}

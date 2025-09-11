@@ -1,0 +1,3 @@
+{
+  "_raw": "The `services.emailgeneration` module handles the generation of email content. It interacts with the `backend/app/routers/email.py` for routing email-related requests."
+}

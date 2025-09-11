@@ -1,0 +1,17 @@
+{
+  "title": "Page Component in Next.js",
+  "purpose": "This file defines a client-side page component for a Next.js application, serving as a route that renders UI elements based on state and effects.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "react",
+    "../lib/api",
+    "../types"
+  ],
+  "how_to_modify": "To modify this file, focus on the hooks (useState, useEffect, useMemo) to manage state and side effects. You can also adjust the rendering logic based on the component's state.",
+  "risks": "Be cautious when modifying state management logic as it can lead to unexpected UI behavior. Ensure that any changes to external dependencies are compatible with the existing code.",
+  "blurb": "This is your go-to page component for rendering dynamic content in a Next.js app. It interacts with React hooks to manage state and lifecycle events.",
+  "dev_summary": "Defines a client-side page component in Next.js. Utilizes React hooks for state and effects. No direct API interactions; relies on external modules for data types and API calls.",
+  "vibecoder_summary": "Imagine this file as a stage where actors (UI elements) perform based on the script (state) and director's cues (effects). Tweak the script to change the performance, but be careful not to confuse the actors!",
+  "edit_points": "Focus on the useState and useEffect hooks for managing component behavior. Consider how changes might affect the overall user experience."
+}

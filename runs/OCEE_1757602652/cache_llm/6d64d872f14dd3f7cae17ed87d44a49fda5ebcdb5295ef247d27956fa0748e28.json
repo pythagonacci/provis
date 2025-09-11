@@ -1,0 +1,95 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/config.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Configuration settings are often read from the database."
+    },
+    {
+      "actorPath": "backend/app/main.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Main application logic may read from the database for initialization."
+    },
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Router logic may read from the database to handle requests."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Router logic may read from the database to handle requests."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Router logic may read from the database to handle requests."
+    },
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Model logic may read from the database for data representation."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Model logic may read from the database for data representation."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Model logic may read from the database for data representation."
+    },
+    {
+      "actorPath": "backend/app/schemas/prospect.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Schema validation may require reading from the database."
+    },
+    {
+      "actorPath": "backend/app/schemas/deck.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Schema validation may require reading from the database."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Schema validation may require reading from the database."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Service logic may read from the database to generate emails."
+    },
+    {
+      "actorPath": "backend/app/services/ai.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "AI services may read from the database for data processing."
+    },
+    {
+      "actorPath": "backend/app/services/pdf.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "PDF generation may require reading from the database."
+    },
+    {
+      "actorPath": "backend/app/services/slides.py",
+      "action": "call",
+      "via": "backend/app/database.py",
+      "reason": "Slide generation may require reading from the database."
+    }
+  ],
+  "writes": []
+}

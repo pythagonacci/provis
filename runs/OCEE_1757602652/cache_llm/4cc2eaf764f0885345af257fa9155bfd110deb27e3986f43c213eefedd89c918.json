@@ -1,0 +1,3 @@
+{
+  "_raw": "The `deck.py` file in the backend routers manages API routes related to slide operations. It interacts with FastAPI, the database, and configuration settings while utilizing the `SlidePatch` and `SlideAIEditRequest` models."
+}

@@ -1,0 +1,3 @@
+{
+  "_raw": "The `services.ai` file contains AI-related service functions. It interacts with the `backend/app/routers/deck.py` file but does not have any outgoing dependencies."
+}

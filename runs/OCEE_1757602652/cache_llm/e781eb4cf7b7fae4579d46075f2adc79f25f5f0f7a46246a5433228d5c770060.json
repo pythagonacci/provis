@@ -1,0 +1,29 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "This router handles requests related to prospects, utilizing FastAPI for routing."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "This router handles requests related to decks, utilizing FastAPI for routing."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "This router handles requests related to emails, utilizing FastAPI for routing."
+    },
+    {
+      "actorPath": "backend/app/main.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "Main application file initializes FastAPI."
+    }
+  ],
+  "writes": []
+}

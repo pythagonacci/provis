@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from app.config import settings
 from openai import AsyncOpenAI
+from openai import APIError
 
 class LLMClient:
     """Async OpenAI client with simple on-disk caching and concurrency."""
@@ -15,6 +16,8 @@ class LLMClient:
         if not settings.OPENAI_API_KEY:
             raise RuntimeError("OPENAI_API_KEY is not set")
         self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        # Expose model for metrics callers
+        self.model = settings.LLM_MODEL
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._sem = asyncio.Semaphore(settings.LLM_CONCURRENCY)
@@ -67,15 +70,34 @@ class LLMClient:
                         response_format={"type": "json_object"},
                         messages=messages,
                     ),
-                    timeout=30.0  # 30 second timeout
+                    timeout=30.0
                 )
-            except asyncio.TimeoutError:
-                raise Exception("LLM request timed out after 30 seconds")
-            text = res.choices[0].message.content
-            try:
-                payload = json.loads(text)
-            except Exception:
-                payload = {"_raw": text}
+                text = res.choices[0].message.content
+                try:
+                    payload = json.loads(text)
+                except Exception:
+                    payload = {"_raw": text}
+            except Exception as e:
+                # Fallback: some models require the word 'json' or disallow response_format.
+                # Retry without response_format if we hit a validation error.
+                msg = str(e)
+                if "must contain the word 'json'" in msg or "response_format" in msg or "invalid_request_error" in msg:
+                    res = await asyncio.wait_for(
+                        self.client.chat.completions.create(
+                            model=model,
+                            temperature=settings.LLM_TEMPERATURE,
+                            max_tokens=settings.LLM_MAX_TOKENS,
+                            messages=messages,
+                        ),
+                        timeout=30.0
+                    )
+                    text = res.choices[0].message.content
+                    try:
+                        payload = json.loads(text)
+                    except Exception:
+                        payload = {"_raw": text}
+                else:
+                    raise
 
         await self._write_cache(ck, payload)
         return payload

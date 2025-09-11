@@ -1,0 +1,54 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "read",
+      "via": "schemas.prospect",
+      "reason": "The router likely reads the prospect schema to handle incoming requests."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "read",
+      "via": "models.prospect",
+      "reason": "The deck router may read the prospect model to include prospect data in deck responses."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "read",
+      "via": "models.prospect",
+      "reason": "The email router likely reads the prospect model to generate emails related to prospects."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "read",
+      "via": "models.prospect",
+      "reason": "The deck model may read the prospect model to establish relationships or data integrity."
+    },
+    {
+      "actorPath": "backend/app/schemas/prospect.py",
+      "action": "read",
+      "via": "pydantic",
+      "reason": "The prospect schema reads from Pydantic to validate incoming data."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "write",
+      "via": "sqlalchemy.orm",
+      "reason": "The prospect model likely writes to the database using SQLAlchemy ORM."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "write",
+      "via": "models.prospect",
+      "reason": "The email generation service may write prospect data to create personalized emails."
+    },
+    {
+      "actorPath": "backend/app/services/ai.py",
+      "action": "write",
+      "via": "models.prospect",
+      "reason": "The AI service may write or update prospect data based on analysis."
+    }
+  ]
+}

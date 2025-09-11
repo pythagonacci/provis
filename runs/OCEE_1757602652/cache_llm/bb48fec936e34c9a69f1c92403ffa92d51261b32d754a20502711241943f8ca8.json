@@ -1,0 +1,3 @@
+{
+  "_raw": "The `deck.py` file defines the data models for the application using SQLAlchemy. It serves as a key component for database interactions within the backend."
+}

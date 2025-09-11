@@ -6,7 +6,7 @@ import zipfile
 import tempfile
 import logging
 from pathlib import Path
-from typing import Iterator, Tuple
+from typing import Iterator, Tuple, Optional
 import shutil
 
 logger = logging.getLogger(__name__)

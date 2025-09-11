@@ -1,0 +1,3 @@
+{
+  "_raw": "The `pdf.py` service in the backend handles PDF generation and manipulation. It imports typing and config modules for type annotations and configuration settings."
+}

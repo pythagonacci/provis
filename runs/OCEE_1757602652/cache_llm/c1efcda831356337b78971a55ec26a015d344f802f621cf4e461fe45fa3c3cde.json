@@ -1,0 +1,23 @@
+{
+  "read": [
+    {
+      "actorPath": "offdeal-frontend/src/app/page.tsx",
+      "action": "call",
+      "via": "react",
+      "reason": "The page component likely uses React for rendering."
+    },
+    {
+      "actorPath": "offdeal-frontend/src/app/page.tsx",
+      "action": "call",
+      "via": "../lib/api",
+      "reason": "The page component likely fetches data from the API."
+    },
+    {
+      "actorPath": "offdeal-frontend/src/app/page.tsx",
+      "action": "call",
+      "via": "../types",
+      "reason": "The page component likely uses types for TypeScript definitions."
+    }
+  ],
+  "write": []
+}

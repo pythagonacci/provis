@@ -1,0 +1,3 @@
+{
+  "_raw": "The `fastapi.staticfiles` module serves static files in a FastAPI application. It provides functionality to configure and manage static file serving efficiently."
+}

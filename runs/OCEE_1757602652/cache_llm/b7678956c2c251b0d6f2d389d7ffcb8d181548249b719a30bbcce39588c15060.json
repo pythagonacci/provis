@@ -1,0 +1,78 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "read",
+      "via": "database",
+      "reason": "The router accesses the database for prospect data."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "read",
+      "via": "database",
+      "reason": "The router accesses the database for deck data."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "read",
+      "via": "database",
+      "reason": "The router accesses the database for email data."
+    },
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "read",
+      "via": "database",
+      "reason": "The model reads from the database to retrieve prospect information."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "read",
+      "via": "database",
+      "reason": "The model reads from the database to retrieve deck information."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "read",
+      "via": "database",
+      "reason": "The model reads from the database to retrieve email information."
+    },
+    {
+      "actorPath": "backend/app/schemas/prospect.py",
+      "action": "read",
+      "via": "pydantic",
+      "reason": "The schema reads from the database to validate prospect data."
+    },
+    {
+      "actorPath": "backend/app/schemas/deck.py",
+      "action": "read",
+      "via": "pydantic",
+      "reason": "The schema reads from the database to validate deck data."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "read",
+      "via": "pydantic",
+      "reason": "The schema reads from the database to validate email data."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "write",
+      "via": "database",
+      "reason": "The model writes to the database to store prospect information."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "write",
+      "via": "database",
+      "reason": "The model writes to the database to store deck information."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "write",
+      "via": "database",
+      "reason": "The model writes to the database to store email information."
+    }
+  ]
+}

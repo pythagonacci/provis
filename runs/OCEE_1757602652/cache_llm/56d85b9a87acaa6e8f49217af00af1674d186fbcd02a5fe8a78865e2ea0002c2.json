@@ -1,0 +1,17 @@
+{
+  "title": "Deck Schema Definition",
+  "purpose": "Defines data structures for deck-related entities using Pydantic for data validation and settings management.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "__future__",
+    "typing",
+    "pydantic"
+  ],
+  "how_to_modify": "To modify the schema, add or update Pydantic models to define new data structures or validation rules. Ensure to maintain type hints for clarity and validation.",
+  "risks": "Improper modifications may lead to validation errors or unexpected behavior in data handling. Ensure that any changes are tested thoroughly.",
+  "blurb": "This file is like a blueprint for decks, ensuring that all deck data is structured and validated before use.",
+  "dev_summary": "Defines Pydantic models for deck schemas. No functions or classes are defined yet. Ensure type hints are used for clarity.",
+  "vibecoder_summary": "Imagine this file as a recipe book for decks, where each recipe (schema) tells you exactly what ingredients (data) you need and how to mix them (validate) to create the perfect deck!",
+  "edit_points": "Look for areas where new Pydantic models can be added or existing ones can be modified to enhance data validation."
+}

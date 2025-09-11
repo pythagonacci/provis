@@ -1,0 +1,3 @@
+{
+  "_raw": "The `services.slides` file handles slide-related functionalities within the application. It interacts with the `deck.py` router for backend operations."
+}

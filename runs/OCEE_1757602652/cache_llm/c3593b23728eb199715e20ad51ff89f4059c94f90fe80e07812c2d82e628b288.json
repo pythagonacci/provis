@@ -1,0 +1,97 @@
+{
+  "inputs": [
+    {
+      "path": "backend/app/routers/email.py",
+      "description": "Handles incoming email requests.",
+      "why": "This file defines routes that accept email data as input."
+    },
+    {
+      "path": "backend/app/routers/prospect.py",
+      "description": "Handles incoming prospect data.",
+      "why": "This file defines routes that accept prospect information."
+    },
+    {
+      "path": "backend/app/routers/deck.py",
+      "description": "Handles incoming deck data.",
+      "why": "This file defines routes that accept deck-related requests."
+    }
+  ],
+  "stores": [
+    {
+      "path": "backend/app/database.py",
+      "description": "Manages database connections and queries.",
+      "why": "This file is responsible for interacting with the database to store and retrieve data."
+    },
+    {
+      "path": "backend/app/models/email.py",
+      "description": "Defines the Email model for database storage.",
+      "why": "This file represents the structure of email data in the database."
+    },
+    {
+      "path": "backend/app/models/prospect.py",
+      "description": "Defines the Prospect model for database storage.",
+      "why": "This file represents the structure of prospect data in the database."
+    },
+    {
+      "path": "backend/app/models/deck.py",
+      "description": "Defines the Deck model for database storage.",
+      "why": "This file represents the structure of deck data in the database."
+    }
+  ],
+  "externals": [
+    {
+      "path": "fastapi",
+      "description": "Web framework for building APIs.",
+      "why": "This library is used to create the web server and handle requests."
+    },
+    {
+      "path": "fastapi.middleware.cors",
+      "description": "Handles Cross-Origin Resource Sharing.",
+      "why": "This middleware is used to manage CORS settings for the API."
+    },
+    {
+      "path": "fastapi.staticfiles",
+      "description": "Serves static files.",
+      "why": "This module is used to serve static assets in the application."
+    },
+    {
+      "path": "os",
+      "description": "Provides a way of using operating system dependent functionality.",
+      "why": "This module is used for file and directory operations."
+    }
+  ],
+  "contracts": [
+    {
+      "path": "backend/app/schemas/email.py",
+      "description": "Defines the schema for email data validation.",
+      "why": "This file specifies the expected structure of email data for API requests."
+    },
+    {
+      "path": "backend/app/schemas/deck.py",
+      "description": "Defines the schema for deck data validation.",
+      "why": "This file specifies the expected structure of deck data for API requests."
+    }
+  ],
+  "policies": [
+    {
+      "path": "backend/app/services/emailgeneration.py",
+      "description": "Contains policies for generating email content.",
+      "why": "This file defines the rules and logic for creating email messages."
+    },
+    {
+      "path": "backend/app/services/ai.py",
+      "description": "Implements AI-related policies.",
+      "why": "This file contains logic for AI functionalities within the application."
+    },
+    {
+      "path": "backend/app/services/pdf.py",
+      "description": "Handles PDF generation policies.",
+      "why": "This file defines the rules for creating and managing PDF documents."
+    },
+    {
+      "path": "backend/app/services/slides.py",
+      "description": "Manages slide generation policies.",
+      "why": "This file contains logic for creating slide presentations."
+    }
+  ]
+}

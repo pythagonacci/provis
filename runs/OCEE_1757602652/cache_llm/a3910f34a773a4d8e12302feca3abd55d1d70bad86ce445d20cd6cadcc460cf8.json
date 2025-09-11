@@ -1,0 +1,16 @@
+{
+  "title": "Migration Script for Adding Phone Field",
+  "purpose": "This script is designed to handle database migrations, specifically adding a phone number field to an existing database schema.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "sqlite3",
+    "os"
+  ],
+  "how_to_modify": "To modify this script, you can add new migration steps or adjust existing ones. Ensure that any changes to the database schema are reflected in the migration logic.",
+  "risks": "Modifying the migration logic without proper testing may lead to data loss or corruption. Always back up your database before running migrations.",
+  "blurb": "Think of this script as a bridge that helps your database evolve by adding new features, like a phone number field, without losing any of its existing treasures.",
+  "dev_summary": "This script facilitates database migrations using SQLite. It currently lacks defined functions or classes, indicating it may be a simple script. Be cautious with schema changes.",
+  "vibecoder_summary": "Imagine your database is a garden, and this script is a gardener adding new plants (phone fields) to make it more beautiful. Just be careful not to pull out any of the old plants while you're at it!",
+  "edit_points": []
+}

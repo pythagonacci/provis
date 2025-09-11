@@ -1,0 +1,3 @@
+{
+  "_raw": "The `schemas.prospect` file defines data schemas used for prospect-related operations. It interacts with the `backend/app/routers/prospect.py` for routing and processing requests."
+}

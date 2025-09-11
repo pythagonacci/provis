@@ -1,0 +1,3 @@
+{
+  "_raw": "The `pdf.py` file in the backend app handles PDF generation and manipulation. It imports modules such as `os` and `config` to support its functionality."
+}

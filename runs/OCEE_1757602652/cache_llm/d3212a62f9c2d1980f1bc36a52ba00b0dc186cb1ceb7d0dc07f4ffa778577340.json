@@ -1,0 +1,31 @@
+{
+  "inputs": [
+    {
+      "path": "offdeal-frontend/src/app/page.tsx",
+      "description": "This file likely contains user interface components that accept user inputs.",
+      "why": "The presence of 'page.tsx' suggests it is a React component handling user interactions."
+    }
+  ],
+  "stores": [
+    {
+      "path": "../lib/api",
+      "description": "This file likely contains functions for data fetching and state management.",
+      "why": "The 'api' directory typically indicates a centralized location for managing application state and data."
+    }
+  ],
+  "externals": [
+    {
+      "path": "react",
+      "description": "React is an external library used for building user interfaces.",
+      "why": "The inclusion of 'react' indicates reliance on this library for component-based architecture."
+    }
+  ],
+  "contracts": [],
+  "policies": [
+    {
+      "path": "../types",
+      "description": "This file likely defines TypeScript types for ensuring type safety across the application.",
+      "why": "The 'types' directory suggests a focus on type definitions, which can enforce contracts in the codebase."
+    }
+  ]
+}

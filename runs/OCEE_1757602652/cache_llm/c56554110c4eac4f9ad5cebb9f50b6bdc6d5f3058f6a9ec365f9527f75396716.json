@@ -1,0 +1,48 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "read",
+      "via": "backend/app/models/prospect.py",
+      "reason": "Models often read data from other models for relationships or data integrity."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "read",
+      "via": "backend/app/routers/deck.py",
+      "reason": "Routers typically read from models to handle incoming requests."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "read",
+      "via": "backend/app/services/slides.py",
+      "reason": "Services may read from models to generate or manipulate data."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "read",
+      "via": "backend/app/schemas/deck.py",
+      "reason": "Schemas read from models to validate and serialize data."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "write",
+      "via": "backend/app/routers/deck.py",
+      "reason": "Routers may write to models to persist data based on user actions."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "write",
+      "via": "backend/app/services/emailgeneration.py",
+      "reason": "Services may write to models to create or update records."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "write",
+      "via": "backend/app/services/pdf.py",
+      "reason": "Services may write to models to generate outputs based on data."
+    }
+  ]
+}

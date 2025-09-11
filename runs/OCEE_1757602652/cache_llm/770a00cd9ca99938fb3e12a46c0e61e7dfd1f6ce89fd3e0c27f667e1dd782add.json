@@ -1,0 +1,3 @@
+{
+  "_raw": "The `prospect.py` file defines routes for handling prospect-related requests in the FastAPI application. It interacts with the database to manage prospect data."
+}

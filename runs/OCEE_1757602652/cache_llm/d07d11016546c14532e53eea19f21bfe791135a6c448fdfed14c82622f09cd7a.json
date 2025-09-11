@@ -1,0 +1,11 @@
+{
+  "reads": [],
+  "writes": [
+    {
+      "actorPath": "offdeal-frontend/src/app/page.tsx",
+      "action": "call",
+      "via": "../lib/api",
+      "reason": "The page component is likely invoking functions or accessing data from the API."
+    }
+  ]
+}

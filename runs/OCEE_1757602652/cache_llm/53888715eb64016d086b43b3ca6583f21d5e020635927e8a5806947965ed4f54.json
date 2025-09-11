@@ -1,0 +1,3 @@
+{
+  "_raw": "The `__future__` module allows the use of features that will be available in future Python versions. It is typically used to enable compatibility and forward-looking features in the codebase."
+}

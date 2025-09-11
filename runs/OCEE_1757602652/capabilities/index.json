@@ -1,0 +1,434 @@
+{
+  "index": [
+    {
+      "id": "cap_healthz",
+      "name": "healthz",
+      "purpose": "Start the application",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/main.py"
+      ],
+      "keyFiles": [
+        "__future__",
+        "backend/app/main.py",
+        "config",
+        "database",
+        "fastapi",
+        "os"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/main.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/main.py",
+          "kind": "api",
+          "route": "/healthz"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_root",
+      "name": "/",
+      "purpose": "Initialize Application",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/prospect.py",
+        "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+        "/Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+        "/Users/amnaahmad/provis/provis/offdeal-frontend/src/app/page.tsx"
+      ],
+      "keyFiles": [
+        "__future__",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py",
+        "config",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/prospect.py",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py",
+        "offdeal-frontend/src/app/page.tsx"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/prospect.py",
+          "kind": "api",
+          "route": "/"
+        },
+        {
+          "path": "backend/app/routers/deck.py",
+          "kind": "api",
+          "route": "/"
+        },
+        {
+          "path": "backend/app/routers/email.py",
+          "kind": "api",
+          "route": "/"
+        },
+        {
+          "path": "offdeal-frontend/src/app/page.tsx",
+          "kind": "ui",
+          "route": "/"
+        }
+      ],
+      "lanes": {
+        "web": 1,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_{prospect_id}_generate",
+      "name": "{prospect_id}/generate",
+      "purpose": "Receive Request",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+        "/Users/amnaahmad/provis/provis/backend/app/routers/email.py"
+      ],
+      "keyFiles": [
+        "__future__",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py",
+        "config",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/deck.py",
+          "kind": "api",
+          "route": "/{prospect_id}/generate"
+        },
+        {
+          "path": "backend/app/routers/email.py",
+          "kind": "api",
+          "route": "/{prospect_id}/generate"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_{deck_id}_render",
+      "name": "{deck_id}/render",
+      "purpose": "Receive Request",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py"
+      ],
+      "keyFiles": [
+        "backend/app/routers/deck.py",
+        "config",
+        "database",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/deck.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/deck.py",
+          "kind": "api",
+          "route": "/{deck_id}/render"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_{deck_id}_slides_{index}",
+      "name": "{deck_id}/slides/{index}",
+      "purpose": "Initialize Application",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py"
+      ],
+      "keyFiles": [
+        "backend/app/routers/deck.py",
+        "config",
+        "database",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/deck.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/deck.py",
+          "kind": "api",
+          "route": "/{deck_id}/slides/{index}"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_{deck_id}_slides_{index}_ai-edit",
+      "name": "{deck_id}/slides/{index}/ai-edit",
+      "purpose": "Receive Request",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py"
+      ],
+      "keyFiles": [
+        "backend/app/routers/deck.py",
+        "config",
+        "database",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/deck.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/deck.py",
+          "kind": "api",
+          "route": "/{deck_id}/slides/{index}/ai-edit"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_debug_ai-edit-test",
+      "name": "debug/ai-edit-test",
+      "purpose": "Initialize Application",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py"
+      ],
+      "keyFiles": [
+        "backend/app/routers/deck.py",
+        "config",
+        "database",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/deck.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/deck.py",
+          "kind": "api",
+          "route": "/debug/ai-edit-test"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_item_{email_id}",
+      "name": "item/{email_id}",
+      "purpose": "Receive Email Request",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/email.py"
+      ],
+      "keyFiles": [
+        "__future__",
+        "backend/app/routers/email.py",
+        "database",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/email.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/email.py",
+          "kind": "api",
+          "route": "/item/{email_id}"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    },
+    {
+      "id": "cap_item_{email_id}_ai-edit",
+      "name": "item/{email_id}/ai-edit",
+      "purpose": "Receive Email Request",
+      "entryPoints": [
+        "/Users/amnaahmad/provis/provis/backend/app/routers/email.py"
+      ],
+      "keyFiles": [
+        "__future__",
+        "backend/app/routers/email.py",
+        "database",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "dataIn": [],
+      "dataOut": [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "sources": [
+        "backend/app/routers/email.py"
+      ],
+      "sinks": [],
+      "anchors": [
+        {
+          "path": "backend/app/routers/email.py",
+          "kind": "api",
+          "route": "/item/{email_id}/ai-edit"
+        }
+      ],
+      "lanes": {
+        "web": 0,
+        "api": 0,
+        "workers": 0,
+        "other": 16
+      }
+    }
+  ]
+}

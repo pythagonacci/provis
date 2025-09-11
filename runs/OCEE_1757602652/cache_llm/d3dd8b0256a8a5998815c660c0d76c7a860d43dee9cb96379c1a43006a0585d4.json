@@ -1,0 +1,3 @@
+{
+  "_raw": "The `fastapi.middleware.cors` module provides middleware for handling Cross-Origin Resource Sharing (CORS) in FastAPI applications. It enables developers to specify which origins are allowed to access resources."
+}

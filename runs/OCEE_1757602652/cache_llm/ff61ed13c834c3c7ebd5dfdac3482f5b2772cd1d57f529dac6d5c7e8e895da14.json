@@ -1,0 +1,66 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The prospect model is likely queried to retrieve prospect data."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The deck model may read from the prospect model for related data."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The email model may read from the prospect model for email generation."
+    },
+    {
+      "actorPath": "backend/app/schemas/deck.py",
+      "action": "call",
+      "via": "__future__",
+      "reason": "Schemas may read the prospect model for validation or serialization."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "__future__",
+      "reason": "Schemas may read the prospect model for validation or serialization."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "__future__",
+      "reason": "Email generation service may read from the prospect model to create emails."
+    },
+    {
+      "actorPath": "backend/app/services/ai.py",
+      "action": "call",
+      "via": "__future__",
+      "reason": "AI service may read from the prospect model for data analysis."
+    },
+    {
+      "actorPath": "backend/app/services/pdf.py",
+      "action": "call",
+      "via": "os",
+      "reason": "PDF service may read from the prospect model to generate reports."
+    },
+    {
+      "actorPath": "backend/app/services/slides.py",
+      "action": "call",
+      "via": "config",
+      "reason": "Slides service may read from the prospect model to create presentations."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The prospect model is likely used to create or update prospect records."
+    }
+  ]
+}

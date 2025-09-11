@@ -1,0 +1,76 @@
+{
+  "inputs": [
+    {
+      "path": "backend/app/routers/deck.py",
+      "why": "Handles incoming requests related to deck operations."
+    },
+    {
+      "path": "backend/app/routers/email.py",
+      "why": "Handles incoming requests related to email operations."
+    },
+    {
+      "path": "backend/app/routers/prospect.py",
+      "why": "Handles incoming requests related to prospect operations."
+    }
+  ],
+  "stores": [
+    {
+      "path": "backend/app/database.py",
+      "why": "Defines the database connection and ORM setup for data storage."
+    },
+    {
+      "path": "backend/app/models/prospect.py",
+      "why": "Defines the data model for prospects, representing stored data structure."
+    },
+    {
+      "path": "backend/app/models/deck.py",
+      "why": "Defines the data model for decks, representing stored data structure."
+    },
+    {
+      "path": "backend/app/models/email.py",
+      "why": "Defines the data model for emails, representing stored data structure."
+    }
+  ],
+  "externals": [
+    {
+      "path": "fastapi",
+      "why": "Framework used for building the web API."
+    },
+    {
+      "path": "sqlalchemy.orm",
+      "why": "ORM library used for database interactions."
+    },
+    {
+      "path": "pydantic",
+      "why": "Library used for data validation and settings management."
+    }
+  ],
+  "contracts": [
+    {
+      "path": "schemas.deck",
+      "why": "Defines the schema for deck data, ensuring data structure consistency."
+    },
+    {
+      "path": "schemas.email",
+      "why": "Defines the schema for email data, ensuring data structure consistency."
+    },
+    {
+      "path": "schemas.prospect",
+      "why": "Defines the schema for prospect data, ensuring data structure consistency."
+    }
+  ],
+  "policies": [
+    {
+      "path": "backend/app/config.py",
+      "why": "Contains configuration settings that may dictate application behavior and policies."
+    },
+    {
+      "path": "backend/app/services/emailgeneration.py",
+      "why": "Implements business logic related to email generation, enforcing operational policies."
+    },
+    {
+      "path": "backend/app/services/ai.py",
+      "why": "Implements AI-related services, which may include policies for data handling and processing."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript Environment Definitions for Next.js",
+  "purpose": "This file provides TypeScript type definitions for the Next.js environment, ensuring type safety and autocompletion for Next.js features.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [],
+  "how_to_modify": "You can add or modify type definitions as needed to accommodate new features or changes in your Next.js application. Ensure that any changes are consistent with the Next.js framework's expected types.",
+  "risks": "Improper modifications may lead to type errors in your application, resulting in a loss of type safety and potentially causing runtime issues. Always validate changes with TypeScript's compiler.",
+  "blurb": "Think of this file as a guidebook for TypeScript, helping it understand the unique landscape of your Next.js application. It ensures that everything is in the right place and correctly labeled.",
+  "dev_summary": "Defines TypeScript types for the Next.js environment. No functions or classes are defined here. Be cautious with type changes to avoid breaking type safety.",
+  "vibecoder_summary": "Imagine this file as a map for a treasure hunt, showing TypeScript where to find all the hidden gems in your Next.js project. If you change the map, make sure the treasure is still where you expect it to be!",
+  "edit_points": []
+}

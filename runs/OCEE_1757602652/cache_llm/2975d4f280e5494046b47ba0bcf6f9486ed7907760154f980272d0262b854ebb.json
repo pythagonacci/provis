@@ -1,0 +1,3 @@
+{
+  "_raw": "The `email.py` router in the backend handles email-related requests using FastAPI. It imports the `EmailAIEditRequest` model from the database for processing."
+}

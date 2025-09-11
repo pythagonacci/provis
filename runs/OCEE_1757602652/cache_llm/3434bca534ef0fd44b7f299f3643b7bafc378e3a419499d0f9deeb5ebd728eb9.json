@@ -1,0 +1,42 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "read",
+      "via": "models.deck",
+      "reason": "The deck router likely reads from the deck model to handle requests related to deck operations."
+    },
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "read",
+      "via": "models.deck",
+      "reason": "The prospect router may read from the deck model to associate prospects with decks."
+    },
+    {
+      "actorPath": "backend/app/schemas/deck.py",
+      "action": "read",
+      "via": "models.deck",
+      "reason": "Schemas are typically used to validate or serialize data from models."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "write",
+      "via": "sqlalchemy.orm",
+      "reason": "The deck model likely interacts with the ORM to persist changes to the database."
+    },
+    {
+      "actorPath": "backend/app/services/pdf.py",
+      "action": "write",
+      "via": "models.deck",
+      "reason": "The PDF service may generate documents that involve writing data related to decks."
+    },
+    {
+      "actorPath": "backend/app/services/slides.py",
+      "action": "write",
+      "via": "models.deck",
+      "reason": "The slides service may create presentations that include deck information."
+    }
+  ]
+}

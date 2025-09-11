@@ -1,0 +1,3 @@
+{
+  "_raw": "The `deck.py` file defines Pydantic models for data validation and serialization related to decks and slides in the application. It imports necessary modules for typing and Pydantic functionality."
+}

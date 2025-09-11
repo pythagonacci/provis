@@ -1,0 +1,17 @@
+{
+  "title": "__init__.py in backend/app/models",
+  "purpose": "This file serves as an initializer for the models package in the backend application, allowing for the organization and import of model classes and functions.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "prospect",
+    "deck",
+    "email"
+  ],
+  "how_to_modify": "To modify this file, you can add or remove model classes or functions as needed. Ensure that any new models are properly imported and that the package structure remains intact.",
+  "risks": "Modifying this file without understanding the implications on the overall models package can lead to import errors or broken functionality in other parts of the application. Be cautious about removing any existing imports or altering the package structure.",
+  "blurb": "This is the gateway for your models! Think of it as the welcome mat for all your data structures, making sure everything is in the right place.",
+  "dev_summary": "This file initializes the models package. It currently has no defined classes or functions. Ensure proper imports when adding new models.",
+  "vibecoder_summary": "Imagine this file as the front desk of a hotel where all the guests (models) check in. If you want to add a new guest, just make sure they have a room (class) and that the front desk knows about them!",
+  "edit_points": []
+}

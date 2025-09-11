@@ -1,0 +1,1277 @@
+{
+  "id": "cap_item_{email_id}_ai-edit",
+  "name": "item/{email_id}/ai-edit",
+  "purpose": "Receive Email Request",
+  "title": "item/{email_id}/ai-edit",
+  "status": "healthy",
+  "anchors": [
+    {
+      "path": "backend/app/routers/email.py",
+      "kind": "api",
+      "route": "/item/{email_id}/ai-edit"
+    }
+  ],
+  "lanes": {
+    "web": [],
+    "api": [],
+    "workers": [],
+    "other": [
+      {
+        "path": "backend/app/config.py"
+      },
+      {
+        "path": "backend/app/database.py"
+      },
+      {
+        "path": "backend/app/main.py"
+      },
+      {
+        "path": "backend/app/models/deck.py"
+      },
+      {
+        "path": "backend/app/models/email.py"
+      },
+      {
+        "path": "backend/app/models/prospect.py"
+      },
+      {
+        "path": "backend/app/routers/deck.py"
+      },
+      {
+        "path": "backend/app/routers/email.py"
+      },
+      {
+        "path": "backend/app/routers/prospect.py"
+      },
+      {
+        "path": "backend/app/schemas/deck.py"
+      },
+      {
+        "path": "backend/app/schemas/email.py"
+      },
+      {
+        "path": "backend/app/schemas/prospect.py"
+      },
+      {
+        "path": "backend/app/services/ai.py"
+      },
+      {
+        "path": "backend/app/services/emailgeneration.py"
+      },
+      {
+        "path": "backend/app/services/pdf.py"
+      },
+      {
+        "path": "backend/app/services/slides.py"
+      }
+    ]
+  },
+  "flow": [
+    {
+      "from": "backend/app/config.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/config.py",
+      "to": "pydantic",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/config.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/database.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "fastapi",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/deck.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/deck.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/email.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/email.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/email.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/prospect.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/prospect.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "fastapi",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "models.prospect",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "pydantic",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "fastapi",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "models.email",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "models.prospect",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "pydantic",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "schemas.email",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "services.emailgeneration",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/prospect.py",
+      "to": "database",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/prospect.py",
+      "to": "fastapi",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/prospect.py",
+      "to": "sqlalchemy.orm",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/prospect.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/deck.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/deck.py",
+      "to": "pydantic",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/deck.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/email.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/email.py",
+      "to": "pydantic",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/email.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/prospect.py",
+      "to": "pydantic",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/schemas/prospect.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/ai.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/ai.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/emailgeneration.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/emailgeneration.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/pdf.py",
+      "to": "__future__",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/pdf.py",
+      "to": "typing",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/slides.py",
+      "to": "typing",
+      "kind": "call"
+    }
+  ],
+  "data": {
+    "inputs": [
+      {
+        "path": "backend/app/routers/email.py",
+        "why": "Handles incoming email requests."
+      },
+      {
+        "path": "backend/app/routers/prospect.py",
+        "why": "Handles incoming prospect requests."
+      },
+      {
+        "path": "backend/app/routers/deck.py",
+        "why": "Handles incoming deck requests."
+      }
+    ],
+    "stores": [
+      {
+        "path": "backend/app/database.py",
+        "why": "Defines the database connection and ORM setup."
+      },
+      {
+        "path": "backend/app/models/email.py",
+        "why": "Defines the Email model for database storage."
+      },
+      {
+        "path": "backend/app/models/prospect.py",
+        "why": "Defines the Prospect model for database storage."
+      },
+      {
+        "path": "backend/app/models/deck.py",
+        "why": "Defines the Deck model for database storage."
+      }
+    ],
+    "externals": [
+      {
+        "path": "fastapi",
+        "why": "Framework used for building the web application."
+      },
+      {
+        "path": "sqlalchemy.orm",
+        "why": "Used for ORM functionality with the database."
+      },
+      {
+        "path": "pydantic",
+        "why": "Used for data validation and settings management."
+      }
+    ]
+  },
+  "entrypoints": [],
+  "entryPoints": [],
+  "swimlanes": {
+    "web": [],
+    "api": [],
+    "workers": [],
+    "other": []
+  },
+  "control_flow": [],
+  "data_flow": {
+    "inputs": [
+      {
+        "path": "backend/app/routers/email.py",
+        "why": "Handles incoming email requests.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/routers/prospect.py",
+        "why": "Handles incoming prospect requests.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/routers/deck.py",
+        "why": "Handles incoming deck requests.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      }
+    ],
+    "stores": [
+      {
+        "path": "backend/app/database.py",
+        "why": "Defines the database connection and ORM setup.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/models/email.py",
+        "why": "Defines the Email model for database storage.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/models/prospect.py",
+        "why": "Defines the Prospect model for database storage.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/models/deck.py",
+        "why": "Defines the Deck model for database storage.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      }
+    ],
+    "externals": [
+      {
+        "path": "/Users/amnaahmad/provis/provis/fastapi",
+        "why": "Framework used for building the web application.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "/Users/amnaahmad/provis/provis/sqlalchemy.orm",
+        "why": "Used for ORM functionality with the database.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "/Users/amnaahmad/provis/provis/pydantic",
+        "why": "Used for data validation and settings management.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      }
+    ]
+  },
+  "policies": [
+    {
+      "path": "/Users/amnaahmad/provis/provis/backend/app/services/emailgeneration.py",
+      "why": "Contains business logic for email generation policies.",
+      "type": "unknown"
+    },
+    {
+      "path": "/Users/amnaahmad/provis/provis/backend/app/services/slides.py",
+      "why": "Contains business logic for slide generation policies.",
+      "type": "unknown"
+    },
+    {
+      "path": "/Users/amnaahmad/provis/provis/backend/app/services/pdf.py",
+      "why": "Contains business logic for PDF generation policies.",
+      "type": "unknown"
+    }
+  ],
+  "contracts": [
+    {
+      "path": "/Users/amnaahmad/provis/provis/backend/app/schemas/email.py",
+      "why": "Defines the schema for email data validation."
+    },
+    {
+      "path": "/Users/amnaahmad/provis/provis/backend/app/schemas/prospect.py",
+      "why": "Defines the schema for prospect data validation."
+    },
+    {
+      "path": "/Users/amnaahmad/provis/provis/backend/app/schemas/deck.py",
+      "why": "Defines the schema for deck data validation."
+    }
+  ],
+  "summaries": {
+    "file": {
+      "backend/app/routers/email.py": "",
+      "__future__": "",
+      "typing": "",
+      "fastapi": "",
+      "sqlalchemy.orm": "",
+      "pydantic": "",
+      "database": "",
+      "models.prospect": "",
+      "models.email": "",
+      "schemas.email": "",
+      "services.emailgeneration": "",
+      "backend/app/config.py": "",
+      "backend/app/main.py": "",
+      "backend/app/models/email.py": "",
+      "backend/app/schemas/deck.py": "",
+      "backend/app/schemas/email.py": "",
+      "backend/app/services/emailgeneration.py": "",
+      "backend/app/services/ai.py": "",
+      "backend/app/services/pdf.py": "",
+      "backend/app/routers/prospect.py": "",
+      "backend/app/routers/deck.py": "",
+      "backend/app/schemas/prospect.py": "",
+      "backend/app/services/slides.py": "",
+      "backend/app/database.py": "",
+      "backend/app/models/prospect.py": "",
+      "backend/app/models/deck.py": ""
+    },
+    "folder": {
+      "backend/app": ""
+    },
+    "narrative": [
+      {
+        "label": "Receive Email Request",
+        "detail": "The system receives an email request via the API endpoint.",
+        "scenario": "A user sends an email request with valid data."
+      },
+      {
+        "label": "Validate Email Data",
+        "detail": "The system validates the incoming email data against the defined schema.",
+        "scenario": "The email data passes validation checks."
+      },
+      {
+        "label": "Process Email Request",
+        "detail": "The system processes the email request using the business logic defined in the services.",
+        "scenario": "The email request is processed successfully."
+      },
+      {
+        "label": "Generate Email Content",
+        "detail": "The system generates the email content based on the provided data and templates.",
+        "scenario": "The email content is generated without errors."
+      },
+      {
+        "label": "Store Email in Database",
+        "detail": "The system stores the generated email in the database for future reference.",
+        "scenario": "The email is successfully stored in the database."
+      },
+      {
+        "label": "Send Email",
+        "detail": "The system sends the generated email to the intended recipient.",
+        "scenario": "The email is sent successfully to the recipient."
+      },
+      {
+        "label": "Log Email Activity",
+        "detail": "The system logs the email activity for auditing and tracking purposes.",
+        "scenario": "The email activity is logged without issues."
+      }
+    ]
+  },
+  "keyFiles": [
+    "__future__",
+    "backend/app/routers/email.py",
+    "database",
+    "pydantic",
+    "sqlalchemy.orm",
+    "typing"
+  ],
+  "steps": [
+    {
+      "title": "Receive Email Request",
+      "description": "The system receives an email request via the API endpoint.",
+      "fileId": "backend/app/routers/email.py"
+    },
+    {
+      "title": "Validate Email Data",
+      "description": "The system validates the incoming email data against the defined schema.",
+      "fileId": null
+    },
+    {
+      "title": "Process Email Request",
+      "description": "The system processes the email request using the business logic defined in the services.",
+      "fileId": null
+    },
+    {
+      "title": "Generate Email Content",
+      "description": "The system generates the email content based on the provided data and templates.",
+      "fileId": null
+    },
+    {
+      "title": "Store Email in Database",
+      "description": "The system stores the generated email in the database for future reference.",
+      "fileId": null
+    },
+    {
+      "title": "Send Email",
+      "description": "The system sends the generated email to the intended recipient.",
+      "fileId": null
+    },
+    {
+      "title": "Log Email Activity",
+      "description": "The system logs the email activity for auditing and tracking purposes.",
+      "fileId": null
+    }
+  ],
+  "dataIn": [],
+  "dataOut": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "orchestrators": [
+    "backend/app/routers/email.py",
+    "backend/app/routers/deck.py",
+    "backend/app/routers/prospect.py"
+  ],
+  "sources": [
+    "backend/app/routers/email.py"
+  ],
+  "sinks": [],
+  "controlFlow": [],
+  "dataFlow": {
+    "inputs": [
+      {
+        "path": "backend/app/routers/email.py",
+        "why": "Handles incoming email requests.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/routers/prospect.py",
+        "why": "Handles incoming prospect requests.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/routers/deck.py",
+        "why": "Handles incoming deck requests.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      }
+    ],
+    "stores": [
+      {
+        "path": "backend/app/database.py",
+        "why": "Defines the database connection and ORM setup.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/models/email.py",
+        "why": "Defines the Email model for database storage.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/models/prospect.py",
+        "why": "Defines the Prospect model for database storage.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "backend/app/models/deck.py",
+        "why": "Defines the Deck model for database storage.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      }
+    ],
+    "externals": [
+      {
+        "path": "/Users/amnaahmad/provis/provis/fastapi",
+        "why": "Framework used for building the web application.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "/Users/amnaahmad/provis/provis/sqlalchemy.orm",
+        "why": "Used for ORM functionality with the database.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "path": "/Users/amnaahmad/provis/provis/pydantic",
+        "why": "Used for data validation and settings management.",
+        "touches": [],
+        "example": {
+          "example": true
+        }
+      }
+    ]
+  },
+  "nodeIndex": {
+    "backend/app/schemas/email.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "pydantic",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/main.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "database",
+        "fastapi"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/services/slides.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/models/prospect.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "database",
+        "sqlalchemy.orm"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/services/pdf.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/config.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "pydantic",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/routers/prospect.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "database",
+        "fastapi",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/models/deck.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "database",
+        "sqlalchemy.orm"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/schemas/deck.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "pydantic",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/schemas/prospect.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "pydantic",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/services/emailgeneration.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/database.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "sqlalchemy.orm"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/services/ai.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/routers/deck.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "database",
+        "fastapi",
+        "models.prospect",
+        "pydantic",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/routers/email.py": {
+      "lane": "other",
+      "role": "entrypoint",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "database",
+        "fastapi",
+        "models.email",
+        "models.prospect",
+        "pydantic",
+        "schemas.email",
+        "services.emailgeneration",
+        "sqlalchemy.orm",
+        "typing"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "backend/app/models/email.py": {
+      "lane": "other",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "__future__",
+        "database",
+        "sqlalchemy.orm"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "backend/app/database.py",
+        "backend/app/models/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        null,
+        null,
+        null
+      ]
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/routers/email.py": {
+      "role": "entrypoint",
+      "lane": "web"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/config.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/__future__": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/pydantic": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/typing": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/database.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/sqlalchemy.orm": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/main.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/database": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/fastapi": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/models/deck.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/models/email.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/models/prospect.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/routers/deck.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/models.prospect": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/models.email": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/schemas.email": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/services.emailgeneration": {
+      "role": "sink",
+      "lane": "other"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/routers/prospect.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/schemas/deck.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/schemas/email.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/schemas/prospect.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/services/ai.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/services/emailgeneration.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/services/pdf.py": {
+      "role": "handler",
+      "lane": "api"
+    },
+    "/Users/amnaahmad/provis/provis/backend/app/services/slides.py": {
+      "role": "handler",
+      "lane": "api"
+    }
+  },
+  "suspectRank": [],
+  "recentChanges": [],
+  "warnings": [
+    "Missing entrypoint: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/config.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/database.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/main.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/models/deck.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/models/email.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/models/prospect.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/routers/prospect.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/schemas/deck.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/schemas/email.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/schemas/prospect.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/services/ai.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/services/emailgeneration.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/services/pdf.py",
+    "Missing swimlane path in other: /Users/amnaahmad/provis/provis/backend/app/services/slides.py",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/config.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/config.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/pydantic",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/config.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/database.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/main.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/main.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/main.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/fastapi",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/models/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/fastapi",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/models.prospect",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/pydantic",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/fastapi",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/models.email",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/models.prospect",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/pydantic",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/schemas.email",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/services.emailgeneration",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/database",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/fastapi",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/sqlalchemy.orm",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/routers/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/pydantic",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/deck.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/pydantic",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/email.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/pydantic",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/schemas/prospect.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/ai.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/ai.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/emailgeneration.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/emailgeneration.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/pdf.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/__future__",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/pdf.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing",
+    "Missing control flow source: /Users/amnaahmad/provis/provis/backend/app/services/slides.py",
+    "Missing control flow target: /Users/amnaahmad/provis/provis/typing"
+  ]
+}

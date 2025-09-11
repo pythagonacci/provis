@@ -658,8 +658,8 @@ async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, An
     sanitized_edges = sanitize_for_llm(str(raw_edges))
     
     messages = [
-        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative, and avoid hallucinations. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"ANCHORS:\n{sanitized_anchors}\n\nCONTEXT NODES (focused):\n{sanitized_subset}\n\nRAW EDGES WITHIN CONTEXT (may be incomplete):\n{sanitized_edges}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes (web|api|workers|other) and propose edges (import|call|http|queue|webhook). Exclude shared infra. RETURN strict JSON per schema."},
+        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative, and avoid hallucinations. respond with json only. always return strict json that matches the provided schema."},
+        {"role": "user", "content": f"ANCHORS:\n{sanitized_anchors}\n\nCONTEXT NODES (focused):\n{sanitized_subset}\n\nRAW EDGES WITHIN CONTEXT (may be incomplete):\n{sanitized_edges}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes (web|api|workers|other) and propose edges (import|call|http|queue|webhook). Exclude shared infra. return json only per schema."},
     ]
     metrics = get_metrics_collector()
     start_time = time.time()
@@ -693,8 +693,8 @@ async def _llm_extract_data(llm: LLMClient, nodes: List[Dict[str, Any]], semapho
     sanitized_nodes = sanitize_for_llm(str(nodes))
     
     messages = [
-        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"NODES:\n{sanitized_nodes}\n\nTASK:\nIdentify inputs, stores, externals, contracts, policies across these nodes. Include concise 'why' citing which file suggests it. RETURN strict JSON per schema."},
+        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. be precise, conservative. respond with json only. always return strict json that matches the provided schema."},
+        {"role": "user", "content": f"NODES:\n{sanitized_nodes}\n\nTASK:\nIdentify inputs, stores, externals, contracts, policies across these nodes. Include concise 'why' citing which file suggests it. return json only per schema."},
     ]
     
     metrics = get_metrics_collector()
@@ -737,8 +737,8 @@ async def _llm_summarize_file(llm: LLMClient, path: str, lane: Lane, neighbors_i
 
 async def _llm_narrative(llm: LLMClient, name: str, anchors: List[str], lanes: Dict[Lane, List[str]], edges: List[Dict[str, Any]], data: Dict[str, Any], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
     messages = [
-        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"CAPABILITY: {name}\nANCHORS: {anchors}\nLANES: {lanes}\nEDGES: {edges}\nDATA: {data}\n\nTASK:\nWrite 6–10 ordered steps (happy path). Add 2–3 edge/failure cases. RETURN as {{steps:[{{label, detail, scenario?}}]}}"},
+        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. respond with json only. always return strict json that matches the provided schema."},
+        {"role": "user", "content": f"CAPABILITY: {name}\nANCHORS: {anchors}\nLANES: {lanes}\nEDGES: {edges}\nDATA: {data}\n\nTASK:\nWrite 6–10 ordered steps (happy path). Add 2–3 edge/failure cases. return json only per schema as {{steps:[{{label, detail, scenario}}]}}."},
     ]
     
     metrics = get_metrics_collector()
@@ -758,8 +758,8 @@ async def _llm_narrative(llm: LLMClient, name: str, anchors: List[str], lanes: D
 
 async def _llm_touches(llm: LLMClient, data_item: str, nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
     messages = [
-        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"DATA ITEM: {data_item}\nNODES: {nodes}\nEDGES: {edges}\n\nTASK:\nList files that likely READ vs WRITE (or enqueue/consume/call) this item within this capability only. For each, provide {{actorPath, action, via, reason}}. RETURN as TouchesOut."},
+        {"role": "system", "content": "You are a senior staff engineer documenting a codebase. respond with json only. always return strict json that matches the provided schema."},
+        {"role": "user", "content": f"DATA ITEM: {data_item}\nNODES: {nodes}\nEDGES: {edges}\n\nTASK:\nList files that likely READ vs WRITE (or enqueue/consume/call) this item within this capability only. For each, provide {{actorPath, action, via, reason}}. return json only per schema."},
     ]
     
     metrics = get_metrics_collector()
@@ -967,11 +967,12 @@ def _enrich_policies_contracts_heuristics(policies: List[Dict[str, Any]], contra
 
 # ---- Core build ----
 async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[str, Any], repo_dir: Path, anchors: List[Anchor], semaphore: asyncio.Semaphore) -> Tuple[str, Dict[str, Any]]:
-    files = files_payload.get("files", [])
+    files_list = files_payload.get("files", [])
     graph = graph_payload
 
     llm = LLMClient(cache_dir=repo_dir / "cache_llm")
-    expansion = await _llm_expand(llm, anchors, files, graph, semaphore)
+    # Pass full payload so helper can access payload["files"]
+    expansion = await _llm_expand(llm, anchors, files_payload, graph, semaphore)
 
     # Validate graph integrity basics
     node_paths = {n.get("path") for n in expansion.get("nodes", [])}
@@ -982,12 +983,14 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         edges = _derive_control_flow_from_graph(expansion.get("nodes", []), graph)
 
     data = await _llm_extract_data(llm, expansion.get("nodes", []), semaphore)
-    
+
+    # Build files index once (list of files)
+    files_idx = {f["path"]: f for f in files_list}
+
     # Heuristic backfill for data flow if LLM returned sparse results
     data = _backfill_dataflow_heuristics(data, expansion.get("nodes", []), files_idx)
 
     # File summaries (per node)
-    files_idx = {f["path"]: f for f in files.get("files", [])}
     summaries_file: Dict[str, str] = {}
     for n in expansion.get("nodes", []):
         p = n.get("path")
@@ -1016,7 +1019,6 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     }
     
     # Apply comprehensive normalization
-    files_idx = {f["path"]: f for f in files.get("files", [])}
     lanes_map = _normalize_swimlanes(lanes_map, files_idx)
     valid_anchors, anchor_warnings = _normalize_anchors(anchors, files_idx)
     narrative = await _llm_narrative(
@@ -1247,6 +1249,23 @@ def _derive_routes_from_files(files_payload: Dict[str, Any]) -> List[Dict[str, A
     for f in files:
         path = f.get("path", "")
         hints = f.get("hints", {})
+        
+        # First, check if file has explicit routes array (from parser)
+        file_routes = f.get("routes", [])
+        if file_routes:
+            for route_obj in file_routes:
+                route_path = route_obj.get("path", "")
+                method = route_obj.get("method", "GET")
+                if route_path:
+                    kind = "api" if hints.get("isAPI") else "ui"
+                    routes.append({
+                        "path": path, 
+                        "kind": kind, 
+                        "route": route_path,
+                        "method": method
+                    })
+            continue
+        
         # Prefer explicit hints when present (only if route is specified)
         if hints.get("isRoute") and hints.get("route"):
             routes.append({"path": path, "kind": "ui", "route": hints.get("route")})
@@ -1300,10 +1319,9 @@ def _derive_routes_from_files(files_payload: Dict[str, Any]) -> List[Dict[str, A
 
 async def build_all_capabilities(files_payload: Dict[str, Any], graph_payload: Dict[str, Any], repo_dir: Path) -> Dict[str, Any]:
     """Build all capabilities from files and graph payloads."""
-    files = files_payload.get("files", [])
 
     # Derive routes from files.hints
-    routes = _derive_routes_from_files(files)
+    routes = _derive_routes_from_files(files_payload)
 
     groups = _group_routes(routes)
     
@@ -1374,7 +1392,7 @@ async def build_all_capabilities(files_payload: Dict[str, Any], graph_payload: D
     metrics.record_artifact_created("capabilities_index", index_bytes)
     
     # Write individual capability files with comprehensive defaults
-    files_idx = {f["path"]: f for f in files}
+    files_idx = {f["path"]: f for f in files_payload.get("files", [])}
     for cid, cap in by_id.items():
         # Validate references before persisting
         cap = _validate_references(cap, files_idx)

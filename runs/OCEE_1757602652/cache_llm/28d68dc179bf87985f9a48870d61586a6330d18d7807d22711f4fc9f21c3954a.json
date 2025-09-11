@@ -1,0 +1,3 @@
+{
+  "_raw": "The `ai.py` file in the backend services handles AI-related functionalities. It imports modules from `__future__` and `config` to enhance compatibility and configuration management."
+}

@@ -1,0 +1,61 @@
+{
+  "steps": [
+    {
+      "label": "Initialize Application",
+      "detail": "Start the application by running the main entry point.",
+      "scenario": "The application initializes without errors."
+    },
+    {
+      "label": "Send Prospect Request",
+      "detail": "Send a request to the prospect endpoint with valid data.",
+      "scenario": "The request is processed successfully, and a prospect is created."
+    },
+    {
+      "label": "Send Deck Request",
+      "detail": "Send a request to the deck endpoint with valid data.",
+      "scenario": "The request is processed successfully, and a deck is created."
+    },
+    {
+      "label": "Send Email Request",
+      "detail": "Send a request to the email endpoint with valid data.",
+      "scenario": "The request is processed successfully, and an email is sent."
+    },
+    {
+      "label": "Generate Email",
+      "detail": "Trigger the email generation service with the required data.",
+      "scenario": "The email is generated successfully based on the input data."
+    },
+    {
+      "label": "Retrieve Prospect Data",
+      "detail": "Fetch the created prospect data from the database.",
+      "scenario": "The prospect data is retrieved successfully."
+    },
+    {
+      "label": "Retrieve Deck Data",
+      "detail": "Fetch the created deck data from the database.",
+      "scenario": "The deck data is retrieved successfully."
+    },
+    {
+      "label": "Retrieve Email Data",
+      "detail": "Fetch the sent email data from the database.",
+      "scenario": "The email data is retrieved successfully."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Prospect Request",
+      "detail": "Send a request to the prospect endpoint with invalid data.",
+      "scenario": "The request fails with a validation error."
+    },
+    {
+      "label": "Database Connection Failure",
+      "detail": "Attempt to connect to the database when it is down.",
+      "scenario": "The application fails to start and logs a connection error."
+    },
+    {
+      "label": "Email Sending Failure",
+      "detail": "Attempt to send an email when the email service is down.",
+      "scenario": "The email request fails, and an error is returned."
+    }
+  ]
+}

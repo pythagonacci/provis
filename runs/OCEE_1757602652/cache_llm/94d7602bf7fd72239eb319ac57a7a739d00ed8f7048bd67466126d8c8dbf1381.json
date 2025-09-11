@@ -1,0 +1,47 @@
+{
+  "read": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Used for ORM operations related to prospect data."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Used for ORM operations related to deck data."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Used for ORM operations related to email data."
+    },
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Defines the ORM model for prospect."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Defines the ORM model for deck."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Defines the ORM model for email."
+    },
+    {
+      "actorPath": "backend/app/database.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Handles database interactions using SQLAlchemy ORM."
+    }
+  ],
+  "write": []
+}

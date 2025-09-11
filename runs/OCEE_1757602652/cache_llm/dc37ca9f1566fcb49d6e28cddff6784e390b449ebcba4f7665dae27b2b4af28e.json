@@ -1,0 +1,3 @@
+{
+  "_raw": "The file `email.py` defines Pydantic models for email-related data structures, including `EmailOut`, `EmailIn`, `EmailUpdate`, `EmailBatchOut`, and `ProspectContext`. It serves as a schema layer for email processing in the backend application."
+}

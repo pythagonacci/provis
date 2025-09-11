@@ -1,0 +1,37 @@
+{
+  "files": [
+    {
+      "path": "offdeal-frontend/src/app/page.tsx",
+      "lane": "web",
+      "edges": [
+        {
+          "to": "react",
+          "kind": "import"
+        },
+        {
+          "to": "../lib/api",
+          "kind": "call"
+        },
+        {
+          "to": "../types",
+          "kind": "import"
+        }
+      ]
+    },
+    {
+      "path": "react",
+      "lane": "other",
+      "edges": []
+    },
+    {
+      "path": "../lib/api",
+      "lane": "api",
+      "edges": []
+    },
+    {
+      "path": "../types",
+      "lane": "other",
+      "edges": []
+    }
+  ]
+}

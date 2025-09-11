@@ -1,0 +1,66 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/main.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "FastAPI is being initialized and configured in the main application file."
+    },
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "The prospect router is utilizing FastAPI to define routes."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "The deck router is utilizing FastAPI to define routes."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "The email router is utilizing FastAPI to define routes."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The prospect router is likely writing data to the database."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The deck router is likely writing data to the database."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The email router is likely writing data to the database."
+    },
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The prospect model is likely writing data to the database."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The deck model is likely writing data to the database."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The email model is likely writing data to the database."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "read": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The router accesses the database for prospect-related operations."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The router accesses the database for deck-related operations."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The router accesses the database for email-related operations."
+    },
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The model interacts with the database for prospect data."
+    },
+    {
+      "actorPath": "backend/app/models/deck.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The model interacts with the database for deck data."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The model interacts with the database for email data."
+    },
+    {
+      "actorPath": "backend/app/schemas/prospect.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "The schema validates data related to prospects."
+    },
+    {
+      "actorPath": "backend/app/schemas/deck.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "The schema validates data related to decks."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "The schema validates data related to emails."
+    }
+  ],
+  "write": [
+    {
+      "actorPath": "backend/app/main.py",
+      "action": "call",
+      "via": "database",
+      "reason": "The main application interacts with the database for various operations."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "config",
+      "reason": "The service generates emails and may write to the database."
+    },
+    {
+      "actorPath": "backend/app/services/ai.py",
+      "action": "call",
+      "via": "config",
+      "reason": "The AI service may write data to the database."
+    },
+    {
+      "actorPath": "backend/app/services/pdf.py",
+      "action": "call",
+      "via": "config",
+      "reason": "The PDF service may write data to the database."
+    },
+    {
+      "actorPath": "backend/app/services/slides.py",
+      "action": "call",
+      "via": "config",
+      "reason": "The slides service may write data to the database."
+    }
+  ]
+}

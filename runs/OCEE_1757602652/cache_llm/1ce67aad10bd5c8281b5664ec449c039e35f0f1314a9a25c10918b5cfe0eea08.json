@@ -1,0 +1,25 @@
+{
+  "inputs": [
+    {
+      "path": "offdeal-frontend/src/app/page.tsx",
+      "description": "This file likely contains inputs related to the web application's page structure and user interactions."
+    }
+  ],
+  "stores": [],
+  "externals": [
+    {
+      "path": "react",
+      "description": "React is an external library used for building user interfaces, as indicated by its presence in the node list."
+    },
+    {
+      "path": "../lib/api",
+      "description": "This path suggests an external API module that handles data fetching and communication with backend services."
+    },
+    {
+      "path": "../types",
+      "description": "This path indicates the presence of external type definitions, likely for TypeScript, which help in type-checking and ensuring code quality."
+    }
+  ],
+  "contracts": [],
+  "policies": []
+}

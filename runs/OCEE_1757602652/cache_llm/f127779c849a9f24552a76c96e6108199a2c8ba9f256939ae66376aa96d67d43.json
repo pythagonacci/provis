@@ -1,0 +1,3 @@
+{
+  "_raw": "The `prospect.py` file defines Pydantic models for creating and updating prospects, specifically `ProspectCreate` and `ProspectUpdate`. It serves as a schema for data validation in the backend application."
+}

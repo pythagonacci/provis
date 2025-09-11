@@ -1,0 +1,3 @@
+{
+  "_raw": "The `prospect.py` file defines routes for managing prospects in the backend application. It imports necessary modules from FastAPI, SQLAlchemy, and the database layer."
+}

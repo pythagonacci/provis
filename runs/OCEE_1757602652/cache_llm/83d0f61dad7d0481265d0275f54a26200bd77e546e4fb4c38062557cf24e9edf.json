@@ -1,0 +1,23 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/migrate_add_phone.py",
+      "action": "call",
+      "via": "os",
+      "reason": "This script likely uses OS functionalities for migration tasks."
+    },
+    {
+      "actorPath": "backend/app/main.py",
+      "action": "call",
+      "via": "os",
+      "reason": "Main application file may utilize OS for various operations."
+    },
+    {
+      "actorPath": "backend/app/services/pdf.py",
+      "action": "call",
+      "via": "os",
+      "reason": "PDF service likely interacts with the OS for file handling."
+    }
+  ],
+  "writes": []
+}

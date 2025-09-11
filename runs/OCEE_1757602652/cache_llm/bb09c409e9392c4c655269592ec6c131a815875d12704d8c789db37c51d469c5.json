@@ -1,0 +1,56 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The API endpoint receives a request to edit a slide in a deck.",
+      "scenario": "A valid request is sent to /{deck_id}/slides/{index}/ai-edit with the necessary parameters."
+    },
+    {
+      "label": "Validate Input",
+      "detail": "The input parameters are validated against the defined schemas.",
+      "scenario": "The input parameters match the expected format and types."
+    },
+    {
+      "label": "Fetch Deck",
+      "detail": "The system retrieves the specified deck from the database using the deck_id.",
+      "scenario": "The deck exists in the database."
+    },
+    {
+      "label": "Fetch Slide",
+      "detail": "The system retrieves the specified slide from the deck using the index.",
+      "scenario": "The slide exists within the specified deck."
+    },
+    {
+      "label": "AI Processing",
+      "detail": "The system sends the slide content to the AI service for editing.",
+      "scenario": "The AI service processes the slide content successfully."
+    },
+    {
+      "label": "Update Slide",
+      "detail": "The system updates the slide with the edited content returned from the AI service.",
+      "scenario": "The slide is updated successfully in the database."
+    },
+    {
+      "label": "Return Response",
+      "detail": "The system returns a success response to the client with the updated slide information.",
+      "scenario": "The response is formatted correctly and sent back to the client."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Deck Not Found",
+      "detail": "The specified deck_id does not exist in the database.",
+      "scenario": "The system returns a 404 Not Found error."
+    },
+    {
+      "label": "Slide Not Found",
+      "detail": "The specified index does not correspond to any slide in the deck.",
+      "scenario": "The system returns a 404 Not Found error."
+    },
+    {
+      "label": "AI Service Failure",
+      "detail": "The AI service fails to process the slide content due to an internal error.",
+      "scenario": "The system returns a 500 Internal Server Error."
+    }
+  ]
+}

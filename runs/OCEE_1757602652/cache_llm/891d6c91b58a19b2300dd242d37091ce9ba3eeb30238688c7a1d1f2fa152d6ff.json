@@ -1,0 +1,54 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "The router handles email-related requests using FastAPI."
+    },
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "The router handles prospect-related requests using FastAPI."
+    },
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "fastapi",
+      "reason": "The router handles deck-related requests using FastAPI."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "services.emailgeneration",
+      "reason": "Service generates emails, likely using FastAPI for handling requests."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Model interacts with the database through SQLAlchemy."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "Schema validates email data using Pydantic."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "services.emailgeneration",
+      "reason": "Service likely creates or modifies email data."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "sqlalchemy.orm",
+      "reason": "Model is used to write email data to the database."
+    }
+  ]
+}

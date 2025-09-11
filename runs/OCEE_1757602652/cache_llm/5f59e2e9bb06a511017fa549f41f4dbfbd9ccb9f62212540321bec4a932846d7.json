@@ -1,0 +1,42 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/deck.py",
+      "action": "call",
+      "via": "services.slides",
+      "reason": "The router handles requests related to slides and likely reads data from the slides service."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "services.slides",
+      "reason": "The email router may utilize slides for generating email content."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "services.slides",
+      "reason": "The email generation service may read slides to include in generated emails."
+    },
+    {
+      "actorPath": "backend/app/services/ai.py",
+      "action": "call",
+      "via": "services.slides",
+      "reason": "The AI service may read slides for processing or analysis."
+    },
+    {
+      "actorPath": "backend/app/services/pdf.py",
+      "action": "call",
+      "via": "services.slides",
+      "reason": "The PDF service may read slides to generate PDF documents."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/services/slides.py",
+      "action": "call",
+      "via": "services.slides",
+      "reason": "The slides service likely writes or updates slide data."
+    }
+  ]
+}

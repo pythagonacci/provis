@@ -1,0 +1,30 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/prospect.py",
+      "action": "read",
+      "via": "models.prospect",
+      "reason": "The router likely accesses the prospect model to handle incoming requests related to prospects."
+    },
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "read",
+      "via": "models.prospect",
+      "reason": "The email router may need to reference the prospect model to generate or send emails related to prospects."
+    }
+  ],
+  "writes": [
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "write",
+      "via": "sqlalchemy.orm",
+      "reason": "The prospect model interacts with the ORM to persist data changes to the database."
+    },
+    {
+      "actorPath": "backend/app/models/prospect.py",
+      "action": "write",
+      "via": "database",
+      "reason": "The model is responsible for writing data to the database."
+    }
+  ]
+}

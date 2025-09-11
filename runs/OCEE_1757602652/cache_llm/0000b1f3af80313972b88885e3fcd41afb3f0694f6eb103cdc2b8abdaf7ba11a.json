@@ -1,0 +1,56 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The API receives a request to generate content for a specific prospect identified by prospect_id.",
+      "scenario": "A valid request is sent to /{prospect_id}/generate."
+    },
+    {
+      "label": "Validate Input",
+      "detail": "The input data is validated against the defined schemas to ensure it meets the required format.",
+      "scenario": "The input data is valid and passes validation."
+    },
+    {
+      "label": "Fetch Prospect Data",
+      "detail": "The system retrieves the prospect's data from the database using the prospect_id.",
+      "scenario": "The prospect data is successfully retrieved from the database."
+    },
+    {
+      "label": "Generate Deck Content",
+      "detail": "The system generates the content for the deck using the AI service.",
+      "scenario": "The AI service successfully generates the deck content."
+    },
+    {
+      "label": "Create Email Content",
+      "detail": "The system generates the email content based on the prospect's information and the generated deck.",
+      "scenario": "The email content is successfully created."
+    },
+    {
+      "label": "Send Email",
+      "detail": "The system sends the generated email to the prospect's email address.",
+      "scenario": "The email is successfully sent to the prospect."
+    },
+    {
+      "label": "Return Success Response",
+      "detail": "The API returns a success response to the client indicating that the generation process was successful.",
+      "scenario": "The client receives a success response with relevant details."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Prospect ID",
+      "detail": "The prospect_id provided in the request does not exist in the database.",
+      "scenario": "The API returns a 404 error indicating that the prospect was not found."
+    },
+    {
+      "label": "AI Service Failure",
+      "detail": "The AI service fails to generate content due to an internal error.",
+      "scenario": "The API returns a 500 error indicating a failure in content generation."
+    },
+    {
+      "label": "Email Sending Failure",
+      "detail": "The email service fails to send the email due to connectivity issues.",
+      "scenario": "The API returns a 500 error indicating that the email could not be sent."
+    }
+  ]
+}

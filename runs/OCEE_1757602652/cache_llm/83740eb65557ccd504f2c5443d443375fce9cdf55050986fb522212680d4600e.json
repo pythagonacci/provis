@@ -1,0 +1,68 @@
+{
+  "lanes": {
+    "api": [
+      {
+        "path": "backend/app/routers/email.py",
+        "edges": [
+          {
+            "to": "__future__",
+            "kind": "call"
+          },
+          {
+            "to": "typing",
+            "kind": "call"
+          },
+          {
+            "to": "fastapi",
+            "kind": "call"
+          },
+          {
+            "to": "sqlalchemy.orm",
+            "kind": "call"
+          },
+          {
+            "to": "pydantic",
+            "kind": "call"
+          },
+          {
+            "to": "database",
+            "kind": "call"
+          },
+          {
+            "to": "models.prospect",
+            "kind": "call"
+          },
+          {
+            "to": "models.email",
+            "kind": "call"
+          },
+          {
+            "to": "schemas.email",
+            "kind": "call"
+          },
+          {
+            "to": "services.emailgeneration",
+            "kind": "call"
+          }
+        ]
+      },
+      {
+        "path": "backend/app/main.py",
+        "edges": [
+          {
+            "to": "__future__",
+            "kind": "call"
+          },
+          {
+            "to": "fastapi",
+            "kind": "call"
+          },
+          {
+            "to": "database",
+            "kind": "call"
+          }
+        ]
+      }
+    ]
+  }
+}

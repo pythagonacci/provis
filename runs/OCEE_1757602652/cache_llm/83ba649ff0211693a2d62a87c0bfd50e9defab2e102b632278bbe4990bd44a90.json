@@ -1,0 +1,17 @@
+{
+  "title": "Utility Functions for Backend Services",
+  "purpose": "This file contains utility functions that assist various backend services in processing data, formatting strings, and handling date and time operations.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "re",
+    "unicodedata",
+    "datetime"
+  ],
+  "how_to_modify": "To modify this file, add new utility functions or update existing ones. Ensure that any new functions are well-documented and tested to maintain code quality.",
+  "risks": "Modifying utility functions may impact multiple services that rely on them. Ensure thorough testing after changes to avoid breaking functionality across the application.",
+  "blurb": "Think of this file as a toolbox for your backend services, filled with handy tools that help make your data shine and your dates dance!",
+  "dev_summary": "Contains utility functions for data processing and formatting. No defined functions or classes yet. Be cautious of changes as they affect multiple services.",
+  "vibecoder_summary": "Imagine this file as a magic toolbox where you can find all sorts of helpful gadgets to make your backend services work better. Just be careful when adding new tools, as they might change how everything else works!",
+  "edit_points": "Look for areas where you can add new functions or enhance existing ones, particularly around data formatting and date handling."
+}

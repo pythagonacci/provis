@@ -1,0 +1,29 @@
+{
+  "reads": [
+    {
+      "actorPath": "backend/app/routers/email.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "Used for data validation and settings management in email-related operations."
+    },
+    {
+      "actorPath": "backend/app/models/email.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "Defines the structure of email data using Pydantic models."
+    },
+    {
+      "actorPath": "backend/app/schemas/email.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "Schemas for email data are defined using Pydantic for validation."
+    },
+    {
+      "actorPath": "backend/app/services/emailgeneration.py",
+      "action": "call",
+      "via": "pydantic",
+      "reason": "Generates emails based on validated data structures."
+    }
+  ],
+  "writes": []
+}

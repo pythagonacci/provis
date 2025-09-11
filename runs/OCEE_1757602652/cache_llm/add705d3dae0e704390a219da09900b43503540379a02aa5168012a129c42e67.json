@@ -1,0 +1,3 @@
+{
+  "_raw": "The `models.deck` file defines the data structure and behavior for deck-related entities in the application. It interacts with the router defined in `backend/app/routers/deck.py`."
+}
