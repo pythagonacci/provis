@@ -100,13 +100,11 @@ def to_entrypoints(anchors: List[dict]) -> List[dict]:
 def lane_for_path(p: str) -> str:
     """Determine swimlane for a file path."""
     p = p.lower()
-    # FastAPI routers should be in api lane, not web
     if "/routers/" in p or "/services/" in p or "/models/" in p or "/schemas/" in p or p.endswith("/main.py"):
         return "api"
     if "/workers/" in p or "/jobs/" in p or "/queue/" in p:
         return "workers"
-    # Only frontend files go in web lane
-    if "/app/" in p and (p.endswith(".tsx") or p.endswith(".ts") or p.endswith(".jsx")) and not p.startswith("backend/"):
+    if "/app/" in p and (p.endswith(".tsx") or p.endswith(".ts") or p.endswith(".jsx")):
         return "web"
     return "api"  # default for this backend repo
 
@@ -236,26 +234,8 @@ def provide_trivial_fallbacks(cap: dict) -> dict:
     
     # Build basic nodeIndex
     node_index = cap.get("nodeIndex", {})
-    
-    # Build framework map from new-style entrypoints
-    framework_map = {}
-    for ep in cap.get("entrypoints", []):
-        if isinstance(ep, dict) and "path" in ep:
-            framework_map[ep["path"]] = ep.get("framework")
-    
-    # Helper to infer framework from path
-    def _infer_framework_from_path(path: str) -> str:
-        path_lower = path.lower()
-        if "/routers/" in path_lower or path.endswith("main.py"):
-            return "fastapi"
-        elif "/app/" in path_lower and path.endswith((".tsx", ".ts", ".jsx", ".js")):
-            return "nextjs"
-        return "unknown"
-    
     for ep in cap.get("entryPoints", []):
-        framework = framework_map.get(ep) or _infer_framework_from_path(ep)
-        lane = "api" if framework == "fastapi" else "web"
-        node_index[ep] = {"role": "entrypoint", "lane": lane}
+        node_index[ep] = {"role": "entrypoint", "lane": "web"}
     
     for edge in cap.get("controlFlow", []):
         if "from" in edge:
@@ -1205,11 +1185,6 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     for lane, paths in lanes_map.items():
         for p in paths:
             lane_for_path_map[p] = lane
-    
-    # Ensure routers are always considered API
-    for p in list(lane_for_path_map.keys()):
-        if "/routers/" in p.replace("\\", "/"):
-            lane_for_path_map[p] = "api"
 
     # Embed touches/examples in data_flow
     def _embed_touches(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -1239,60 +1214,11 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     inputs = []
     stores = []
     externals = []
-    outputs = []
     contracts = []
     
     # Parse source files directly to extract structured data
-    try:
-        from app.parsers.python import (
-            extract_pydantic_models, extract_sqlalchemy_models, extract_env_keys,
-            extract_externals, extract_fastapi_policies, extract_fastapi_routes
-        )
-    except ModuleNotFoundError:
-        # Local fallback (same repo)
-        from .parsers.python import (
-            extract_pydantic_models, extract_sqlalchemy_models, extract_env_keys,
-            extract_externals, extract_fastapi_policies, extract_fastapi_routes
-        )
+    from app.parsers.python import extract_pydantic_models, extract_sqlalchemy_models, extract_env_keys, extract_externals
     from pathlib import Path
-    
-    # Debug tracking
-    debug = {"data_flow_skipped": [], "extract_errors": []}
-    
-    def resolve_source_path(repo_dir: Path, raw_path: str) -> Path | None:
-        p = str(raw_path).replace("\\", "/")
-        
-        # First try: direct path in repo_dir
-        candidate = (repo_dir / p.lstrip("/")).resolve()
-        if candidate.exists():
-            return candidate
-            
-        # Second try: look in snapshot subdirectory
-        snapshot_candidate = (repo_dir / "snapshot" / p.lstrip("/")).resolve()
-        if snapshot_candidate.exists():
-            return snapshot_candidate
-            
-        # Third try: basename search in snapshot
-        name = Path(p).name
-        matches = list((repo_dir / "snapshot").rglob(name))
-        if len(matches) == 1:
-            return matches[0]
-            
-        # Fourth try: basename search in repo_dir
-        matches = list(repo_dir.rglob(name))
-        if len(matches) == 1:
-            return matches[0]
-            
-        return None
-    
-    def safe_extract(fn, text: str, path: str, bucket: list, label: str):
-        try:
-            results = fn(text, path)
-            bucket.extend(results)
-        except Exception as e:
-            debug["extract_errors"].append(
-                {"path": path, "extractor": label, "error": repr(e)}
-            )
     
     for f in files_list:
         path = norm(f["path"], repo_root)
@@ -1300,320 +1226,104 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
             continue
             
         # Parse the actual source file
-        source_path = resolve_source_path(repo_dir, path)
-        if not source_path:
-            debug["data_flow_skipped"].append({"path": path, "reason": "not_found"})
+        source_path = repo_dir / path
+        if not source_path.exists():
             continue
             
         try:
             text = source_path.read_text()
             
-            # Extract structured data using safe extraction
-            pydantic_models = []
-            sqlalchemy_models = []
-            env_keys = []
-            externals_raw = []
+            # Extract structured data
+            pydantic_models = extract_pydantic_models(text, path)
+            sqlalchemy_models = extract_sqlalchemy_models(text, path)
+            env_vars = extract_env_keys(text, path)
+            externals_from_file = extract_externals(text, path)
             
-            fastapi_routes = []
-            
-            safe_extract(extract_pydantic_models, text, path, pydantic_models, "pydantic")
-            safe_extract(extract_sqlalchemy_models, text, path, sqlalchemy_models, "sqlalchemy")
-            safe_extract(extract_env_keys, text, path, env_keys, "env")
-            safe_extract(extract_externals, text, path, externals_raw, "externals")
-            safe_extract(extract_fastapi_routes, text, path, fastapi_routes, "fastapi_routes")
-            
-            # 1) Pydantic (inputs & contracts)
-            for m in pydantic_models:
-                item = {
-                    "type": "requestSchema" if ("/schemas/" in path or m["name"].lower().endswith("request")) else "schema",
-                    "name": m["name"],
-                    "fields": m.get("fields", []),
-                    "path": path,
-                }
-                if item["type"] == "requestSchema":
-                    inputs.append(item)
+            # Process Pydantic models (request schemas + contracts)
+            for model in pydantic_models:
+                model_name = model.get("name", "")
+                model_fields = model.get("fields", [])
                 
-                # Always add to contracts with proper structure
-                contracts.append({
-                    "kind": "pydantic.Model",
-                    "name": m["name"],
-                    "fields": m.get("fields", []),
-                    "path": path,
-                })
-            
-            # 2) SQLAlchemy (stores & contracts)
-            for m in sqlalchemy_models:
-                stores.append({
-                    "type": "dbModel",
-                    "name": m.get("table") or m["name"],
-                    "columns": m.get("columns", []),
-                    "path": path,
-                })
-                contracts.append({"kind": "sqlalchemy", **m, "path": path})
-            
-            # 3) Env keys (inputs)
-            for k in env_keys:
-                if isinstance(k, dict):
-                    inputs.append(k)  # Already has the right structure
-                else:
-                    inputs.append({"type": "env", "key": k, "path": path})
-            
-            # 4) Externals (externals)
-            for x in externals_raw:
-                externals.append({
-                    "type": x.get("type", "api"),
-                    "name": x.get("name") or x.get("module") or "external",
-                    "client": path,
-                    "base_url": x.get("base_url"),
-                    "path": path,
-                })
-            
-            # 5) FastAPI routes (request/response schemas)
-            for route in fastapi_routes:
-                if route.get("request_schema"):
+                # Treat request-like models as inputs
+                if "/schemas/" in path or model_name.lower().endswith("request"):
                     inputs.append({
                         "type": "requestSchema",
-                        "name": route["request_schema"],
-                        "method": route["method"],
-                        "path": route["path"],
-                        "handler": route["handler"],
-                        "file_path": path,
+                        "name": model_name,
+                        "path": path,
+                        "fields": model_fields
                     })
-                if route.get("response_schema"):
-                    outputs.append({
-                        "type": "responseSchema",
-                        "name": route["response_schema"],
-                        "method": route["method"],
-                        "path": route["path"],
-                        "handler": route["handler"],
-                        "file_path": path,
-                    })
+                
+                # All models are contracts
+                contracts.append({
+                    "name": model_name,
+                    "kind": "pydantic.Model",
+                    "path": path,
+                    "fields": model_fields
+                })
+            
+            # Process SQLAlchemy models (stores + contracts)
+            for model in sqlalchemy_models:
+                model_name = model.get("name", "")
+                model_fields = model.get("fields", [])
+                
+                stores.append({
+                    "type": "dbModel",
+                    "name": model_name,
+                    "path": path,
+                    "fields": model_fields
+                })
+                
+                contracts.append({
+                    "name": model_name,
+                    "kind": "sqlalchemy.Model",
+                    "path": path,
+                    "fields": model_fields
+                })
+            
+            # Process environment variables
+            inputs.extend(env_vars)
+            
+            # Process external services
+            externals.extend(externals_from_file)
             
         except Exception as e:
-            debug["extract_errors"].append({"path": path, "extractor": "file_read", "error": repr(e)})
+            # Skip files that can't be parsed
             continue
 
-    # Link touches with detailed actor/via/action (this powers "Who touches it" in the UI)
-    def _touches_for(target_name_or_path: str, item_type: str) -> list[dict]:
-        touches = []
-        for e in control_flow:
-            if target_name_or_path in (e["from"], e["to"]):
-                # Determine action based on item type
-                action = "reads"
-                if item_type == "dbModel":
-                    action = "reads/writes rows in"
-                elif item_type == "requestSchema":
-                    action = "validates"
-                elif item_type == "responseSchema":
-                    action = "returns"
-                elif item_type == "env":
-                    action = "reads env"
-                elif item_type == "api":
-                    action = "calls"
-                elif item_type == "smtp":
-                    action = "sends email via"
-                
-                touches.append({
-                    "edge": e,
-                    "via": e.get("kind", "call"),
-                    "actor": e["from"] if e["to"] == target_name_or_path else e["to"],
-                    "action": action
-                })
-        return touches
-
-    for s in stores:
-        s["touches"] = _touches_for(s["path"], s["type"])
-    for i in inputs:
-        i["touches"] = _touches_for(i.get("path", ""), i["type"])
-    for x in externals:
-        x["touches"] = _touches_for(x.get("client") or x.get("path", ""), x["type"])
-
-    # Add UI fields
-    def _used_for(di):
-        if di["type"] == "dbModel": return "System of record persisted via SQLAlchemy."
-        if di["type"] == "requestSchema": return "Validates incoming request bodies."
-        if di["type"] == "responseSchema": return "Defines response structure."
-        if di["type"] == "env": return "Configuration/secret loaded at runtime."
-        if di["type"] in ("api","smtp"): return "External service/client calls."
-        return "Support artifact."
-    
-    def _example(di):
-        if di["type"] == "requestSchema":
-            # Generate example from fields
-            example = {}
-            fields = di.get("fields", [])
-            for field in fields[:5]:  # Limit to first 5 fields
-                if isinstance(field, dict):
-                    field_name = field.get("name", "")
-                    field_type = field.get("type", "").lower()
-                    field_required = field.get("required", True)
-                    field_default = field.get("default")
-                    
-                    if not field_required and field_default is None:
-                        continue  # Skip optional fields without defaults
-                    
-                    if field_default is not None:
-                        example[field_name] = field_default
-                    elif "str" in field_type or "string" in field_type:
-                        if "email" in field_name:
-                            example[field_name] = "user@example.com"
-                        elif "name" in field_name:
-                            example[field_name] = "John Doe"
-                        elif "url" in field_name:
-                            example[field_name] = "https://example.com"
-                        else:
-                            example[field_name] = "sample_value"
-                    elif "int" in field_type:
-                        example[field_name] = 42
-                    elif "bool" in field_type:
-                        example[field_name] = True
-                    elif "list" in field_type or "array" in field_type:
-                        example[field_name] = ["item1", "item2"]
-                    elif "dict" in field_type:
-                        example[field_name] = {"key": "value"}
-                    else:
-                        example[field_name] = "example"
-            return example
-        if di["type"] == "responseSchema": return {"example": True}
-        if di["type"] == "dbModel": 
-            # Generate example shape from columns
-            example = {"id": 1}
-            columns = di.get("columns", [])
-            for col in columns[:3]:  # Limit to first 3 columns
-                col_name = col.get("name", "")
-                col_type = col.get("type", "").lower()
-                if col_name and col_name != "id":
-                    if "string" in col_type or "text" in col_type:
-                        if "email" in col_name:
-                            example[col_name] = "test@example.com"
-                        elif "name" in col_name:
-                            example[col_name] = "Test User"
-                        else:
-                            example[col_name] = "test_value"
-                    elif "int" in col_type:
-                        example[col_name] = 42
-                    elif "bool" in col_type:
-                        example[col_name] = True
-                    elif "datetime" in col_type:
-                        example[col_name] = "2025-01-01T12:00:00Z"
-                    else:
-                        example[col_name] = "example"
-            return example
-        if di["type"] == "env": 
-            # Redacted examples for secrets
-            key = di.get("key", "")
-            if any(secret in key.upper() for secret in ["KEY", "SECRET", "TOKEN", "PASSWORD"]):
-                return {"key": key, "value": "***REDACTED***"}
-            else:
-                return {"key": key, "value": "example_value"}
-        return {}
-
-    for bucket in (inputs, stores, externals, outputs):
-        for di in bucket:
-            di["usedFor"] = _used_for(di)
-            di["example"] = _example(di)
-
-    # outputs is already initialized above
-    
-    # Deduplicate and normalize outputs (only return artifacts, never externals)
-    artifact_like = {"DeckOut", "EmailOut", "EmailBatchOut", "ProspectOut", "SlideOut"}
-    output_names = set()
-    
-    for output in outputs:
-        if isinstance(output, dict) and "name" in output:
-            name = output["name"]
-            if name in artifact_like:
-                output_names.add(name)
-        else:
-            output_str = str(output)
-            if output_str in artifact_like:
-                output_names.add(output_str)
-    
-    # Never add externals to outputs
-    # for ext in externals:
-    #     if isinstance(ext, dict) and "name" in ext:
-    #         output_names.add(ext["name"])
-    
-    # Create clean outputs list
-    clean_outputs = sorted(list(output_names))
-    
     data_flow = {
-        "inputs": [_rel_item(x) for x in inputs],
-        "stores": [_rel_item(x) for x in stores],
-        "externals": [_rel_item(x) for x in externals],
-        "outputs": [_rel_item(x) for x in outputs],
+        "inputs": [_rel_item(x) for x in _embed_touches(inputs)],
+        "stores": [_rel_item(x) for x in _embed_touches(stores)],
+        "externals": [_rel_item(x) for x in _embed_touches(externals)],
     }
-    
-    # Clean outputs will be added to capability later
-    
-    # 8) Promote contracts (request/response schemas)
-    promoted_contracts = []
-    
-    # Add request schemas from data_flow.inputs
-    for req_input in data_flow.get("inputs", []):
-        if req_input.get("type") == "requestSchema":
-            promoted_contracts.append({
-                "kind": "request",
-                "name": req_input.get("name"),
-                "path": req_input.get("path"),
-                "fields": req_input.get("fields", [])
-            })
-    
-    # Add response schemas from data_flow.outputs
-    for resp_output in data_flow.get("outputs", []):
-        if isinstance(resp_output, dict) and resp_output.get("type") == "responseSchema":
-            promoted_contracts.append({
-                "kind": "response",
-                "name": resp_output.get("name"),
-                "path": resp_output.get("file_path"),
-                "fields": resp_output.get("fields", [])
-            })
-    
-    # Add existing contracts
-    promoted_contracts.extend(contracts)
-    
-    # Deduplicate contracts by name and path
-    seen = set()
-    unique_contracts = []
-    for contract in promoted_contracts:
-        key = (contract.get("name"), contract.get("path"))
-        if key not in seen:
-            seen.add(key)
-            unique_contracts.append(contract)
-    
-    # Contracts will be added to capability later
 
     # 7) Extract policies with appliedAt
     policies_typed = []
     
     # Extract FastAPI policies by parsing source files directly
+    from app.parsers.python import extract_fastapi_policies
+    
     for f in files_list:
         path = norm(f["path"], repo_root)
         if not path.endswith('.py'):
             continue
             
         # Parse the actual source file
-        source_path = resolve_source_path(repo_dir, path)
-        if not source_path:
+        source_path = repo_dir / path
+        if not source_path.exists():
             continue
             
         try:
             text = source_path.read_text()
-            pols = extract_fastapi_policies(text, path)
-            if pols:
-                # Ensure policies have proper appliedAt
-                for pol in pols:
-                    if not pol.get("appliedAt"):
-                        if "/main.py" in path:
-                            pol["appliedAt"] = path
-                        elif "/routers/" in path:
-                            pol["appliedAt"] = path
-                        else:
-                            pol["appliedAt"] = path
-                policies_typed.extend(pols)
+            fastapi_policies = extract_fastapi_policies(text, path)
+            
+            # Process FastAPI policies
+            for policy in fastapi_policies:
+                # Try to resolve appliedAt: if file is a router, appliedAt is the same file
+                applied_at = path if "/routers/" in path or "main.py" in path else None
+                policies_typed.append({**policy, "appliedAt": applied_at})
                 
         except Exception as e:
-            debug["extract_errors"].append({"path": path, "extractor": "policies", "error": repr(e)})
+            # Skip files that can't be parsed
             continue
     
     # Add LLM-generated policies as fallback
@@ -1655,19 +1365,11 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
             elif inp.get("type") == "env":
                 data_in.append(inp.get("key", ""))
         
-        # Data outputs from data_flow (only return artifacts, never externals)
-        artifact_like = {"DeckOut", "EmailOut", "EmailBatchOut", "ProspectOut", "SlideOut"}
+        # Data outputs from data_flow
         for store in data_flow.get("stores", []):
-            name = store.get("name", "")
-            if name in artifact_like:
-                data_out.append(name)
-        
-        # Add response schemas that represent return artifacts
-        for output in data_flow.get("outputs", []):
-            if isinstance(output, dict) and output.get("type") == "responseSchema":
-                name = output.get("name", "")
-                if name in artifact_like:
-                    data_out.append(name)
+            data_out.append(store.get("name", ""))
+        for ext in data_flow.get("externals", []):
+            data_out.append(ext.get("name", ""))
         
         # Orchestrators: files with high out-degree in control_flow
         out_degree = {}
@@ -1683,21 +1385,12 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         sources = [ep["path"] for ep in entrypoints]
         sources.extend([path for path, degree in in_degree.items() if degree == 0 and path not in sources])
         
-        # Sinks: files with no outgoing edges (consider all nodes, not just ones with outgoing edges)
-        all_nodes = set()
-        for edge in control_flow:
-            all_nodes.add(edge["from"])
-            all_nodes.add(edge["to"])
-        
-        out_map = {}
-        for edge in control_flow:
-            out_map.setdefault(edge["from"], set()).add(edge["to"])
-        
-        sinks = sorted([n for n in all_nodes if len(out_map.get(n, set())) == 0])
+        # Sinks: files with no outgoing edges or terminal operations
+        sinks = [path for path in out_degree.keys() if out_degree[path] == 0]
         
         return {
-            "dataIn": sorted(set(data_in)),  # De-duplicate and sort for stability
-            "dataOut": sorted(set(data_out)),  # De-duplicate and sort for stability
+            "dataIn": data_in,
+            "dataOut": data_out,
             "orchestrators": orchestrators,
             "sources": sources,
             "sinks": sinks
@@ -1728,7 +1421,7 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         "control_flow": control_flow,
         "data_flow": data_flow,
         "policies": policies_typed,
-        "contracts": unique_contracts,
+        "contracts": data.get("contracts", []),
         "summaries": {"file": summaries_file, "folder": folder_rollup, "narrative": narr_steps},
         # Derived fields for list cards
         "keyFiles": key_files,
@@ -1742,8 +1435,6 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         # camelCase mirrors
         "controlFlow": control_flow,
         "dataFlow": data_flow,
-        # Clean outputs
-        "dataOut": clean_outputs,
     }
 
     # Steps mapping with optional fileId linking (first step → first entrypoint)
@@ -1772,170 +1463,22 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         incoming = in_map.get(n, [])
         outgoing = out_map.get(n, [])
         role = "entrypoint" if n in entries else ("handler" if outgoing else "sink")
-        
-        # Find policies applied to this node
-        node_policies = [p for p in policies_typed if p.get("path") == n]
-        
-        # Find env vars used by this node
-        node_envs = []
-        for env_input in data_flow.get("inputs", []):
-            if env_input.get("type") == "env":
-                # Check if this node touches this env var
-                env_touches = env_input.get("touches", [])
-                if any(t.get("actor") == n for t in env_touches):
-                    node_envs.append(env_input.get("key"))
-        
-        # Find related data (stores/externals) touched by this node
-        node_related_data = []
-        for store in data_flow.get("stores", []):
-            store_touches = store.get("touches", [])
-            if any(t.get("actor") == n for t in store_touches):
-                node_related_data.append(store.get("name") or store.get("path"))
-        
-        for ext in data_flow.get("externals", []):
-            ext_touches = ext.get("touches", [])
-            if any(t.get("actor") == n for t in ext_touches):
-                node_related_data.append(ext.get("name"))
-        
-        # Find request schemas used by this node
-        node_req_schemas = []
-        for req_input in data_flow.get("inputs", []):
-            if req_input.get("type") == "requestSchema":
-                req_touches = req_input.get("touches", [])
-                if any(t.get("actor") == n for t in req_touches):
-                    node_req_schemas.append(req_input.get("name"))
-        
         node_index[n] = {
             "lane": lane_for_path_map.get(n, "other"),
             "role": role,
             "incoming": incoming,
             "outgoing": outgoing,
-            "policies": node_policies,
-            "envs": node_envs,
-            "relatedData": node_related_data,
-            "reqSchemas": node_req_schemas,
+            "policies": [],
+            "envs": [i.get("key") for i in data_flow.get("inputs", []) if i.get("type") == "env"],
+            "relatedData": [s.get("name") or s.get("path") for s in data_flow.get("stores", [])] + [e.get("name") for e in data_flow.get("externals", [])],
         }
     capability["nodeIndex"] = node_index
 
-    # Add debug info temporarily
-    capability["debug"] = debug
-    
     # Apply comprehensive post-processing
     capability = ensure_capability_defaults(capability)
     capability = normalize_capability_paths(capability, repo_dir)
     capability = provide_trivial_fallbacks(capability)
     capability = add_camelcase_mirrors(capability)
-    
-    # 12) Add fallback file summaries if LLM summaries are empty
-    summaries = capability.get("summaries", {})
-    if not summaries or not any(isinstance(s, dict) and s.get("summary") for s in summaries.values()):
-        capability["summaries"] = {}
-        for f in files_list:
-            path = f["path"]
-            # Generate simple fallback summary
-            if "/routers/" in path:
-                summary = f"FastAPI router with {len([e for e in control_flow if e['from'] == path])} outgoing calls"
-            elif "/services/" in path:
-                summary = f"Service module with {len([e for e in control_flow if e['from'] == path])} dependencies"
-            elif "/models/" in path:
-                summary = f"Data model with {len([s for s in stores if s.get('path') == path])} tables"
-            elif "/schemas/" in path:
-                summary = f"Pydantic schema definitions"
-            elif path.endswith("main.py"):
-                summary = "FastAPI application entry point"
-            elif path.endswith("config.py"):
-                summary = "Application configuration and settings"
-            elif path.endswith("database.py"):
-                summary = "Database connection and setup"
-            else:
-                summary = f"Supporting module with {len([e for e in control_flow if e['from'] == path or e['to'] == path])} connections"
-            
-            capability["summaries"][path] = {"summary": summary}
-    
-    # Fix router lanes after normalization
-    lane_for_path_map = {n: lane_for_path(n) for n in graph_nodes}
-    for n, info in capability["nodeIndex"].items():
-        info["lane"] = lane_for_path_map.get(n, info.get("lane", "other"))
-    
-    # Map narrative steps to files
-    def guess_file_for_step(label: str, edges: list[dict]) -> str | None:
-        label_l = label.lower()
-        
-        # More specific mapping based on step content
-        if "validate" in label_l or "prospect id" in label_l:
-            return next((e["from"] for e in edges if "/routers/" in e["from"] and "deck" in e["from"]), None)
-        elif "fetch" in label_l or "prospect data" in label_l:
-            return next((e["to"] for e in edges if "/models/" in e["to"] and "prospect" in e["to"]), None)
-        elif "generate" in label_l and "deck" in label_l:
-            return next((e["to"] for e in edges if "/services/" in e["to"] and "ai" in e["to"]), None)
-        elif "save" in label_l or "create" in label_l:
-            return next((e["to"] for e in edges if "/models/" in e["to"]), None)
-        elif "email" in label_l or "send" in label_l:
-            return next((e["to"] for e in edges if "/services/" in e["to"] and "email" in e["to"]), None)
-        elif "receive" in label_l or "request" in label_l:
-            return next((e["from"] for e in edges if "/routers/" in e["from"]), None)
-        
-        # Fallback to general preferences
-        prefs = ["routers/deck.py","routers/email.py","services/ai.py","services/emailgeneration.py","models/prospect.py","models/deck.py","schemas","database.py","main.py"]
-        cands = [e["from"] for e in edges] + [e["to"] for e in edges]
-        cands = list(dict.fromkeys([c for c in cands if isinstance(c, str)]))  # de-dupe
-        for p in prefs:
-            hit = next((c for c in cands if p in c), None)
-            if hit: return hit
-        return cands[0] if cands else None
-
-    for s in capability.get("steps", []):
-        s["fileId"] = s.get("fileId") or guess_file_for_step(s["title"], control_flow)
-    
-    # 11) Add heuristic suspect ranking
-    def calculate_suspect_ranking(files_list: list, control_flow: list) -> list:
-        suspects = []
-        
-        # Calculate scores for each file
-        file_scores = {}
-        for f in files_list:
-            path = f["path"]
-            score = 0
-            reasons = []
-            
-            # High out-degree (many outgoing calls)
-            outgoing = len([e for e in control_flow if e["from"] == path])
-            if outgoing > 3:
-                score += outgoing
-                reasons.append(f"High fan-out ({outgoing} calls)")
-            
-            # Service/router files are more critical
-            if "/services/" in path or "/routers/" in path:
-                score += 2
-                reasons.append("Critical service/router")
-            
-            # Files with external dependencies
-            if any(e for e in externals if e.get("client") == path):
-                score += 3
-                reasons.append("External service dependency")
-            
-            # Files with database models
-            if any(s for s in stores if s.get("path") == path):
-                score += 2
-                reasons.append("Database model")
-            
-            # Files with error handling patterns (simple heuristic)
-            if "exception" in path.lower() or "error" in path.lower():
-                score += 1
-                reasons.append("Error handling")
-            
-            if score > 0:
-                suspects.append({
-                    "path": path,
-                    "score": score,
-                    "reason": "; ".join(reasons)
-                })
-        
-        # Sort by score and return top 3
-        suspects.sort(key=lambda x: x["score"], reverse=True)
-        return suspects[:3]
-    
-    capability["suspectRank"] = calculate_suspect_ranking(files_list, control_flow)
     
     # Add normalization warnings
     if anchor_warnings:

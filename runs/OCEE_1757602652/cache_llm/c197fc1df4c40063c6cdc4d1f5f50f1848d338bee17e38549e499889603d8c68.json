@@ -1,0 +1,19 @@
+{
+  "title": "Email Generation Service",
+  "purpose": "This module is responsible for generating and formatting email content for various notifications and communications within the application.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "__future__",
+    "json",
+    "logging",
+    "typing",
+    "config"
+  ],
+  "how_to_modify": "To modify the email generation logic, locate the relevant functions or classes that handle email formatting and content generation. Ensure to follow the existing structure and conventions used in the module.",
+  "risks": "Changes to the email content or formatting may lead to incorrect or malformed emails being sent. Additionally, improper handling of dependencies could introduce bugs or affect logging functionality.",
+  "blurb": "Think of this module as the email chef in a restaurant, whipping up delicious messages to serve to your users. Just like a chef needs the right ingredients and recipes, this module needs the right code and configurations to create the perfect email.",
+  "dev_summary": "Handles email content generation. Interfaces with JSON for data formatting and logging for error tracking. Be cautious with changes to ensure email integrity.",
+  "vibecoder_summary": "Imagine a magical kitchen where emails are cooked up! This module is the chef, mixing ingredients (data) and following recipes (code) to create tasty emails for everyone. Just make sure the chef doesn’t spill anything or forget an ingredient!",
+  "edit_points": []
+}

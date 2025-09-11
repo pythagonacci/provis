@@ -1,0 +1,24 @@
+{
+  "title": "Email Router",
+  "purpose": "Handles email-related API routes for the application using FastAPI.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "__future__",
+    "typing",
+    "fastapi",
+    "sqlalchemy.orm",
+    "pydantic",
+    "database",
+    "models.prospect",
+    "models.email",
+    "schemas.email",
+    "services.emailgeneration"
+  ],
+  "how_to_modify": "To add or modify email-related routes, locate the appropriate route definitions within this file. Ensure that any changes align with the FastAPI routing conventions and validate input/output using Pydantic schemas.",
+  "risks": "Modifying routes without proper validation may lead to unexpected behavior or security vulnerabilities. Ensure that all new routes are tested thoroughly.",
+  "blurb": "This file is like a post office for your application, managing how emails are sent and received through various routes.",
+  "dev_summary": "Defines API routes for email functionalities using FastAPI. Ensure to validate inputs with Pydantic and manage dependencies correctly.",
+  "vibecoder_summary": "Imagine this file as a friendly mailman, delivering messages between your app and the world of emails. It knows all the routes to take and ensures every letter gets to the right place!",
+  "edit_points": "Focus on adding new route functions or modifying existing ones. Pay attention to the integration with Pydantic for data validation."
+}

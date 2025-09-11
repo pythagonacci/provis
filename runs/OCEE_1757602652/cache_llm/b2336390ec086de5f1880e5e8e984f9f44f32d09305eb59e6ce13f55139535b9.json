@@ -1,0 +1,21 @@
+{
+  "title": "PDF Service Module",
+  "purpose": "This module is responsible for generating PDF documents using templates and data provided by other parts of the application.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "__future__",
+    "os",
+    "typing",
+    "jinja2",
+    "weasyprint",
+    "config",
+    "utils"
+  ],
+  "how_to_modify": "To modify the PDF generation logic, look for functions that utilize Jinja2 templates and WeasyPrint for rendering. Ensure that any changes to templates are reflected in the corresponding Jinja2 files.",
+  "risks": "Modifying the PDF generation logic may lead to incorrect document formatting or data representation. Ensure thorough testing after changes to avoid breaking the PDF output.",
+  "blurb": "This module is like a digital printer that takes your data and templates, and magically transforms them into beautifully formatted PDF documents.",
+  "dev_summary": "Handles PDF generation using Jinja2 templates and WeasyPrint. No defined functions or classes are present, but relies on external libraries for rendering. Be cautious with template changes.",
+  "vibecoder_summary": "Imagine a chef (this module) who takes a recipe (template) and ingredients (data) to whip up a delicious dish (PDF). If you change the recipe, make sure it still tastes good!",
+  "edit_points": "Focus on areas where templates are loaded and rendered, particularly any references to Jinja2 and WeasyPrint. Check for any configuration settings that might affect output."
+}

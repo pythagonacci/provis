@@ -1,0 +1,18 @@
+{
+  "title": "Prospect Model",
+  "purpose": "Defines the data structure and behavior for prospects in the application.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "sqlalchemy.orm",
+    "sqlalchemy",
+    "datetime",
+    "database"
+  ],
+  "how_to_modify": "To modify the prospect model, you can add new attributes to the class or adjust existing ones. Ensure that any changes align with the database schema and update any related queries accordingly.",
+  "risks": "Modifying the model without updating the database schema can lead to inconsistencies. Be cautious of breaking existing functionality that relies on the current model structure.",
+  "blurb": "This file is the blueprint for prospects, detailing how they are structured and interact with the database.",
+  "dev_summary": "Defines the Prospect class for ORM mapping with SQLAlchemy. No functions or constants are defined. Ensure database schema matches model changes.",
+  "vibecoder_summary": "Think of this file as a recipe for making prospects. If you want to add a new ingredient (attribute), just make sure it fits with the rest of the dish (database).",
+  "edit_points": "Focus on the class definition for adding or modifying attributes related to prospects."
+}

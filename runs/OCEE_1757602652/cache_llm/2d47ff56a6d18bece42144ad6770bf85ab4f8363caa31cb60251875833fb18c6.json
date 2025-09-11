@@ -1,0 +1,16 @@
+{
+  "title": "Migration Script for Adding Phone Field",
+  "purpose": "This script is designed to modify the database schema by adding a phone number field to an existing table.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "sqlite3",
+    "os"
+  ],
+  "how_to_modify": "To modify this script, you should focus on the database schema changes, specifically where the phone field is being added. Ensure that you understand the existing database structure and how the new field integrates with it.",
+  "risks": "Modifying the database schema can lead to data loss or corruption if not done carefully. Ensure you have backups before running the migration. Additionally, if the script is executed in a production environment, it may affect live data.",
+  "blurb": "This script is like a construction worker adding a new room to a house—careful planning is essential to ensure everything fits and functions well.",
+  "dev_summary": "This Python script uses sqlite3 to alter a database schema by adding a phone field. It has no defined functions or classes, and it relies on external libraries for database operations.",
+  "vibecoder_summary": "Imagine you're a wizard casting a spell to add a new magical phone booth to your enchanted castle. This script helps you make that happen, but be careful not to accidentally turn your castle into a pumpkin!",
+  "edit_points": []
+}

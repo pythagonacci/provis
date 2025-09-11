@@ -1,0 +1,13 @@
+{
+  "title": "TypeScript Environment Definitions",
+  "purpose": "This file provides TypeScript definitions for the Next.js environment, ensuring type safety and IntelliSense support for Next.js features.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [],
+  "how_to_modify": "You can add or modify type definitions related to the Next.js environment. Ensure that any changes maintain compatibility with the existing TypeScript setup.",
+  "risks": "Incorrect modifications may lead to type errors or loss of IntelliSense support in your development environment. Always validate changes with TypeScript compiler checks.",
+  "blurb": "Think of this file as a map that helps TypeScript navigate the Next.js landscape, ensuring you don't get lost in the code!",
+  "dev_summary": "Defines TypeScript types for Next.js environment. No functions or classes present. Be cautious with changes to avoid type conflicts.",
+  "vibecoder_summary": "Imagine this file as a friendly guidebook for TypeScript, helping it understand the magical world of Next.js! If you change the guidebook, make sure the directions still make sense!",
+  "edit_points": []
+}

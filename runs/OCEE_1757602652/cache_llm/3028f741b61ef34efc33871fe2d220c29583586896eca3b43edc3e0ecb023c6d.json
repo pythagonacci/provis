@@ -1,0 +1,18 @@
+{
+  "title": "Email Model",
+  "purpose": "Defines the structure and behavior of email-related data in the application.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "__future__",
+    "sqlalchemy",
+    "sqlalchemy.orm",
+    "database"
+  ],
+  "how_to_modify": "To modify this file, consider adding new fields to the email model or updating validation logic. Ensure that any changes align with the database schema and ORM mappings.",
+  "risks": "Modifying the email model may lead to inconsistencies with the database if migrations are not handled properly. Additionally, changes could affect other parts of the application that rely on this model.",
+  "blurb": "This file is the blueprint for how emails are stored and managed in our app. Think of it as the recipe that tells the kitchen how to prepare the dish!",
+  "dev_summary": "Defines the email model using SQLAlchemy ORM. No functions or classes are defined yet. Ensure database migrations are in sync with any changes.",
+  "vibecoder_summary": "Imagine this file as a treasure map that guides you to the hidden gems of email data! You can add new treasures (fields) or change the way we find them, but be careful not to lose the map's accuracy!",
+  "edit_points": "Look for areas where you can define new attributes or validation rules for the email model. Pay attention to how these changes might affect the database and other components."
+}

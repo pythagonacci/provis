@@ -1,26 +1,10 @@
 {
-  "repoId": "OCEE_1757602652",
-  "generatedAt": "2025-09-11T17:39:50.610691+00:00",
-  "summary": {
-    "totalFiles": 42,
-    "languages": {
-      "other": 11,
-      "py": 23,
-      "js": 2,
-      "ts": 6
-    }
-  },
   "files": [
     {
       "path": "README.md",
       "language": "other",
-      "ext": "",
-      "size": 1199,
-      "lines": 10,
-      "hash": "4fb4ce5fd3165d7f1c7f3f349d2ce4de1e1993c4e6e41a6d6da485931d844b33",
-      "mtime": 1757602652.9935205,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -38,18 +22,17 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 1199,
+      "lines": 10,
+      "hash": "4fb4ce5fd3165d7f1c7f3f349d2ce4de1e1993c4e6e41a6d6da485931d844b33",
+      "mtime": 1757602652.9935205
     },
     {
       "path": ".gitignore",
       "language": "other",
-      "ext": "",
-      "size": 13,
-      "lines": 1,
-      "hash": "5573b9168caf19028ac7eedcf943999f8d923266ec0c26404ef8f5e566353340",
-      "mtime": 1757602652.9937208,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -67,18 +50,17 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 13,
+      "lines": 1,
+      "hash": "5573b9168caf19028ac7eedcf943999f8d923266ec0c26404ef8f5e566353340",
+      "mtime": 1757602652.9937208
     },
     {
       "path": "backend/requirements.txt",
       "language": "other",
-      "ext": "",
-      "size": 111,
-      "lines": 10,
-      "hash": "5fb86cbc65f9248cb8b5349472eb8db57e28abb8b1502f12f65cd9071124dfa8",
-      "mtime": 1757602652.9920504,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -96,16 +78,16 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 111,
+      "lines": 10,
+      "hash": "5fb86cbc65f9248cb8b5349472eb8db57e28abb8b1502f12f65cd9071124dfa8",
+      "mtime": 1757602652.9920504
     },
     {
       "path": "backend/migrate_add_phone.py",
       "language": "py",
-      "ext": "",
-      "size": 1080,
-      "lines": 37,
-      "hash": "ec20a7e980071d7ba9e346feb08dab099b26591fc0225be97315208c020bcbe3",
-      "mtime": 1757602652.9932597,
+      "exports": [],
       "imports": [
         {
           "raw": "sqlite3",
@@ -120,22 +102,21 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "migrate",
           "params": [],
           "decorators": [],
           "calls": [
+            "exists",
+            "print",
             "close",
             "commit",
-            "rollback",
-            "connect",
-            "print",
-            "cursor",
             "execute",
             "fetchall",
-            "exists"
+            "cursor",
+            "connect",
+            "rollback"
           ],
           "sideEffects": [
             "io"
@@ -159,34 +140,34 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this script as a bridge that helps your database evolve by adding new features, like a phone number field, without losing any of its existing treasures.",
+      "blurb": "This script is like a construction worker adding a new room to a house\u2014careful planning is essential to ensure everything fits and functions well.",
       "skipped": false,
       "skipReason": null,
+      "size": 1080,
+      "lines": 37,
+      "hash": "ec20a7e980071d7ba9e346feb08dab099b26591fc0225be97315208c020bcbe3",
+      "mtime": 1757602652.9932597,
       "summary": {
         "title": "Migration Script for Adding Phone Field",
-        "purpose": "This script is designed to handle database migrations, specifically adding a phone number field to an existing database schema.",
+        "purpose": "This script is designed to modify the database schema by adding a phone number field to an existing table.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
           "sqlite3",
           "os"
         ],
-        "how_to_modify": "To modify this script, you can add new migration steps or adjust existing ones. Ensure that any changes to the database schema are reflected in the migration logic.",
-        "risks": "Modifying the migration logic without proper testing may lead to data loss or corruption. Always back up your database before running migrations.",
-        "blurb": "Think of this script as a bridge that helps your database evolve by adding new features, like a phone number field, without losing any of its existing treasures.",
-        "dev_summary": "This script facilitates database migrations using SQLite. It currently lacks defined functions or classes, indicating it may be a simple script. Be cautious with schema changes.",
-        "vibecoder_summary": "Imagine your database is a garden, and this script is a gardener adding new plants (phone fields) to make it more beautiful. Just be careful not to pull out any of the old plants while you're at it!",
+        "how_to_modify": "To modify this script, you should focus on the database schema changes, specifically where the phone field is being added. Ensure that you understand the existing database structure and how the new field integrates with it.",
+        "risks": "Modifying the database schema can lead to data loss or corruption if not done carefully. Ensure you have backups before running the migration. Additionally, if the script is executed in a production environment, it may affect live data.",
+        "blurb": "This script is like a construction worker adding a new room to a house\u2014careful planning is essential to ensure everything fits and functions well.",
+        "dev_summary": "This Python script uses sqlite3 to alter a database schema by adding a phone field. It has no defined functions or classes, and it relies on external libraries for database operations.",
+        "vibecoder_summary": "Imagine you're a wizard casting a spell to add a new magical phone booth to your enchanted castle. This script helps you make that happen, but be careful not to accidentally turn your castle into a pumpkin!",
         "edit_points": []
       }
     },
     {
       "path": "backend/app/config.py",
       "language": "py",
-      "ext": "",
-      "size": 1576,
-      "lines": 55,
-      "hash": "cbb864dc6dcee04167cf7e0f997b612c417bdbd74dbbc84b6551b179a286c9ad",
-      "mtime": 1757602652.97321,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -213,7 +194,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -244,12 +224,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the blueprint for your app's settings, ensuring everything is in the right place and correctly labeled.",
+      "blurb": "Think of this file as the blueprint for your app's settings, ensuring everything runs smoothly and correctly.",
       "skipped": false,
       "skipReason": null,
+      "size": 1576,
+      "lines": 55,
+      "hash": "cbb864dc6dcee04167cf7e0f997b612c417bdbd74dbbc84b6551b179a286c9ad",
+      "mtime": 1757602652.97321,
       "summary": {
         "title": "Configuration Management",
-        "purpose": "This file manages application configuration settings using Pydantic for validation and type checking.",
+        "purpose": "This file manages application configuration settings using Pydantic for validation and type safety.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -258,22 +242,18 @@
           "pydantic_settings",
           "pydantic"
         ],
-        "how_to_modify": "To modify configuration settings, update the relevant Pydantic model definitions or add new settings as needed. Ensure that any new settings are validated appropriately.",
-        "risks": "Improper modifications may lead to invalid configurations, causing runtime errors or unexpected behavior in the application. Always validate changes against the expected data types and constraints.",
-        "blurb": "Think of this file as the blueprint for your app's settings, ensuring everything is in the right place and correctly labeled.",
-        "dev_summary": "Handles application configuration using Pydantic for type safety. No functions or classes are defined here, but it serves as a foundational setup for configuration management.",
-        "vibecoder_summary": "Imagine this file as the recipe book for your app, listing all the ingredients (settings) needed to cook up a delicious experience. If you change an ingredient, make sure it still tastes good!",
+        "how_to_modify": "To modify configuration settings, update the Pydantic model definitions or add new settings as needed. Ensure that any new settings are validated properly.",
+        "risks": "Improper modifications may lead to runtime errors or misconfigurations. Be cautious with data types and validation rules.",
+        "blurb": "Think of this file as the blueprint for your app's settings, ensuring everything runs smoothly and correctly.",
+        "dev_summary": "Handles application configuration using Pydantic for type validation. No functions or classes are defined here; focus on constants and settings.",
+        "vibecoder_summary": "Imagine this file as the recipe book for your app, listing all the ingredients (settings) it needs to bake perfectly. If you change an ingredient without knowing how it affects the cake, it might not rise!",
         "edit_points": []
       }
     },
     {
       "path": "backend/app/database.py",
       "language": "py",
-      "ext": "",
-      "size": 504,
-      "lines": 19,
-      "hash": "494ec199f75fda59a9ec46565b224649487aa7a6420dbf430e8852c06e3232e2",
-      "mtime": 1757602652.9734,
+      "exports": [],
       "imports": [
         {
           "raw": "sqlalchemy",
@@ -300,7 +280,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "get_db",
@@ -332,12 +311,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This is your gateway to the database! Here, you can define how your data is structured and how your application interacts with it.",
+      "blurb": "Think of this file as the blueprint for your database. It tells your application how to interact with the data stored in your database, like a map guiding you through a city.",
       "skipped": false,
       "skipReason": null,
+      "size": 504,
+      "lines": 19,
+      "hash": "494ec199f75fda59a9ec46565b224649487aa7a6420dbf430e8852c06e3232e2",
+      "mtime": 1757602652.9734,
       "summary": {
         "title": "Database Module",
-        "purpose": "This module is responsible for setting up the database connection and defining the data models using SQLAlchemy.",
+        "purpose": "This module is responsible for setting up the database connection and defining the ORM models using SQLAlchemy.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -346,24 +329,19 @@
           "sqlalchemy.orm",
           "config"
         ],
-        "how_to_modify": "To modify this file, you can add new database models or change the database connection settings. Ensure that any new models are properly defined according to SQLAlchemy's ORM standards.",
-        "risks": "Modifying the database connection settings may lead to connection issues. Adding or changing models without proper migration can result in data loss or corruption.",
-        "blurb": "This is your gateway to the database! Here, you can define how your data is structured and how your application interacts with it.",
-        "dev_summary": "Sets up SQLAlchemy ORM for database interactions. No functions or classes defined yet. Be cautious with model changes and migrations.",
-        "vibecoder_summary": "Think of this module as the architect of a library. It decides what books (data) go on which shelves (tables) and how to find them. Just be careful not to knock over the shelves while rearranging!",
-        "edit_points": "Look for sections where you can define new classes for models or adjust the database connection settings. Ensure you follow SQLAlchemy conventions."
+        "how_to_modify": "To modify this file, you can add or update ORM model definitions, configure database settings, or adjust connection parameters. Ensure that any changes align with the existing database schema.",
+        "risks": "Modifying the database connection settings or ORM models can lead to data integrity issues, broken queries, or application crashes if not done carefully. Always back up the database before making changes.",
+        "blurb": "Think of this file as the blueprint for your database. It tells your application how to interact with the data stored in your database, like a map guiding you through a city.",
+        "dev_summary": "This module sets up SQLAlchemy for ORM usage. It defines models and manages database connections. Be cautious with schema changes and ensure compatibility with existing data.",
+        "vibecoder_summary": "Imagine this file as a magical library where all your data books are kept. Each book (model) has its own story (structure) and the librarian (SQLAlchemy) knows exactly how to fetch them when you ask. Just be careful not to misplace any books or change their stories without a plan!",
+        "edit_points": "Focus on adding new classes for ORM models or modifying existing ones. Pay attention to the database connection settings if changes are needed."
       }
     },
     {
       "path": "backend/app/__init__.py",
       "language": "py",
-      "ext": "",
-      "size": 0,
-      "lines": 0,
-      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "mtime": 1757602652.9735327,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -382,31 +360,31 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the welcome mat for your application. It sets the stage for everything that happens in the backend!",
+      "blurb": "Think of this file as the welcome mat for your backend app. It sets the stage for everything that comes next!",
       "skipped": false,
       "skipReason": null,
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602652.9735327,
       "summary": {
         "title": "__init__.py in backend/app",
         "purpose": "This file serves as an initializer for the backend application, allowing Python to recognize the directory as a package.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "You can add initialization code or import statements for modules that should be available when the package is imported. Ensure that any added imports do not create circular dependencies.",
-        "risks": "Modifying this file without understanding the package structure can lead to import errors or unexpected behavior in the application. Be cautious of adding dependencies that may not be available in the production environment.",
-        "blurb": "Think of this file as the welcome mat for your application. It sets the stage for everything that happens in the backend!",
-        "dev_summary": "This file initializes the backend application package. It currently has no defined functions or classes. Be careful when adding imports to avoid circular dependencies.",
-        "vibecoder_summary": "Imagine this file as the front door of a cozy little caf\u00e9. It\u2019s where you set up the welcome sign and make sure everything inside is ready for customers. Just don\u2019t block the door with too much stuff or it\u2019ll be hard for people to get in!",
-        "edit_points": []
+        "how_to_modify": "You can add initialization code or package-level documentation. Be cautious not to introduce circular imports.",
+        "risks": "Modifying this file incorrectly could lead to import errors or misconfiguration of the application package.",
+        "blurb": "Think of this file as the welcome mat for your backend app. It sets the stage for everything that comes next!",
+        "dev_summary": "This file initializes the backend application package. It currently has no defined functions or classes. Ensure any changes maintain package integrity.",
+        "vibecoder_summary": "Imagine this file as the front door to a cozy caf\u00e9. It welcomes guests (modules) and makes sure everything inside is ready to serve delicious code!",
+        "edit_points": "Consider adding module-level docstrings or import statements if necessary."
       }
     },
     {
       "path": "backend/app/main.py",
       "language": "py",
-      "ext": "",
-      "size": 2035,
-      "lines": 60,
-      "hash": "4906adc1483052a7e44565e4f910c01a0377fa520f8b80e6a3624f95b48759e5",
-      "mtime": 1757602652.9854941,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -475,7 +453,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "healthz",
@@ -514,12 +491,16 @@
         "isAPI": true
       },
       "warnings": [],
-      "blurb": "This is the heart of your FastAPI application, where everything comes together to serve your API requests.",
+      "blurb": "Think of this file as the conductor of an orchestra, coordinating the various instruments (routes, middleware, and static files) to create a harmonious API experience.",
       "skipped": false,
       "skipReason": null,
+      "size": 2035,
+      "lines": 60,
+      "hash": "4906adc1483052a7e44565e4f910c01a0377fa520f8b80e6a3624f95b48759e5",
+      "mtime": 1757602652.9854941,
       "summary": {
         "title": "Main Application Entry Point",
-        "purpose": "This file serves as the main entry point for a FastAPI application, configuring middleware, static files, and routing.",
+        "purpose": "This file serves as the main entry point for the FastAPI application, configuring routes, middleware, and static file serving.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -532,26 +513,18 @@
           "database",
           "routers"
         ],
-        "how_to_modify": "To modify this file, focus on configuring middleware, adding static file routes, or adjusting the routing logic. Ensure that any changes align with the FastAPI framework conventions.",
-        "risks": "Improper modifications could lead to application crashes, routing errors, or security vulnerabilities. Always test changes in a development environment before deploying.",
-        "blurb": "This is the heart of your FastAPI application, where everything comes together to serve your API requests.",
-        "dev_summary": "Main entry point for FastAPI app. Configures CORS, static files, and routes. Ensure middleware and routing are correctly set up to avoid runtime issues.",
-        "vibecoder_summary": "Imagine this file as the conductor of an orchestra, bringing together all the musicians (your routes and middleware) to create a beautiful symphony (your API). If the conductor misses a beat, the music can turn into chaos!",
-        "edit_points": [
-          "Middleware configuration",
-          "Static file serving setup",
-          "Routing adjustments"
-        ]
+        "how_to_modify": "To modify this file, you can add new routes, configure middleware settings, or adjust static file serving options. Ensure that any new routes are properly linked to the existing router modules.",
+        "risks": "Modifying this file without understanding the routing and middleware configurations may lead to broken endpoints or security vulnerabilities. Always test changes in a development environment before deploying.",
+        "blurb": "Think of this file as the conductor of an orchestra, coordinating the various instruments (routes, middleware, and static files) to create a harmonious API experience.",
+        "dev_summary": "This file initializes the FastAPI app, sets up CORS, serves static files, and includes routers for API endpoints. Be cautious with middleware and routing changes.",
+        "vibecoder_summary": "Imagine this file as the captain of a ship, steering through the waters of web requests. It decides which way to go and what sails to raise (routes and middleware) to navigate smoothly.",
+        "edit_points": "Focus on adding or modifying route definitions and middleware configurations. Ensure to check the imported routers for existing routes that may need adjustments."
       }
     },
     {
       "path": "backend/app/routers/prospect.py",
       "language": "py",
-      "ext": "",
-      "size": 2720,
-      "lines": 70,
-      "hash": "ca48a74a837a7df257f1fa1c1eef1a9673525bf9c90cddc7b17a8a3f5dea7fbb",
-      "mtime": 1757602652.9685793,
+      "exports": [],
       "imports": [
         {
           "raw": "fastapi",
@@ -590,7 +563,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "create_prospect",
@@ -602,14 +574,14 @@
             "post"
           ],
           "calls": [
-            "Depends",
-            "strip",
             "str",
-            "add",
-            "refresh",
             "post",
-            "Prospect",
-            "commit"
+            "add",
+            "commit",
+            "strip",
+            "Depends",
+            "refresh",
+            "Prospect"
           ],
           "sideEffects": [
             "db"
@@ -624,12 +596,12 @@
             "get"
           ],
           "calls": [
-            "Depends",
-            "desc",
-            "query",
             "order_by",
             "get",
-            "all"
+            "desc",
+            "Depends",
+            "all",
+            "query"
           ],
           "sideEffects": [
             "db"
@@ -645,10 +617,10 @@
             "get"
           ],
           "calls": [
+            "HTTPException",
             "get",
             "Depends",
-            "query",
-            "HTTPException"
+            "query"
           ],
           "sideEffects": [
             "db"
@@ -665,15 +637,15 @@
             "patch"
           ],
           "calls": [
-            "Depends",
-            "query",
-            "strip",
             "str",
             "patch",
+            "commit",
             "get",
-            "refresh",
             "HTTPException",
-            "commit"
+            "strip",
+            "Depends",
+            "refresh",
+            "query"
           ],
           "sideEffects": [
             "db"
@@ -718,12 +690,16 @@
         "isAPI": true
       },
       "warnings": [],
-      "blurb": "The Prospect Router is like a traffic controller for your prospect data, guiding requests to the right handlers and ensuring smooth communication between the client and the database.",
+      "blurb": "This file is like a traffic controller for prospect data, directing requests to the right handlers and ensuring smooth communication between the client and the database.",
       "skipped": false,
       "skipReason": null,
+      "size": 2720,
+      "lines": 70,
+      "hash": "ca48a74a837a7df257f1fa1c1eef1a9673525bf9c90cddc7b17a8a3f5dea7fbb",
+      "mtime": 1757602652.9685793,
       "summary": {
         "title": "Prospect Router",
-        "purpose": "This file defines the API routes related to prospects in the application, handling requests and responses for prospect data.",
+        "purpose": "Handles API routes related to prospect data management in a FastAPI application.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -733,22 +709,18 @@
           "database",
           "schemas.prospect"
         ],
-        "how_to_modify": "To modify this file, add or update route definitions using FastAPI decorators. Ensure that any changes to the data models or schemas are reflected in the corresponding imports and logic.",
-        "risks": "Modifying routes without proper validation can lead to broken API endpoints. Ensure that any changes are tested thoroughly to avoid runtime errors or data inconsistencies.",
-        "blurb": "The Prospect Router is like a traffic controller for your prospect data, guiding requests to the right handlers and ensuring smooth communication between the client and the database.",
-        "dev_summary": "Defines API routes for prospect management using FastAPI. Interfaces with SQLAlchemy for database operations. Ensure schemas are up-to-date with any changes.",
-        "vibecoder_summary": "Imagine this file as a friendly post office, sorting and delivering messages about prospects. When you want to send or receive info about prospects, this is where the magic happens!",
-        "edit_points": "Focus on adding new route handlers or modifying existing ones. Pay attention to the imports at the top to ensure all dependencies are correctly referenced."
+        "how_to_modify": "To add or modify routes, define new functions decorated with FastAPI route decorators (e.g., @app.get, @app.post) and ensure they interact correctly with the database and schemas.",
+        "risks": "Improperly defined routes may lead to security vulnerabilities, such as exposing sensitive data or allowing unauthorized access. Ensure to validate inputs and handle exceptions properly.",
+        "blurb": "This file is like a traffic controller for prospect data, directing requests to the right handlers and ensuring smooth communication between the client and the database.",
+        "dev_summary": "Defines API routes for managing prospects using FastAPI. Ensure to handle database interactions through SQLAlchemy and validate data against defined schemas.",
+        "vibecoder_summary": "Imagine this file as a friendly guide, helping users navigate through the world of prospects. It points them to the right paths and makes sure they don\u2019t get lost in the data jungle!",
+        "edit_points": "Look for areas where new route functions can be added or existing ones modified. Pay attention to the interaction with the database and schemas to maintain data integrity."
       }
     },
     {
       "path": "backend/app/routers/deck.py",
       "language": "py",
-      "ext": "",
-      "size": 9584,
-      "lines": 289,
-      "hash": "1f61a967104d1026591bc5495054ef1813c6f26d4eec36f84ab92b80a14f5277",
-      "mtime": 1757602652.9691331,
+      "exports": [],
       "imports": [
         {
           "raw": "json",
@@ -829,7 +801,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "generate_deck",
@@ -841,18 +812,18 @@
             "post"
           ],
           "calls": [
-            "Depends",
             "str",
-            "add",
-            "get",
-            "refresh",
-            "rstrip",
-            "Deck",
             "post",
+            "generate_deck_content",
+            "add",
+            "rstrip",
             "dumps",
             "HTTPException",
+            "get",
             "commit",
-            "generate_deck_content"
+            "Depends",
+            "refresh",
+            "Deck"
           ],
           "sideEffects": [
             "db"
@@ -868,11 +839,11 @@
             "get"
           ],
           "calls": [
-            "Depends",
-            "loads",
-            "get",
             "rstrip",
-            "HTTPException"
+            "HTTPException",
+            "get",
+            "loads",
+            "Depends"
           ],
           "sideEffects": [
             "db"
@@ -889,19 +860,19 @@
             "patch"
           ],
           "calls": [
-            "Depends",
-            "patch",
-            "get",
+            "dict",
             "add",
-            "refresh",
             "rstrip",
             "dumps",
-            "_truncate",
-            "validate_and_normalize_slides",
+            "patch",
+            "get",
+            "commit",
             "HTTPException",
+            "validate_and_normalize_slides",
+            "Depends",
+            "refresh",
             "_strip_markup",
-            "dict",
-            "commit"
+            "_truncate"
           ],
           "sideEffects": [
             "db"
@@ -917,17 +888,17 @@
             "post"
           ],
           "calls": [
-            "Depends",
-            "loads",
-            "render_deck_to_pdf",
             "str",
-            "add",
-            "get",
-            "refresh",
-            "rstrip",
             "post",
+            "add",
+            "rstrip",
             "HTTPException",
-            "commit"
+            "get",
+            "commit",
+            "loads",
+            "Depends",
+            "refresh",
+            "render_deck_to_pdf"
           ],
           "sideEffects": [
             "db"
@@ -944,11 +915,11 @@
             "get"
           ],
           "calls": [
-            "Depends",
-            "loads",
             "len",
+            "HTTPException",
             "get",
-            "HTTPException"
+            "loads",
+            "Depends"
           ],
           "sideEffects": [
             "db"
@@ -966,21 +937,21 @@
             "patch"
           ],
           "calls": [
-            "update",
-            "Depends",
-            "loads",
             "len",
-            "patch",
-            "get",
             "add",
-            "refresh",
             "rstrip",
             "dumps",
-            "_truncate",
-            "validate_and_normalize_slides",
+            "patch",
+            "get",
+            "commit",
             "HTTPException",
+            "validate_and_normalize_slides",
+            "loads",
+            "Depends",
+            "refresh",
+            "update",
             "_strip_markup",
-            "commit"
+            "_truncate"
           ],
           "sideEffects": [
             "db"
@@ -998,18 +969,18 @@
             "post"
           ],
           "calls": [
-            "Depends",
-            "loads",
             "len",
+            "post",
             "str",
             "add",
-            "get",
-            "refresh",
             "rstrip",
-            "post",
             "dumps",
             "HTTPException",
+            "get",
             "commit",
+            "loads",
+            "Depends",
+            "refresh",
             "edit_deck_slide_content"
           ],
           "sideEffects": [
@@ -1026,11 +997,11 @@
             "post"
           ],
           "calls": [
-            "Depends",
             "str",
-            "get",
-            "type",
             "post",
+            "type",
+            "get",
+            "Depends",
             "edit_deck_slide_content"
           ],
           "sideEffects": [
@@ -1114,12 +1085,16 @@
         "isAPI": true
       },
       "warnings": [],
-      "blurb": "This file is like the traffic controller for deck-related requests, guiding data to and from the right places.",
+      "blurb": "Think of this file as the traffic controller for deck-related requests, guiding them to the right destination and ensuring everything runs smoothly.",
       "skipped": false,
       "skipReason": null,
+      "size": 9584,
+      "lines": 289,
+      "hash": "1f61a967104d1026591bc5495054ef1813c6f26d4eec36f84ab92b80a14f5277",
+      "mtime": 1757602652.9691331,
       "summary": {
         "title": "Deck Router",
-        "purpose": "Handles API routes related to deck management in a FastAPI application.",
+        "purpose": "This file defines the API routes related to deck management in a FastAPI application, handling requests for creating, reading, updating, and deleting deck resources.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -1134,24 +1109,19 @@
           "schemas.deck",
           "services.ai"
         ],
-        "how_to_modify": "To modify the deck routes, add new route functions or update existing ones within the FastAPI router. Ensure to follow the FastAPI conventions for defining endpoints and handling requests/responses.",
-        "risks": "Modifying the routes may lead to broken API endpoints or incorrect data handling if not done carefully. Ensure to validate any changes against existing tests and API documentation.",
-        "blurb": "This file is like the traffic controller for deck-related requests, guiding data to and from the right places.",
-        "dev_summary": "Defines API routes for deck management using FastAPI. No functions or classes are defined directly in this file, but it interfaces with models and services for data handling. Ensure to maintain API consistency when adding or modifying routes.",
-        "vibecoder_summary": "Imagine this file as a friendly librarian who knows exactly where to find all the deck-related books. If you want to add a new book or change the way they are organized, just make sure you don\u2019t misplace anything!",
+        "how_to_modify": "To modify the API routes, add or update route functions using FastAPI decorators. Ensure that any changes to the data models or schemas are reflected in the corresponding imports and function signatures.",
+        "risks": "Modifying the routes without proper validation may lead to broken API endpoints or data inconsistencies. Ensure that changes are tested thoroughly to avoid runtime errors.",
+        "blurb": "Think of this file as the traffic controller for deck-related requests, guiding them to the right destination and ensuring everything runs smoothly.",
+        "dev_summary": "Defines API routes for deck management in a FastAPI app. Interfaces with SQLAlchemy for database operations and Pydantic for data validation. Be cautious of changes that affect data models or schemas.",
+        "vibecoder_summary": "Imagine this file as a friendly librarian who helps you find and manage your decks. You can ask for new decks, update old ones, or even remove them, but be careful not to misplace any books or the library might get confused!",
         "edit_points": []
       }
     },
     {
       "path": "backend/app/routers/__init__.py",
       "language": "py",
-      "ext": "",
-      "size": 0,
-      "lines": 0,
-      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "mtime": 1757602652.9692736,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -1170,31 +1140,31 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the map of a city, guiding users to their desired destinations. If you change the roads, make sure they still lead to the right places!",
+      "blurb": "Think of this file as the map for a treasure hunt, guiding requests to the right treasure chests (endpoints) in your application!",
       "skipped": false,
       "skipReason": null,
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602652.9692736,
       "summary": {
         "title": "Router Initialization Module",
-        "purpose": "This module serves as the entry point for routing functionalities in the backend application, organizing and initializing routes for the application.",
+        "purpose": "This module serves as the initialization point for the routing components of the backend application, organizing and managing the routing structure.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "You can add new route definitions or modify existing ones in this module. Ensure that any new routes are properly linked to their respective handlers.",
-        "risks": "Modifying this file without understanding the routing structure may lead to broken links or inaccessible routes in the application. Always test routes after making changes.",
-        "blurb": "Think of this file as the map of a city, guiding users to their desired destinations. If you change the roads, make sure they still lead to the right places!",
-        "dev_summary": "This file initializes routing for the backend app. It currently has no defined functions or classes. Be cautious when adding routes to maintain application integrity.",
-        "vibecoder_summary": "Imagine this file as the conductor of an orchestra, ensuring every musician (route) plays their part at the right time. If you want to add a new musician, make sure they know the score!",
+        "how_to_modify": "To modify this file, consider adding new route definitions or importing existing route modules. Ensure that any changes maintain the routing structure and do not introduce conflicts.",
+        "risks": "Modifying this file without understanding the routing flow may lead to broken routes or inaccessible endpoints. Ensure thorough testing after any changes.",
+        "blurb": "Think of this file as the map for a treasure hunt, guiding requests to the right treasure chests (endpoints) in your application!",
+        "dev_summary": "This file initializes the routing for the backend application. It currently has no defined functions or classes. Be cautious when adding routes to avoid conflicts.",
+        "vibecoder_summary": "Imagine this file as the conductor of an orchestra, making sure every musician (route) knows when to play their part. If you add a new musician, make sure they know the song!",
         "edit_points": []
       }
     },
     {
       "path": "backend/app/routers/email.py",
       "language": "py",
-      "ext": "",
-      "size": 5227,
-      "lines": 152,
-      "hash": "b26f5efdc3fbe70cf60d68f40e46c58b6bb9a2ec797ca070023f1eae1c49884e",
-      "mtime": 1757602652.972944,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -1257,7 +1227,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "_to_out",
@@ -1282,23 +1251,23 @@
             "post"
           ],
           "calls": [
-            "Depends",
-            "_to_out",
-            "append",
-            "query",
             "str",
-            "Email",
-            "get",
-            "add",
-            "refresh",
-            "flush",
-            "post",
-            "filter",
             "delete",
+            "post",
+            "flush",
+            "Email",
+            "add",
+            "filter",
             "HTTPException",
+            "get",
             "commit",
+            "Depends",
             "generate_emails",
-            "EmailBatchOut"
+            "refresh",
+            "append",
+            "EmailBatchOut",
+            "_to_out",
+            "query"
           ],
           "sideEffects": [
             "db"
@@ -1314,15 +1283,15 @@
             "get"
           ],
           "calls": [
-            "asc",
-            "Depends",
-            "_to_out",
-            "query",
             "order_by",
-            "get",
             "filter",
+            "asc",
+            "get",
+            "Depends",
+            "all",
             "EmailBatchOut",
-            "all"
+            "_to_out",
+            "query"
           ],
           "sideEffects": [
             "db"
@@ -1338,10 +1307,10 @@
             "get"
           ],
           "calls": [
+            "HTTPException",
             "get",
             "Depends",
-            "_to_out",
-            "HTTPException"
+            "_to_out"
           ],
           "sideEffects": [
             "db"
@@ -1358,15 +1327,15 @@
             "patch"
           ],
           "calls": [
-            "Depends",
-            "_to_out",
-            "strip",
-            "patch",
-            "get",
             "add",
-            "refresh",
+            "patch",
+            "commit",
+            "get",
             "HTTPException",
-            "commit"
+            "strip",
+            "Depends",
+            "refresh",
+            "_to_out"
           ],
           "sideEffects": [
             "db"
@@ -1382,11 +1351,11 @@
             "delete"
           ],
           "calls": [
-            "Depends",
-            "get",
-            "HTTPException",
             "delete",
-            "commit"
+            "HTTPException",
+            "commit",
+            "get",
+            "Depends"
           ],
           "sideEffects": [
             "db"
@@ -1403,16 +1372,16 @@
             "post"
           ],
           "calls": [
-            "Depends",
-            "_to_out",
             "str",
-            "add",
-            "get",
-            "refresh",
             "post",
-            "edit_email_content",
+            "add",
             "HTTPException",
-            "commit"
+            "commit",
+            "get",
+            "Depends",
+            "refresh",
+            "edit_email_content",
+            "_to_out"
           ],
           "sideEffects": [
             "db"
@@ -1477,9 +1446,13 @@
         "isAPI": true
       },
       "warnings": [],
-      "blurb": "This file is the gateway for all things email in our application, ensuring that requests are routed correctly and handled with care.",
+      "blurb": "This file is like a post office for your application, managing how emails are sent and received through various routes.",
       "skipped": false,
       "skipReason": null,
+      "size": 5227,
+      "lines": 152,
+      "hash": "b26f5efdc3fbe70cf60d68f40e46c58b6bb9a2ec797ca070023f1eae1c49884e",
+      "mtime": 1757602652.972944,
       "summary": {
         "title": "Email Router",
         "purpose": "Handles email-related API routes for the application using FastAPI.",
@@ -1497,22 +1470,18 @@
           "schemas.email",
           "services.emailgeneration"
         ],
-        "how_to_modify": "To modify the email routing logic, locate the relevant route definitions within this file. Ensure that any changes to the API endpoints are reflected in the corresponding service and schema files. Test the API endpoints thoroughly after making changes.",
-        "risks": "Modifying the routing logic may introduce breaking changes to the API. Ensure that all dependencies are compatible with the changes made. Failing to validate input or output schemas can lead to runtime errors.",
-        "blurb": "This file is the gateway for all things email in our application, ensuring that requests are routed correctly and handled with care.",
-        "dev_summary": "Defines API routes for email operations in a FastAPI application. Interfaces with SQLAlchemy for database interactions and Pydantic for data validation. Be cautious of changes that may affect API contracts.",
-        "vibecoder_summary": "Imagine this file as the post office of your application, sorting and delivering email requests to the right destinations. Tinker with it carefully, or you might send your messages to the wrong address!",
-        "edit_points": "Look for route decorators (like @app.get or @app.post) to add or modify endpoints. Ensure to check related models and schemas for consistency."
+        "how_to_modify": "To add or modify email-related routes, locate the appropriate route definitions within this file. Ensure that any changes align with the FastAPI routing conventions and validate input/output using Pydantic schemas.",
+        "risks": "Modifying routes without proper validation may lead to unexpected behavior or security vulnerabilities. Ensure that all new routes are tested thoroughly.",
+        "blurb": "This file is like a post office for your application, managing how emails are sent and received through various routes.",
+        "dev_summary": "Defines API routes for email functionalities using FastAPI. Ensure to validate inputs with Pydantic and manage dependencies correctly.",
+        "vibecoder_summary": "Imagine this file as a friendly mailman, delivering messages between your app and the world of emails. It knows all the routes to take and ensures every letter gets to the right place!",
+        "edit_points": "Focus on adding new route functions or modifying existing ones. Pay attention to the integration with Pydantic for data validation."
       }
     },
     {
       "path": "backend/app/models/prospect.py",
       "language": "py",
-      "ext": "",
-      "size": 1132,
-      "lines": 31,
-      "hash": "176595ef5c6ac9b6af75b3606eec6f61328b2a5fe6af74fbe6dd8ac595f19532",
-      "mtime": 1757602652.9740038,
+      "exports": [],
       "imports": [
         {
           "raw": "sqlalchemy.orm",
@@ -1539,7 +1508,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -1566,12 +1534,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "The Prospect model is like a blueprint for a house, defining what rooms (attributes) it has and how they can be used (methods).",
+      "blurb": "This file is the blueprint for prospects, detailing how they are structured and interact with the database.",
       "skipped": false,
       "skipReason": null,
+      "size": 1132,
+      "lines": 31,
+      "hash": "176595ef5c6ac9b6af75b3606eec6f61328b2a5fe6af74fbe6dd8ac595f19532",
+      "mtime": 1757602652.9740038,
       "summary": {
         "title": "Prospect Model",
-        "purpose": "Defines the data structure and behavior for prospects in the application, facilitating interactions with the database.",
+        "purpose": "Defines the data structure and behavior for prospects in the application.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -1580,22 +1552,18 @@
           "datetime",
           "database"
         ],
-        "how_to_modify": "To modify the Prospect model, you can add new attributes or methods to the class definition. Ensure any changes align with the database schema and consider how they may affect data retrieval and manipulation.",
-        "risks": "Modifying the model without updating the database schema can lead to inconsistencies. Additionally, changes may affect other parts of the application that rely on the Prospect model.",
-        "blurb": "The Prospect model is like a blueprint for a house, defining what rooms (attributes) it has and how they can be used (methods).",
-        "dev_summary": "Defines the Prospect class for ORM with SQLAlchemy. No functions or constants are defined. Ensure database schema matches model changes.",
-        "vibecoder_summary": "Imagine the Prospect model as a recipe for a delicious dish. It tells you what ingredients (attributes) you need and how to mix them (methods) to create something wonderful. Just be careful not to forget an ingredient when you tweak the recipe!",
-        "edit_points": "Focus on the class definition to add or modify attributes and methods. Review any related database migration scripts if changes are made."
+        "how_to_modify": "To modify the prospect model, you can add new attributes to the class or adjust existing ones. Ensure that any changes align with the database schema and update any related queries accordingly.",
+        "risks": "Modifying the model without updating the database schema can lead to inconsistencies. Be cautious of breaking existing functionality that relies on the current model structure.",
+        "blurb": "This file is the blueprint for prospects, detailing how they are structured and interact with the database.",
+        "dev_summary": "Defines the Prospect class for ORM mapping with SQLAlchemy. No functions or constants are defined. Ensure database schema matches model changes.",
+        "vibecoder_summary": "Think of this file as a recipe for making prospects. If you want to add a new ingredient (attribute), just make sure it fits with the rest of the dish (database).",
+        "edit_points": "Focus on the class definition for adding or modifying attributes related to prospects."
       }
     },
     {
       "path": "backend/app/models/deck.py",
       "language": "py",
-      "ext": "",
-      "size": 746,
-      "lines": 18,
-      "hash": "fcc46d9ce199d9a3c69d148dee3e31ea0ae6028c25a11e39070d3f5e832ca4b1",
-      "mtime": 1757602652.9742877,
+      "exports": [],
       "imports": [
         {
           "raw": "sqlalchemy",
@@ -1622,7 +1590,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -1649,12 +1616,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "The Deck model is like a blueprint for creating and managing card decks in our application. It helps us keep track of all the decks we have and their properties.",
+      "blurb": "The Deck model is like the blueprint for a card deck, helping you manage and interact with your collection of cards in the game.",
       "skipped": false,
       "skipReason": null,
+      "size": 746,
+      "lines": 18,
+      "hash": "fcc46d9ce199d9a3c69d148dee3e31ea0ae6028c25a11e39070d3f5e832ca4b1",
+      "mtime": 1757602652.9742877,
       "summary": {
         "title": "Deck Model",
-        "purpose": "Defines the Deck model for database interactions related to card decks.",
+        "purpose": "Defines the Deck model for database interactions, representing a collection of cards in a game.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -1663,22 +1634,18 @@
           "datetime",
           "database"
         ],
-        "how_to_modify": "To modify the Deck model, you can add attributes to the class that represent the properties of a deck, or implement methods that define behaviors related to decks. Ensure that any new attributes are reflected in the database schema if necessary.",
-        "risks": "Modifying the model without updating the database schema can lead to inconsistencies. Additionally, changes to the model may affect other parts of the application that rely on this model.",
-        "blurb": "The Deck model is like a blueprint for creating and managing card decks in our application. It helps us keep track of all the decks we have and their properties.",
-        "dev_summary": "Defines a SQLAlchemy model for card decks. Ensure database migrations are handled when modifying attributes. No functions or constants defined yet.",
-        "vibecoder_summary": "Imagine the Deck model as a magical box where all your card decks live. You can add new decks, change their names, or even create new types of decks! Just remember, if you change the box, you need to make sure everything inside matches!",
-        "edit_points": "Look for the class definition in the file to add new attributes or methods. Pay attention to how the model interacts with the database to ensure proper functionality."
+        "how_to_modify": "To modify the Deck model, you can add attributes to the class or change existing ones. Ensure that any changes are reflected in the database schema if necessary.",
+        "risks": "Modifying the model without updating the database schema can lead to inconsistencies. Be cautious of data integrity and relationships with other models.",
+        "blurb": "The Deck model is like the blueprint for a card deck, helping you manage and interact with your collection of cards in the game.",
+        "dev_summary": "Defines the Deck class for ORM mapping with SQLAlchemy. No functions or constants are defined yet. Ensure database schema is updated when modifying attributes.",
+        "vibecoder_summary": "Imagine the Deck model as a treasure chest that holds all your cards. You can add new cards or change the ones inside, but be careful not to break the lock that keeps it secure!",
+        "edit_points": "Look for the Deck class definition in the file to add or modify attributes. Ensure to check for any related database migrations."
       }
     },
     {
       "path": "backend/app/models/__init__.py",
       "language": "py",
-      "ext": "",
-      "size": 79,
-      "lines": 3,
-      "hash": "1227b3126f772e38b6f0ec4492b9b4cad0583539d5241071f896d1284cf5594d",
-      "mtime": 1757602652.974464,
+      "exports": [],
       "imports": [
         {
           "raw": "prospect",
@@ -1699,7 +1666,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -1718,12 +1684,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This is the gateway for your models! Think of it as the welcome mat for all your data structures, making sure everything is in the right place.",
+      "blurb": "Think of this file as the front desk of a hotel, where all the guests (models) check in. It keeps everything organized and ensures that the right guests are welcomed into the building.",
       "skipped": false,
       "skipReason": null,
+      "size": 79,
+      "lines": 3,
+      "hash": "1227b3126f772e38b6f0ec4492b9b4cad0583539d5241071f896d1284cf5594d",
+      "mtime": 1757602652.974464,
       "summary": {
-        "title": "__init__.py in backend/app/models",
-        "purpose": "This file serves as an initializer for the models package in the backend application, allowing for the organization and import of model classes and functions.",
+        "title": "Model Initialization Module",
+        "purpose": "This module serves as an initializer for the model components of the backend application, allowing for structured imports and organization of model-related functionalities.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -1731,22 +1701,21 @@
           "deck",
           "email"
         ],
-        "how_to_modify": "To modify this file, you can add or remove model classes or functions as needed. Ensure that any new models are properly imported and that the package structure remains intact.",
-        "risks": "Modifying this file without understanding the implications on the overall models package can lead to import errors or broken functionality in other parts of the application. Be cautious about removing any existing imports or altering the package structure.",
-        "blurb": "This is the gateway for your models! Think of it as the welcome mat for all your data structures, making sure everything is in the right place.",
-        "dev_summary": "This file initializes the models package. It currently has no defined classes or functions. Ensure proper imports when adding new models.",
-        "vibecoder_summary": "Imagine this file as the front desk of a hotel where all the guests (models) check in. If you want to add a new guest, just make sure they have a room (class) and that the front desk knows about them!",
-        "edit_points": []
+        "how_to_modify": "To modify this file, you can add new model imports or reorganize existing ones. Ensure that any new models are properly defined in their respective files and that they are correctly imported here.",
+        "risks": "Improper modifications may lead to import errors or circular dependencies. Ensure that all models are correctly referenced and that any changes do not disrupt the existing structure.",
+        "blurb": "Think of this file as the front desk of a hotel, where all the guests (models) check in. It keeps everything organized and ensures that the right guests are welcomed into the building.",
+        "dev_summary": "This file initializes model imports for the backend. It currently has no defined functions or classes. Be cautious when adding imports to avoid circular dependencies.",
+        "vibecoder_summary": "Imagine this file as a library catalog. It lists all the books (models) available in the library (backend), making it easy to find and check them out. If you want to add a new book, just make sure it\u2019s in the library first!",
+        "edit_points": [
+          "Add new model imports",
+          "Reorganize existing imports"
+        ]
       }
     },
     {
       "path": "backend/app/models/email.py",
       "language": "py",
-      "ext": "",
-      "size": 837,
-      "lines": 22,
-      "hash": "db8a0e8a68f33c457781dad205a8a412b767c0687acbc0cf0e0f4ef48d2d9bb6",
-      "mtime": 1757602652.978277,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -1773,7 +1742,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -1800,12 +1768,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This file is the blueprint for how emails are stored and managed in our application, ensuring that all email data is organized and accessible.",
+      "blurb": "This file is the blueprint for how emails are stored and managed in our app. Think of it as the recipe that tells the kitchen how to prepare the dish!",
       "skipped": false,
       "skipReason": null,
+      "size": 837,
+      "lines": 22,
+      "hash": "db8a0e8a68f33c457781dad205a8a412b767c0687acbc0cf0e0f4ef48d2d9bb6",
+      "mtime": 1757602652.978277,
       "summary": {
         "title": "Email Model",
-        "purpose": "Defines the structure and behavior of email-related data in the application, facilitating database interactions through SQLAlchemy.",
+        "purpose": "Defines the structure and behavior of email-related data in the application.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -1814,22 +1786,18 @@
           "sqlalchemy.orm",
           "database"
         ],
-        "how_to_modify": "To modify the email model, you can add new fields or methods to the class that represents the email. Ensure that any changes to the model are reflected in the database schema through migrations.",
-        "risks": "Modifying the email model can lead to inconsistencies in the database if migrations are not handled properly. Additionally, changes may affect other parts of the application that rely on this model.",
-        "blurb": "This file is the blueprint for how emails are stored and managed in our application, ensuring that all email data is organized and accessible.",
-        "dev_summary": "Defines an email model using SQLAlchemy for ORM. No functions or constants are defined. Ensure migrations are applied after changes.",
-        "vibecoder_summary": "Think of this file as the recipe for our email dish. It tells the kitchen (database) how to prepare and serve emails. If you want to add a new ingredient (field), just remember to update the recipe card (migrations) so the chefs know what to do!",
-        "edit_points": "Look for the class definition in this file to add or modify fields. Pay attention to any relationships with other models if applicable."
+        "how_to_modify": "To modify this file, consider adding new fields to the email model or updating validation logic. Ensure that any changes align with the database schema and ORM mappings.",
+        "risks": "Modifying the email model may lead to inconsistencies with the database if migrations are not handled properly. Additionally, changes could affect other parts of the application that rely on this model.",
+        "blurb": "This file is the blueprint for how emails are stored and managed in our app. Think of it as the recipe that tells the kitchen how to prepare the dish!",
+        "dev_summary": "Defines the email model using SQLAlchemy ORM. No functions or classes are defined yet. Ensure database migrations are in sync with any changes.",
+        "vibecoder_summary": "Imagine this file as a treasure map that guides you to the hidden gems of email data! You can add new treasures (fields) or change the way we find them, but be careful not to lose the map's accuracy!",
+        "edit_points": "Look for areas where you can define new attributes or validation rules for the email model. Pay attention to how these changes might affect the database and other components."
       }
     },
     {
       "path": "backend/app/schemas/prospect.py",
       "language": "py",
-      "ext": "",
-      "size": 962,
-      "lines": 32,
-      "hash": "1c331803936593e138bf3a4d7eba31bd9de510a7677a52433f832b9e4e2480c1",
-      "mtime": 1757602652.9817936,
+      "exports": [],
       "imports": [
         {
           "raw": "pydantic",
@@ -1844,7 +1812,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -1888,9 +1855,13 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as a blueprint for a house. It defines what rooms (data fields) are needed and how they should be built (validated).",
+      "blurb": "This file is like a blueprint for prospects, ensuring that all the necessary information is captured and validated before it gets used in the application.",
       "skipped": false,
       "skipReason": null,
+      "size": 962,
+      "lines": 32,
+      "hash": "1c331803936593e138bf3a4d7eba31bd9de510a7677a52433f832b9e4e2480c1",
+      "mtime": 1757602652.9817936,
       "summary": {
         "title": "Prospect Schema Definition",
         "purpose": "Defines data validation and serialization for prospect-related data using Pydantic.",
@@ -1900,22 +1871,18 @@
           "pydantic",
           "typing"
         ],
-        "how_to_modify": "To modify the schema, add or update Pydantic model fields to reflect the desired structure of prospect data. Ensure that any changes maintain data validation rules.",
-        "risks": "Modifying the schema incorrectly can lead to validation errors or data integrity issues. Ensure that any changes are tested thoroughly.",
-        "blurb": "Think of this file as a blueprint for a house. It defines what rooms (data fields) are needed and how they should be built (validated).",
-        "dev_summary": "Defines Pydantic models for prospect data validation. No functions or classes are defined yet, but it serves as a foundation for data structures. Be cautious with changes to ensure compatibility.",
-        "vibecoder_summary": "Imagine you're crafting a treasure map. This file helps you draw the map accurately, showing where each treasure (data point) is buried and what it looks like. If you change the map, make sure the treasures are still where they should be!",
-        "edit_points": "Focus on adding or modifying fields in the Pydantic model to adjust the structure of the prospect data."
+        "how_to_modify": "To modify the schema, add or update Pydantic model fields to reflect the desired data structure for prospects. Ensure that types are correctly specified using Python's typing module.",
+        "risks": "Incorrect field definitions may lead to data validation errors, which could cause downstream failures in data processing or API responses. Be cautious when changing field types or removing fields.",
+        "blurb": "This file is like a blueprint for prospects, ensuring that all the necessary information is captured and validated before it gets used in the application.",
+        "dev_summary": "Defines Pydantic models for prospect data validation. No functions or classes are defined yet, but it serves as a foundational schema. Ensure to maintain type integrity when modifying.",
+        "vibecoder_summary": "Imagine this file as a recipe for making the perfect prospect cake. It lists all the ingredients (data fields) and their measurements (types) to ensure every cake turns out just right!",
+        "edit_points": "Focus on adding fields to the Pydantic model or adjusting existing field types. Review the Pydantic documentation for best practices on defining models."
       }
     },
     {
       "path": "backend/app/schemas/deck.py",
       "language": "py",
-      "ext": "",
-      "size": 764,
-      "lines": 34,
-      "hash": "11ad39922f476b0e3cf4f20d2c66055bbbe9c3825e097ff8e592285e6a47d6a1",
-      "mtime": 1757602652.9819784,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -1936,7 +1903,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -1991,12 +1957,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This file is like a blueprint for decks, ensuring that all deck data is structured and validated before use.",
+      "blurb": "This file is like a blueprint for decks, ensuring that all deck data is structured and validated correctly before use.",
       "skipped": false,
       "skipReason": null,
+      "size": 764,
+      "lines": 34,
+      "hash": "11ad39922f476b0e3cf4f20d2c66055bbbe9c3825e097ff8e592285e6a47d6a1",
+      "mtime": 1757602652.9819784,
       "summary": {
         "title": "Deck Schema Definition",
-        "purpose": "Defines data structures for deck-related entities using Pydantic for data validation and settings management.",
+        "purpose": "Defines data structures and validation rules for deck-related entities using Pydantic.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -2004,24 +1974,19 @@
           "typing",
           "pydantic"
         ],
-        "how_to_modify": "To modify the schema, add or update Pydantic models to define new data structures or validation rules. Ensure to maintain type hints for clarity and validation.",
-        "risks": "Improper modifications may lead to validation errors or unexpected behavior in data handling. Ensure that any changes are tested thoroughly.",
-        "blurb": "This file is like a blueprint for decks, ensuring that all deck data is structured and validated before use.",
-        "dev_summary": "Defines Pydantic models for deck schemas. No functions or classes are defined yet. Ensure type hints are used for clarity.",
-        "vibecoder_summary": "Imagine this file as a recipe book for decks, where each recipe (schema) tells you exactly what ingredients (data) you need and how to mix them (validate) to create the perfect deck!",
-        "edit_points": "Look for areas where new Pydantic models can be added or existing ones can be modified to enhance data validation."
+        "how_to_modify": "To modify the schema, add or update Pydantic models or fields that represent deck attributes. Ensure to maintain validation rules and types.",
+        "risks": "Incorrect modifications may lead to data validation errors or runtime exceptions. Changes to field types or required fields can break existing functionality.",
+        "blurb": "This file is like a blueprint for decks, ensuring that all deck data is structured and validated correctly before use.",
+        "dev_summary": "Defines Pydantic models for deck data validation. No functions or classes are defined directly; relies on Pydantic's features. Be cautious with type changes.",
+        "vibecoder_summary": "Imagine this file as a recipe book for decks, where each recipe (model) must have the right ingredients (fields) and measurements (types) to bake the perfect deck!",
+        "edit_points": "Focus on adding or modifying Pydantic models and their fields to adjust how deck data is structured and validated."
       }
     },
     {
       "path": "backend/app/schemas/__init__.py",
       "language": "py",
-      "ext": "",
-      "size": 0,
-      "lines": 0,
-      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "mtime": 1757602652.9821115,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -2040,34 +2005,31 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the front door to your schema library. It welcomes all the schema definitions and keeps everything organized and tidy.",
+      "blurb": "Think of this file as the front door to a library of schemas, where you can add new books (schemas) or organize existing ones. Just be careful not to misplace them!",
       "skipped": false,
       "skipReason": null,
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602652.9821115,
       "summary": {
-        "title": "Initialization of Schema Module",
-        "purpose": "This file serves as the initialization point for the schemas in the backend application, allowing for organized structure and potential imports of schema-related components.",
+        "title": "__init__.py in backend/app/schemas",
+        "purpose": "This file serves as an initializer for the schemas module in the backend application, allowing for the organization and management of schema definitions.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "You can add new schema definitions or import existing ones into this file. Ensure that any new schemas are properly defined and follow the existing conventions.",
-        "risks": "Modifying this file without understanding the overall schema structure may lead to import errors or inconsistencies in schema definitions across the application.",
-        "blurb": "Think of this file as the front door to your schema library. It welcomes all the schema definitions and keeps everything organized and tidy.",
-        "dev_summary": "This is an empty __init__.py file intended for schema organization. No functions or classes are defined here, but it can be used to import other schema modules.",
-        "vibecoder_summary": "Imagine this file as the welcome mat of your schema house. It doesn't have any furniture yet, but it\u2019s ready to invite all the cool schema stuff to come in and hang out!",
-        "edit_points": [
-          "Consider adding imports for schema definitions from other files.",
-          "Ensure that the module structure remains clear and organized."
-        ]
+        "how_to_modify": "You can add new schema definitions or import existing ones into this file. Ensure that any new schemas are properly defined and follow the conventions used in the project.",
+        "risks": "Modifying this file without understanding the existing schema structure may lead to inconsistencies or errors in data validation across the application.",
+        "blurb": "Think of this file as the front door to a library of schemas, where you can add new books (schemas) or organize existing ones. Just be careful not to misplace them!",
+        "dev_summary": "This file initializes the schemas module. It currently has no defined functions or classes. Be cautious when adding new schemas to maintain consistency.",
+        "vibecoder_summary": "Imagine this file as a blank canvas waiting for you to paint your schema masterpieces. Just remember, every stroke counts, so make sure your art fits the gallery's theme!",
+        "edit_points": "Consider adding schema definitions or importing existing schemas. Ensure to maintain the structure and naming conventions used in the project."
       }
     },
     {
       "path": "backend/app/schemas/email.py",
       "language": "py",
-      "ext": "",
-      "size": 908,
-      "lines": 36,
-      "hash": "7443c066e636f4b6402df071b87eaa36c73b2010634d0616f8135fb7f41e12d8",
-      "mtime": 1757602652.9849823,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -2088,7 +2050,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [],
       "classes": [
         {
@@ -2151,12 +2112,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This file is like a blueprint for emails, ensuring they have the right structure before being sent out into the world.",
+      "blurb": "This file is like a blueprint for emails, ensuring that all email data is structured and validated correctly before being used in the application.",
       "skipped": false,
       "skipReason": null,
+      "size": 908,
+      "lines": 36,
+      "hash": "7443c066e636f4b6402df071b87eaa36c73b2010634d0616f8135fb7f41e12d8",
+      "mtime": 1757602652.9849823,
       "summary": {
-        "title": "Email Schema Definitions",
-        "purpose": "Defines data structures for email validation and serialization using Pydantic.",
+        "title": "Email Schema Definition",
+        "purpose": "Defines data structures and validation for email-related data using Pydantic.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -2164,24 +2129,19 @@
           "typing",
           "pydantic"
         ],
-        "how_to_modify": "To modify the email schema, add or update Pydantic model fields according to your validation needs. Ensure that any new fields are properly typed and validated.",
-        "risks": "Improper modifications may lead to validation errors or unexpected behavior in email handling. Ensure that changes are tested thoroughly.",
-        "blurb": "This file is like a blueprint for emails, ensuring they have the right structure before being sent out into the world.",
-        "dev_summary": "Defines email schemas using Pydantic for validation. No functions or classes are defined, but it relies on external libraries for type checking and validation.",
-        "vibecoder_summary": "Imagine this file as a recipe card for emails. It tells you what ingredients (fields) you need and how to mix them (validate) to make sure your email dish comes out just right!",
-        "edit_points": "Look for areas where Pydantic models are defined or where new fields might be added to enhance email validation."
+        "how_to_modify": "To modify the email schema, add or change Pydantic models or fields to reflect the desired email data structure. Ensure that any changes maintain data validation rules.",
+        "risks": "Modifying the schema incorrectly may lead to validation errors or data integrity issues. Ensure that any changes are tested thoroughly.",
+        "blurb": "This file is like a blueprint for emails, ensuring that all email data is structured and validated correctly before being used in the application.",
+        "dev_summary": "Defines Pydantic models for email data validation. No functions or classes are defined directly in this file. Be cautious with changes to maintain data integrity.",
+        "vibecoder_summary": "Imagine this file as a recipe for baking the perfect email! It lists all the ingredients (data fields) and how to mix them (validation rules) to ensure every email is just right.",
+        "edit_points": "Look for areas where Pydantic models are defined or where new fields can be added to enhance email validation."
       }
     },
     {
       "path": "backend/app/templates/deck.html",
       "language": "other",
-      "ext": "",
-      "size": 3833,
-      "lines": 155,
-      "hash": "002ca261b89b7f2f890f4638dd3dd7baaecc5f1a9017bc79ca477f6a35151740",
-      "mtime": 1757602652.9853106,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -2199,16 +2159,16 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 3833,
+      "lines": 155,
+      "hash": "002ca261b89b7f2f890f4638dd3dd7baaecc5f1a9017bc79ca477f6a35151740",
+      "mtime": 1757602652.9853106
     },
     {
       "path": "backend/app/services/emailgeneration.py",
       "language": "py",
-      "ext": "",
-      "size": 7608,
-      "lines": 160,
-      "hash": "fa3e25cac6cce7fb36098a3d733432c7054960d4d853d3654d47cc69f7108225",
-      "mtime": 1757602652.9858627,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -2241,7 +2201,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "_openai_json_response",
@@ -2254,8 +2213,8 @@
             "create",
             "loads",
             "EmailAIUnavailableError",
-            "info",
-            "OpenAI"
+            "OpenAI",
+            "info"
           ],
           "sideEffects": [
             "io"
@@ -2280,8 +2239,8 @@
           ],
           "decorators": [],
           "calls": [
-            "isinstance",
-            "strip"
+            "strip",
+            "isinstance"
           ],
           "sideEffects": [
             "io"
@@ -2294,14 +2253,14 @@
           ],
           "decorators": [],
           "calls": [
-            "_openai_json_response",
-            "strip",
-            "_coalesce",
-            "append",
-            "replace",
-            "get",
+            "EmailAIFormatError",
             "dumps",
-            "EmailAIFormatError"
+            "strip",
+            "_openai_json_response",
+            "get",
+            "append",
+            "_coalesce",
+            "replace"
           ],
           "sideEffects": [
             "io"
@@ -2340,12 +2299,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This is the behind-the-scenes wizard that crafts your emails, ensuring they look just right before they reach your inbox.",
+      "blurb": "Think of this module as the email chef in a restaurant, whipping up delicious messages to serve to your users. Just like a chef needs the right ingredients and recipes, this module needs the right cod",
       "skipped": false,
       "skipReason": null,
+      "size": 7608,
+      "lines": 160,
+      "hash": "fa3e25cac6cce7fb36098a3d733432c7054960d4d853d3654d47cc69f7108225",
+      "mtime": 1757602652.9858627,
       "summary": {
         "title": "Email Generation Service",
-        "purpose": "This module is responsible for generating email content based on templates and data provided by other parts of the application.",
+        "purpose": "This module is responsible for generating and formatting email content for various notifications and communications within the application.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -2355,22 +2318,18 @@
           "typing",
           "config"
         ],
-        "how_to_modify": "To modify this file, focus on adding or updating email templates and the logic that populates them with data. Ensure that any changes maintain the integrity of the email format and adhere to the expected data structures.",
-        "risks": "Modifying the email generation logic could lead to incorrect email formats or missing data in the emails sent to users. Additionally, changes might affect logging and error handling if not properly managed.",
-        "blurb": "This is the behind-the-scenes wizard that crafts your emails, ensuring they look just right before they reach your inbox.",
-        "dev_summary": "Handles email content generation. Interfaces with JSON for data handling and logging for error tracking. Ensure data structures match expected formats to avoid runtime errors.",
-        "vibecoder_summary": "Imagine a magical mailroom where letters are crafted with care! This script is the wizard that takes raw data and turns it into beautifully formatted emails, ready to be sent out into the world.",
-        "edit_points": "Focus on areas where email templates are defined and where data is injected into these templates. Look for any placeholder comments or sections that indicate where customization is allowed."
+        "how_to_modify": "To modify the email generation logic, locate the relevant functions or classes that handle email formatting and content generation. Ensure to follow the existing structure and conventions used in the module.",
+        "risks": "Changes to the email content or formatting may lead to incorrect or malformed emails being sent. Additionally, improper handling of dependencies could introduce bugs or affect logging functionality.",
+        "blurb": "Think of this module as the email chef in a restaurant, whipping up delicious messages to serve to your users. Just like a chef needs the right ingredients and recipes, this module needs the right code and configurations to create the perfect email.",
+        "dev_summary": "Handles email content generation. Interfaces with JSON for data formatting and logging for error tracking. Be cautious with changes to ensure email integrity.",
+        "vibecoder_summary": "Imagine a magical kitchen where emails are cooked up! This module is the chef, mixing ingredients (data) and following recipes (code) to create tasty emails for everyone. Just make sure the chef doesn\u2019t spill anything or forget an ingredient!",
+        "edit_points": []
       }
     },
     {
       "path": "backend/app/services/ai.py",
       "language": "py",
-      "ext": "",
-      "size": 18481,
-      "lines": 336,
-      "hash": "bf03ff017ca2df9c5f60b59e11f85618bf5dc9715f5cca5244dd7f6296d373a7",
-      "mtime": 1757602652.9863427,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -2403,7 +2362,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "_strip_markup",
@@ -2412,9 +2370,9 @@
           ],
           "decorators": [],
           "calls": [
+            "str",
             "strip",
-            "sub",
-            "str"
+            "sub"
           ],
           "sideEffects": []
         },
@@ -2439,10 +2397,10 @@
           ],
           "decorators": [],
           "calls": [
-            "isinstance",
-            "append",
-            "strip",
             "split",
+            "isinstance",
+            "strip",
+            "append",
             "_strip_markup",
             "_truncate"
           ],
@@ -2456,11 +2414,11 @@
           "decorators": [],
           "calls": [
             "isinstance",
-            "append",
             "get",
-            "_truncate",
+            "_coerce_bullets",
+            "append",
             "_strip_markup",
-            "_coerce_bullets"
+            "_truncate"
           ],
           "sideEffects": []
         },
@@ -2471,12 +2429,12 @@
           ],
           "decorators": [],
           "calls": [
-            "AIUnavailableError",
             "create",
-            "loads",
             "getattr",
-            "info",
-            "OpenAI"
+            "loads",
+            "AIUnavailableError",
+            "OpenAI",
+            "info"
           ],
           "sideEffects": []
         },
@@ -2488,10 +2446,10 @@
           "decorators": [],
           "calls": [
             "_normalize_deck_obj",
-            "strip",
-            "_openai_json_response",
-            "get",
             "dumps",
+            "_openai_json_response",
+            "strip",
+            "get",
             "enumerate"
           ],
           "sideEffects": []
@@ -2506,16 +2464,16 @@
           ],
           "decorators": [],
           "calls": [
-            "error",
-            "isinstance",
             "len",
-            "_openai_json_response",
-            "get",
-            "AIFormatError",
+            "isinstance",
             "dumps",
-            "_truncate",
+            "error",
+            "get",
+            "_openai_json_response",
+            "AIFormatError",
+            "_coerce_bullets",
             "_strip_markup",
-            "_coerce_bullets"
+            "_truncate"
           ],
           "sideEffects": []
         },
@@ -2530,15 +2488,15 @@
           ],
           "decorators": [],
           "calls": [
-            "error",
             "isinstance",
+            "dumps",
+            "error",
             "_openai_json_response",
             "strip",
-            "get",
             "AIFormatError",
-            "dumps",
-            "_truncate",
-            "_strip_markup"
+            "get",
+            "_strip_markup",
+            "_truncate"
           ],
           "sideEffects": []
         }
@@ -2575,12 +2533,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this module as the brain of your application, where all the smart decisions are made. Tread carefully when adding new thoughts!",
+      "blurb": "Think of this module as the brain of your application, where all the smart decisions are made. Tread carefully when making changes, as you wouldn't want to confuse the brain!",
       "skipped": false,
       "skipReason": null,
+      "size": 18481,
+      "lines": 336,
+      "hash": "bf03ff017ca2df9c5f60b59e11f85618bf5dc9715f5cca5244dd7f6296d373a7",
+      "mtime": 1757602652.9863427,
       "summary": {
         "title": "AI Service Module",
-        "purpose": "This module is designed to provide AI-related functionalities for the backend application, potentially including data processing, model interaction, or decision-making capabilities.",
+        "purpose": "This module is designed to provide AI-related functionalities, such as processing data and interfacing with AI models.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -2590,24 +2552,19 @@
           "typing",
           "config"
         ],
-        "how_to_modify": "To modify this file, consider adding new AI-related functions or classes that leverage the existing imports. Ensure that any new functionality aligns with the overall architecture of the backend services.",
-        "risks": "Modifying this file without understanding the AI logic could lead to incorrect behavior in the application. Additionally, changes might affect logging and configuration settings, which could introduce bugs or performance issues.",
-        "blurb": "Think of this module as the brain of your application, where all the smart decisions are made. Tread carefully when adding new thoughts!",
-        "dev_summary": "This Python module serves as a service layer for AI functionalities. It imports essential libraries for JSON handling, logging, and type annotations. No defined functions or classes are present, indicating it may serve as a foundation for future development.",
-        "vibecoder_summary": "Imagine this file as a blank canvas waiting for a brilliant artist to paint a masterpiece of AI magic. You can add strokes of code to create intelligent features, but be cautious not to spill paint everywhere!",
+        "how_to_modify": "To modify this module, focus on adding new AI-related functions or enhancing existing logic. Ensure to follow the typing conventions and logging practices established in the module.",
+        "risks": "Modifying this module without understanding the AI logic could lead to incorrect data processing or failures in AI model interactions. Additionally, changes to logging may obscure important runtime information.",
+        "blurb": "Think of this module as the brain of your application, where all the smart decisions are made. Tread carefully when making changes, as you wouldn't want to confuse the brain!",
+        "dev_summary": "Handles AI functionalities with no defined classes or functions yet. Uses standard libraries for JSON handling, logging, and type hints. Ensure to maintain type safety and logging consistency.",
+        "vibecoder_summary": "Imagine this file as a wizard's spellbook, waiting for new spells (functions) to be added. Each spell needs to be crafted carefully, or the magic might go awry!",
         "edit_points": []
       }
     },
     {
       "path": "backend/app/services/__init__.py",
       "language": "py",
-      "ext": "",
-      "size": 0,
-      "lines": 0,
-      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "mtime": 1757602652.9864764,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -2626,31 +2583,31 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the front door to a service department in a large office building. It welcomes visitors and directs them to the right service without revealing the inner workings.",
+      "blurb": "Think of this file as the welcome mat for all your backend services. It sets the stage for everything that happens behind the scenes.",
       "skipped": false,
       "skipReason": null,
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602652.9864764,
       "summary": {
-        "title": "__init__.py in backend/app/services",
-        "purpose": "This file serves as an initializer for the services module in the backend application, allowing for the organization and management of service-related functionalities.",
+        "title": "Service Initialization Module",
+        "purpose": "This module serves as an initializer for the services in the backend application, allowing for the organization and management of service-related functionalities.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "You can add service-related classes or functions to this file to enhance the module's capabilities. Ensure that any new additions are properly documented and tested.",
-        "risks": "Modifying this file without understanding the overall architecture may lead to broken imports or mismanagement of service functionalities. Ensure that changes are compatible with other parts of the application.",
-        "blurb": "Think of this file as the front door to a service department in a large office building. It welcomes visitors and directs them to the right service without revealing the inner workings.",
-        "dev_summary": "This file initializes the services module. Currently, it contains no functions or classes. Be cautious when adding new code to maintain module integrity.",
-        "vibecoder_summary": "Imagine this file as the welcome mat of a cozy caf\u00e9. It doesn't serve coffee itself, but it sets the stage for all the delicious brews that come from the baristas (services) inside. You can add new recipes (functions) here, but make sure they blend well with the caf\u00e9's vibe!",
-        "edit_points": "Consider adding new service classes or utility functions that can be used across the application. Ensure to keep the code clean and organized."
+        "how_to_modify": "You can add new service-related functionalities or reorganize existing ones within this module. Ensure that any new services are properly imported and initialized.",
+        "risks": "Modifying this file without understanding the overall service architecture may lead to broken service functionalities or initialization issues. Always test after making changes.",
+        "blurb": "Think of this file as the welcome mat for all your backend services. It sets the stage for everything that happens behind the scenes.",
+        "dev_summary": "This is an empty initialization file for backend services. It currently contains no functions or classes. Be cautious when adding new code to maintain the structure.",
+        "vibecoder_summary": "Imagine this file as the blank canvas of a painter. It's waiting for you to splash some colors (or code) on it, but be careful not to spill outside the lines!",
+        "edit_points": []
       }
     },
     {
       "path": "backend/app/services/pdf.py",
       "language": "py",
-      "ext": "",
-      "size": 2704,
-      "lines": 67,
-      "hash": "c3ff6c6a7928b4f2be0343fe8922b60ed6361ff79a4d67bc977ae2f75e280cf7",
-      "mtime": 1757602652.9869127,
+      "exports": [],
       "imports": [
         {
           "raw": "__future__",
@@ -2695,7 +2652,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "_resolve_generated_dir",
@@ -2720,18 +2676,18 @@
           ],
           "decorators": [],
           "calls": [
-            "slugify",
-            "write_pdf",
-            "render",
-            "RenderError",
             "exists",
             "makedirs",
-            "join",
-            "FileIOError",
-            "TemplateError",
-            "_resolve_generated_dir",
+            "RenderError",
+            "slugify",
+            "write_pdf",
             "get_template",
-            "HTML"
+            "render",
+            "TemplateError",
+            "join",
+            "HTML",
+            "FileIOError",
+            "_resolve_generated_dir"
           ],
           "sideEffects": [
             "io"
@@ -2777,12 +2733,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this module as a digital wizard that conjures PDFs from thin air, transforming data into beautifully formatted documents.",
+      "blurb": "This module is like a digital printer that takes your data and templates, and magically transforms them into beautifully formatted PDF documents.",
       "skipped": false,
       "skipReason": null,
+      "size": 2704,
+      "lines": 67,
+      "hash": "c3ff6c6a7928b4f2be0343fe8922b60ed6361ff79a4d67bc977ae2f75e280cf7",
+      "mtime": 1757602652.9869127,
       "summary": {
         "title": "PDF Service Module",
-        "purpose": "This module is designed to handle PDF generation and manipulation tasks within the application.",
+        "purpose": "This module is responsible for generating PDF documents using templates and data provided by other parts of the application.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -2794,22 +2754,18 @@
           "config",
           "utils"
         ],
-        "how_to_modify": "To modify this module, focus on integrating new PDF generation features or adjusting existing configurations. Ensure that any changes align with the expected input and output formats for PDF files.",
-        "risks": "Modifying this module may lead to issues in PDF generation or formatting if not tested thoroughly. Changes to external dependencies could also introduce compatibility issues.",
-        "blurb": "Think of this module as a digital wizard that conjures PDFs from thin air, transforming data into beautifully formatted documents.",
-        "dev_summary": "Handles PDF generation using WeasyPrint and Jinja2 for templating. Ensure compatibility with external libraries and maintain input/output integrity.",
-        "vibecoder_summary": "Imagine a magical book that takes your ideas and turns them into printed pages! This module is like that book, helping your app create stunning PDFs from your data.",
-        "edit_points": "Focus on areas where PDF generation logic is implemented, especially where external libraries like WeasyPrint and Jinja2 are utilized."
+        "how_to_modify": "To modify the PDF generation logic, look for functions that utilize Jinja2 templates and WeasyPrint for rendering. Ensure that any changes to templates are reflected in the corresponding Jinja2 files.",
+        "risks": "Modifying the PDF generation logic may lead to incorrect document formatting or data representation. Ensure thorough testing after changes to avoid breaking the PDF output.",
+        "blurb": "This module is like a digital printer that takes your data and templates, and magically transforms them into beautifully formatted PDF documents.",
+        "dev_summary": "Handles PDF generation using Jinja2 templates and WeasyPrint. No defined functions or classes are present, but relies on external libraries for rendering. Be cautious with template changes.",
+        "vibecoder_summary": "Imagine a chef (this module) who takes a recipe (template) and ingredients (data) to whip up a delicious dish (PDF). If you change the recipe, make sure it still tastes good!",
+        "edit_points": "Focus on areas where templates are loaded and rendered, particularly any references to Jinja2 and WeasyPrint. Check for any configuration settings that might affect output."
       }
     },
     {
       "path": "backend/app/services/utils.py",
       "language": "py",
-      "ext": "",
-      "size": 371,
-      "lines": 11,
-      "hash": "edbcd5a30fcf2dfc317dadfd40b1016382beafb47ece5c72dfb992df6271d3a9",
-      "mtime": 1757602652.9916787,
+      "exports": [],
       "imports": [
         {
           "raw": "re",
@@ -2830,7 +2786,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "slugify",
@@ -2839,12 +2794,12 @@
           ],
           "decorators": [],
           "calls": [
-            "strip",
             "decode",
-            "normalize",
+            "sub",
             "encode",
-            "lower",
-            "sub"
+            "normalize",
+            "strip",
+            "lower"
           ],
           "sideEffects": []
         },
@@ -2876,12 +2831,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as a toolbox for your backend services, filled with handy tools that help make your data shine and your dates dance!",
+      "blurb": "Think of this file as a toolbox filled with handy tools that help the backend do its job more efficiently. Each tool is a function waiting to be used!",
       "skipped": false,
       "skipReason": null,
+      "size": 371,
+      "lines": 11,
+      "hash": "edbcd5a30fcf2dfc317dadfd40b1016382beafb47ece5c72dfb992df6271d3a9",
+      "mtime": 1757602652.9916787,
       "summary": {
         "title": "Utility Functions for Backend Services",
-        "purpose": "This file contains utility functions that assist various backend services in processing data, formatting strings, and handling date and time operations.",
+        "purpose": "This file contains utility functions that provide common functionalities used across various backend services.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -2889,22 +2848,18 @@
           "unicodedata",
           "datetime"
         ],
-        "how_to_modify": "To modify this file, add new utility functions or update existing ones. Ensure that any new functions are well-documented and tested to maintain code quality.",
-        "risks": "Modifying utility functions may impact multiple services that rely on them. Ensure thorough testing after changes to avoid breaking functionality across the application.",
-        "blurb": "Think of this file as a toolbox for your backend services, filled with handy tools that help make your data shine and your dates dance!",
-        "dev_summary": "Contains utility functions for data processing and formatting. No defined functions or classes yet. Be cautious of changes as they affect multiple services.",
-        "vibecoder_summary": "Imagine this file as a magic toolbox where you can find all sorts of helpful gadgets to make your backend services work better. Just be careful when adding new tools, as they might change how everything else works!",
-        "edit_points": "Look for areas where you can add new functions or enhance existing ones, particularly around data formatting and date handling."
+        "how_to_modify": "You can add new utility functions or modify existing ones to enhance functionality. Ensure that any new functions are well-documented and tested.",
+        "risks": "Modifying utility functions may lead to unexpected behavior in other parts of the application that rely on these utilities. Ensure thorough testing after changes.",
+        "blurb": "Think of this file as a toolbox filled with handy tools that help the backend do its job more efficiently. Each tool is a function waiting to be used!",
+        "dev_summary": "Contains utility functions for backend services. No defined functions or classes yet. Be cautious when adding or modifying functions as they may affect multiple services.",
+        "vibecoder_summary": "Imagine this file as a magical toolbox where you can create and store spells (functions) that help your backend wizards (services) perform their tasks better. Just be careful not to mix up the potions!",
+        "edit_points": "Look for areas in the file where you can define new functions or enhance existing ones. Ensure to maintain clarity and consistency in naming and documentation."
       }
     },
     {
       "path": "backend/app/services/slides.py",
       "language": "py",
-      "ext": "",
-      "size": 1270,
-      "lines": 31,
-      "hash": "04971e88d1d8e07fd8c571b74af1f2de600e618a39b9b43a1c1b6c6582048eed",
-      "mtime": 1757602652.991871,
+      "exports": [],
       "imports": [
         {
           "raw": "typing",
@@ -2925,7 +2880,6 @@
           "kind": "py"
         }
       ],
-      "exports": [],
       "functions": [
         {
           "name": "_strip_markup",
@@ -2934,9 +2888,9 @@
           ],
           "decorators": [],
           "calls": [
+            "str",
             "strip",
-            "sub",
-            "str"
+            "sub"
           ],
           "sideEffects": []
         },
@@ -2962,8 +2916,8 @@
           "decorators": [],
           "calls": [
             "isinstance",
-            "append",
             "get",
+            "append",
             "_strip_markup",
             "_truncate"
           ],
@@ -2987,12 +2941,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this module as the backstage crew of a theater production, managing all the slides that will be shown to the audience. It keeps everything running smoothly behind the scenes.",
+      "blurb": "Think of this file as the backstage crew for a presentation. It manages the slides, ensuring everything is in order before the show starts.",
       "skipped": false,
       "skipReason": null,
+      "size": 1270,
+      "lines": 31,
+      "hash": "04971e88d1d8e07fd8c571b74af1f2de600e618a39b9b43a1c1b6c6582048eed",
+      "mtime": 1757602652.991871,
       "summary": {
-        "title": "Slides Service Module",
-        "purpose": "This module is designed to manage slide-related functionalities within the backend application, likely handling data processing or business logic related to slides.",
+        "title": "Slides Service",
+        "purpose": "This module is responsible for handling operations related to slides, such as creating, updating, and managing slide data.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -3000,24 +2958,19 @@
           "re",
           "config"
         ],
-        "how_to_modify": "To modify this module, consider adding new functions or classes that encapsulate slide-related logic. Ensure to import any necessary external dependencies and follow existing coding conventions.",
-        "risks": "Modifying this module without understanding its integration with other parts of the application may lead to unexpected behavior or errors. Be cautious of any data handling that could affect the integrity of slide data.",
-        "blurb": "Think of this module as the backstage crew of a theater production, managing all the slides that will be shown to the audience. It keeps everything running smoothly behind the scenes.",
-        "dev_summary": "Handles slide-related logic; currently no defined functions or classes. Ensure proper data handling and integration with other services.",
-        "vibecoder_summary": "Imagine a library where each slide is a book. This module is the librarian, organizing and managing all the books so that when it's showtime, everything is in the right place and ready to go!",
-        "edit_points": "Look for areas where you can introduce new functionality related to slides, such as data validation or processing methods. Pay attention to how data flows in and out of this module."
+        "how_to_modify": "To modify this file, consider adding new functions or classes that implement slide-related logic. Ensure to import any necessary modules from external dependencies.",
+        "risks": "Modifying this file without understanding the overall architecture may lead to broken functionality in slide management. Be cautious of how changes might affect data integrity and interactions with other services.",
+        "blurb": "Think of this file as the backstage crew for a presentation. It manages the slides, ensuring everything is in order before the show starts.",
+        "dev_summary": "Handles slide operations; currently lacks defined functions or classes. Ensure to manage dependencies correctly when adding functionality.",
+        "vibecoder_summary": "Imagine this file as a librarian for your slides, quietly organizing and managing them so they\u2019re ready for the big presentation. If you want to add a new book (function), just make sure it fits on the shelf (follows the structure)!",
+        "edit_points": "Look for areas where you can introduce new functions or classes to enhance slide management. Pay attention to how these changes interact with the existing structure."
       }
     },
     {
       "path": "backend/static/init",
       "language": "other",
-      "ext": "",
-      "size": 0,
-      "lines": 0,
-      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "mtime": 1757602652.9923244,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3035,20 +2988,19 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 0,
+      "lines": 0,
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mtime": 1757602652.9923244
     },
     {
       "path": "offdeal-frontend/postcss.config.mjs",
       "language": "js",
-      "ext": "",
-      "size": 81,
-      "lines": 5,
-      "hash": "141ef24ca27a99d08962210fdf20212d3435fdcfa21b46cd88b44d22f751dfae",
-      "mtime": 1757602652.9942527,
-      "imports": [],
       "exports": [
         "default"
       ],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3067,33 +3019,32 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the recipe for your CSS dish, where you can add spices (plugins) to enhance the flavor (functionality) of your styles.",
+      "blurb": "Think of this file as a recipe book for your CSS. It tells PostCSS how to mix and match ingredients (plugins) to create the perfect style dish for your web application.",
       "skipped": false,
       "skipReason": null,
+      "size": 81,
+      "lines": 5,
+      "hash": "141ef24ca27a99d08962210fdf20212d3435fdcfa21b46cd88b44d22f751dfae",
+      "mtime": 1757602652.9942527,
       "summary": {
         "title": "PostCSS Configuration",
-        "purpose": "This file configures PostCSS, a tool for transforming CSS with JavaScript plugins, allowing for advanced styling capabilities in the project.",
+        "purpose": "This file configures PostCSS, a tool for transforming CSS with JavaScript plugins, allowing for advanced CSS features and optimizations.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "To modify this configuration, you can add or remove PostCSS plugins in the exported configuration object. Ensure that any new plugins are installed in your project.",
-        "risks": "Incorrect configurations or incompatible plugins may lead to build failures or unexpected styling issues. Always test changes in a development environment before deploying.",
-        "blurb": "Think of this file as the recipe for your CSS dish, where you can add spices (plugins) to enhance the flavor (functionality) of your styles.",
-        "dev_summary": "Configures PostCSS for the project. No functions or classes defined. Ensure compatibility of plugins.",
-        "vibecoder_summary": "Imagine you're a chef in a kitchen, and this file is your cookbook. You can tweak the ingredients (plugins) to make your CSS dish just right, but be careful not to mix flavors that clash!",
-        "edit_points": "Look for the section where plugins are defined; this is where you can add or adjust the PostCSS plugins."
+        "how_to_modify": "To modify this file, you can add or remove PostCSS plugins in the configuration object. Ensure that any new plugins are installed as dependencies in your project.",
+        "risks": "Incorrect configuration or incompatible plugins may lead to build failures or unexpected CSS output. Always test your CSS after making changes.",
+        "blurb": "Think of this file as a recipe book for your CSS. It tells PostCSS how to mix and match ingredients (plugins) to create the perfect style dish for your web application.",
+        "dev_summary": "Configures PostCSS for CSS transformations. No functions or classes defined. Ensure plugins are compatible.",
+        "vibecoder_summary": "Imagine you're a chef in a kitchen full of spices (plugins). This file is your cookbook, guiding you on how to blend those spices to whip up a delicious CSS feast!",
+        "edit_points": "Look for the section where plugins are defined. This is where you can add or remove plugins to customize your CSS processing."
       }
     },
     {
       "path": "offdeal-frontend/next-env.d.ts",
       "language": "ts",
-      "ext": "",
-      "size": 211,
-      "lines": 5,
-      "hash": "f2b3bca04d1bfe583daae1e1f798c92ec24bb6693bd88d0a09ba6802dee362a8",
-      "mtime": 1757602652.9947195,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3112,33 +3063,32 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as a guidebook for TypeScript, helping it understand the unique landscape of your Next.js application. It ensures that everything is in the right place and correctly labeled.",
+      "blurb": "Think of this file as a map that helps TypeScript navigate the Next.js landscape, ensuring you don't get lost in the code!",
       "skipped": false,
       "skipReason": null,
+      "size": 211,
+      "lines": 5,
+      "hash": "f2b3bca04d1bfe583daae1e1f798c92ec24bb6693bd88d0a09ba6802dee362a8",
+      "mtime": 1757602652.9947195,
       "summary": {
-        "title": "TypeScript Environment Definitions for Next.js",
-        "purpose": "This file provides TypeScript type definitions for the Next.js environment, ensuring type safety and autocompletion for Next.js features.",
+        "title": "TypeScript Environment Definitions",
+        "purpose": "This file provides TypeScript definitions for the Next.js environment, ensuring type safety and IntelliSense support for Next.js features.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "You can add or modify type definitions as needed to accommodate new features or changes in your Next.js application. Ensure that any changes are consistent with the Next.js framework's expected types.",
-        "risks": "Improper modifications may lead to type errors in your application, resulting in a loss of type safety and potentially causing runtime issues. Always validate changes with TypeScript's compiler.",
-        "blurb": "Think of this file as a guidebook for TypeScript, helping it understand the unique landscape of your Next.js application. It ensures that everything is in the right place and correctly labeled.",
-        "dev_summary": "Defines TypeScript types for the Next.js environment. No functions or classes are defined here. Be cautious with type changes to avoid breaking type safety.",
-        "vibecoder_summary": "Imagine this file as a map for a treasure hunt, showing TypeScript where to find all the hidden gems in your Next.js project. If you change the map, make sure the treasure is still where you expect it to be!",
+        "how_to_modify": "You can add or modify type definitions related to the Next.js environment. Ensure that any changes maintain compatibility with the existing TypeScript setup.",
+        "risks": "Incorrect modifications may lead to type errors or loss of IntelliSense support in your development environment. Always validate changes with TypeScript compiler checks.",
+        "blurb": "Think of this file as a map that helps TypeScript navigate the Next.js landscape, ensuring you don't get lost in the code!",
+        "dev_summary": "Defines TypeScript types for Next.js environment. No functions or classes present. Be cautious with changes to avoid type conflicts.",
+        "vibecoder_summary": "Imagine this file as a friendly guidebook for TypeScript, helping it understand the magical world of Next.js! If you change the guidebook, make sure the directions still make sense!",
         "edit_points": []
       }
     },
     {
       "path": "offdeal-frontend/README.md",
       "language": "other",
-      "ext": "",
-      "size": 1450,
-      "lines": 36,
-      "hash": "60b55ff7df79af72590f9524208e46642bc32bdc175cdad41349681c0e2f958f",
-      "mtime": 1757602652.99492,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3156,18 +3106,17 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 1450,
+      "lines": 36,
+      "hash": "60b55ff7df79af72590f9524208e46642bc32bdc175cdad41349681c0e2f958f",
+      "mtime": 1757602652.99492
     },
     {
       "path": "offdeal-frontend/.gitignore",
       "language": "other",
-      "ext": "",
-      "size": 480,
-      "lines": 41,
-      "hash": "207e265ff4901f9ad9f96d8ce08530e04f9fc600815472a66d0a446096d654cd",
-      "mtime": 1757602652.9955177,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3185,18 +3134,17 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 480,
+      "lines": 41,
+      "hash": "207e265ff4901f9ad9f96d8ce08530e04f9fc600815472a66d0a446096d654cd",
+      "mtime": 1757602652.9955177
     },
     {
       "path": "offdeal-frontend/package-lock.json",
       "language": "other",
-      "ext": "",
-      "size": 221925,
-      "lines": 6396,
-      "hash": "361a9647191c33c655ea1de154a8e09d854c0d3d388926b743e8b756d89c9977",
-      "mtime": 1757602652.9961812,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3214,18 +3162,17 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 221925,
+      "lines": 6396,
+      "hash": "361a9647191c33c655ea1de154a8e09d854c0d3d388926b743e8b756d89c9977",
+      "mtime": 1757602652.9961812
     },
     {
       "path": "offdeal-frontend/package.json",
       "language": "other",
-      "ext": "",
-      "size": 669,
-      "lines": 30,
-      "hash": "59371dfe34a04f59fef0c99ea76bee866dd8ccb764358e84bb17d2234fcd7258",
-      "mtime": 1757602652.996597,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3243,18 +3190,17 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 669,
+      "lines": 30,
+      "hash": "59371dfe34a04f59fef0c99ea76bee866dd8ccb764358e84bb17d2234fcd7258",
+      "mtime": 1757602652.996597
     },
     {
       "path": "offdeal-frontend/tsconfig.json",
       "language": "other",
-      "ext": "",
-      "size": 602,
-      "lines": 27,
-      "hash": "83d292a6930a317ea31ef48e220097d2ca10c6c505f41d5954795acef48ca3b9",
-      "mtime": 1757602652.9967892,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3272,16 +3218,18 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 602,
+      "lines": 27,
+      "hash": "83d292a6930a317ea31ef48e220097d2ca10c6c505f41d5954795acef48ca3b9",
+      "mtime": 1757602652.9967892
     },
     {
       "path": "offdeal-frontend/eslint.config.mjs",
       "language": "js",
-      "ext": "",
-      "size": 393,
-      "lines": 16,
-      "hash": "3de4ba23ff1f687685651cad622700613998de80daa30ac4d82c47776a04019d",
-      "mtime": 1757602652.996972,
+      "exports": [
+        "default"
+      ],
       "imports": [
         {
           "raw": "path",
@@ -3296,9 +3244,6 @@
           "kind": "esm"
         }
       ],
-      "exports": [
-        "default"
-      ],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3317,12 +3262,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the rulebook for your JavaScript code. It helps keep your code clean and consistent, like a well-organized library.",
+      "blurb": "Think of this file as the rulebook for your coding team, ensuring everyone plays by the same guidelines and keeps the code neat and tidy.",
       "skipped": false,
       "skipReason": null,
+      "size": 393,
+      "lines": 16,
+      "hash": "3de4ba23ff1f687685651cad622700613998de80daa30ac4d82c47776a04019d",
+      "mtime": 1757602652.996972,
       "summary": {
-        "title": "ESLint Configuration File",
-        "purpose": "This file configures ESLint, a tool for identifying and fixing problems in JavaScript code. It sets rules and environments for linting the codebase.",
+        "title": "ESLint Configuration",
+        "purpose": "This file configures ESLint, a tool for identifying and fixing problems in JavaScript code, ensuring code quality and consistency across the project.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -3330,30 +3279,25 @@
           "url",
           "@eslint/eslintrc"
         ],
-        "how_to_modify": "To modify the ESLint configuration, you can add or change rules in the exported configuration object. Ensure you understand the implications of each rule you modify.",
-        "risks": "Incorrect configurations may lead to linting errors or warnings that could disrupt the development process. Additionally, adding incompatible rules may cause ESLint to fail.",
-        "blurb": "Think of this file as the rulebook for your JavaScript code. It helps keep your code clean and consistent, like a well-organized library.",
-        "dev_summary": "Configures ESLint with specified rules and environments. No functions or classes are defined here; it's purely a configuration file. Be cautious with rule changes.",
-        "vibecoder_summary": "Imagine this file as the conductor of an orchestra, ensuring every musician (your code) plays in harmony. Change a note, and you might create a beautiful symphony or a cacophony!",
-        "edit_points": "Focus on the rules section of the configuration object to make changes. Look for comments or documentation within the file for guidance on specific rules."
+        "how_to_modify": "To modify the ESLint rules or settings, edit the configuration object within this file. You can add or remove rules as needed to fit your coding standards.",
+        "risks": "Improper modifications may lead to incorrect linting results, causing potential issues in code quality or introducing inconsistencies in the codebase.",
+        "blurb": "Think of this file as the rulebook for your coding team, ensuring everyone plays by the same guidelines and keeps the code neat and tidy.",
+        "dev_summary": "Configures ESLint with specified rules and settings. No functions or classes are defined here. Ensure to validate changes to avoid linting errors.",
+        "vibecoder_summary": "Imagine this file as a wise librarian, keeping all the books (code) in perfect order. If you change the rules of the library, make sure they still help everyone find their way around!",
+        "edit_points": "Focus on the configuration object to adjust linting rules. Look for sections labeled with comments for guidance on what each rule does."
       }
     },
     {
       "path": "offdeal-frontend/next.config.ts",
       "language": "ts",
-      "ext": "",
-      "size": 133,
-      "lines": 7,
-      "hash": "614bce25b089c3f19b1e17a6346c74b858034040154c6621e7d35303004767cc",
-      "mtime": 1757602652.9971485,
+      "exports": [
+        "default"
+      ],
       "imports": [
         {
           "raw": "next",
           "kind": "esm"
         }
-      ],
-      "exports": [
-        "default"
       ],
       "functions": [],
       "classes": [],
@@ -3373,35 +3317,34 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the blueprint for your Next.js house. It tells the builders (the framework) how to construct your application, what materials to use, and how to make it unique.",
+      "blurb": "Think of this file as the control panel for your Next.js spaceship, where you set the course for your journey through the web universe!",
       "skipped": false,
       "skipReason": null,
+      "size": 133,
+      "lines": 7,
+      "hash": "614bce25b089c3f19b1e17a6346c74b858034040154c6621e7d35303004767cc",
+      "mtime": 1757602652.9971485,
       "summary": {
         "title": "Next.js Configuration File",
-        "purpose": "This file configures the Next.js application, defining settings such as build options, environment variables, and custom webpack configurations.",
+        "purpose": "This file configures the Next.js application, setting various options that affect the build and runtime behavior of the app.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
           "next"
         ],
-        "how_to_modify": "To modify this file, adjust the configuration options as needed. Common changes include setting environment variables, modifying build settings, or adding custom webpack configurations.",
-        "risks": "Improper modifications can lead to build failures, unexpected behavior in the application, or performance issues. Always ensure to test changes in a development environment before deploying.",
-        "blurb": "Think of this file as the blueprint for your Next.js house. It tells the builders (the framework) how to construct your application, what materials to use, and how to make it unique.",
-        "dev_summary": "This TypeScript file configures a Next.js application. It does not contain any functions or classes but serves as a central place for application settings. Be cautious with changes to avoid breaking the build.",
-        "vibecoder_summary": "Imagine you\u2019re the architect of a magical castle (your app) and this file is your blueprint. You can tweak the design, but if you change too much, the castle might not stand tall anymore!",
-        "edit_points": "Look for sections that define configuration options. Common areas to edit include 'webpack' settings, 'env' variables, and 'experimental' features."
+        "how_to_modify": "To modify the configuration, add or update properties in the exported configuration object. Ensure you understand the implications of each setting by consulting the Next.js documentation.",
+        "risks": "Incorrect modifications can lead to build failures or unexpected behavior in the application. Always test changes in a development environment before deploying.",
+        "blurb": "Think of this file as the control panel for your Next.js spaceship, where you set the course for your journey through the web universe!",
+        "dev_summary": "Configures Next.js settings. No functions or classes defined. Be cautious with changes to avoid breaking the build.",
+        "vibecoder_summary": "Imagine you're the captain of a ship, and this file is your navigation chart. It tells your ship how to sail smoothly through the waters of web development. Adjust the sails (settings) carefully to avoid stormy seas!",
+        "edit_points": "Look for the exported configuration object at the bottom of the file. This is where you can add or modify settings."
       }
     },
     {
       "path": "offdeal-frontend/src/types.ts",
       "language": "ts",
-      "ext": "",
-      "size": 812,
-      "lines": 35,
-      "hash": "1bd2fa91776d3fae71e38a0a2879319fa0c17ac5d49adaa1b12c55eb3fce4d52",
-      "mtime": 1757602652.9989088,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3423,28 +3366,30 @@
       "blurb": "Think of this file as the blueprint for the Offdeal frontend. It defines the shapes and structures of data that the application will use, ensuring everything fits together nicely.",
       "skipped": false,
       "skipReason": null,
+      "size": 812,
+      "lines": 35,
+      "hash": "1bd2fa91776d3fae71e38a0a2879319fa0c17ac5d49adaa1b12c55eb3fce4d52",
+      "mtime": 1757602652.9989088,
       "summary": {
         "title": "Type Definitions for Offdeal Frontend",
-        "purpose": "This file contains TypeScript type definitions used throughout the Offdeal frontend application to ensure type safety and improve code maintainability.",
+        "purpose": "This file contains TypeScript type definitions that are used throughout the Offdeal frontend application to ensure type safety and improve code quality.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "To modify this file, add or update type definitions as needed. Ensure that any changes are consistent with existing types and do not introduce type conflicts.",
-        "risks": "Modifying type definitions can lead to type errors in other parts of the application if not done carefully. Ensure that all usages of the modified types are updated accordingly.",
+        "how_to_modify": "You can add new type definitions or interfaces as needed to support new features or components in the application. Ensure that any new types are well-documented and follow existing conventions.",
+        "risks": "Adding or modifying types incorrectly can lead to type errors throughout the application, making it difficult to compile or run. Ensure that you test any changes thoroughly.",
         "blurb": "Think of this file as the blueprint for the Offdeal frontend. It defines the shapes and structures of data that the application will use, ensuring everything fits together nicely.",
-        "dev_summary": "This file defines TypeScript types for the Offdeal frontend. It serves as a central location for type definitions, which can be referenced throughout the application. Be cautious when modifying types to avoid breaking type safety.",
-        "vibecoder_summary": "Imagine this file as a recipe book for the Offdeal frontend kitchen. It lists all the ingredients (types) needed to whip up delicious features without any unexpected surprises!",
-        "edit_points": "Look for areas where new types are needed or existing types need to be modified. Pay attention to any related files that might reference these types."
+        "dev_summary": "Defines TypeScript types for the Offdeal frontend. No functions or classes present. Ensure consistency when adding new types.",
+        "vibecoder_summary": "Imagine this file as a recipe book for your favorite dish. It lists all the ingredients (types) needed to create the perfect meal (application), ensuring that every bite is just right!",
+        "edit_points": "Look for areas where new features are being implemented or where existing data structures need clarification. Pay attention to naming conventions and documentation style."
       }
     },
     {
       "path": "offdeal-frontend/src/app/layout.tsx",
       "language": "ts",
-      "ext": "",
-      "size": 324,
-      "lines": 14,
-      "hash": "f7f47f65ab000db910b5a147da23461abab11f99b071cb5877e98051b53b7a9a",
-      "mtime": 1757602652.9981987,
+      "exports": [
+        "default"
+      ],
       "imports": [
         {
           "raw": "./globals.css",
@@ -3454,9 +3399,6 @@
           "raw": "next",
           "kind": "esm"
         }
-      ],
-      "exports": [
-        "default"
       ],
       "functions": [
         {
@@ -3486,12 +3428,16 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "This is the cozy home for your app's pages, where they all gather to share a common look and feel!",
+      "blurb": "The layout component is like the frame of a picture, holding everything together and providing a consistent look and feel across the Offdeal app.",
       "skipped": false,
       "skipReason": null,
+      "size": 324,
+      "lines": 14,
+      "hash": "f7f47f65ab000db910b5a147da23461abab11f99b071cb5877e98051b53b7a9a",
+      "mtime": 1757602652.9981987,
       "summary": {
-        "title": "Layout Component",
-        "purpose": "Defines the main layout structure for the application, serving as a wrapper for pages rendered in a Next.js application.",
+        "title": "Layout Component for Offdeal Frontend",
+        "purpose": "This file defines the layout structure for the Offdeal frontend application, serving as a wrapper for the main content and ensuring consistent styling and structure across different pages.",
         "key_functions": [],
         "internal_dependencies": [
           "offdeal-frontend/src/app/globals.css"
@@ -3499,22 +3445,20 @@
         "external_dependencies": [
           "next"
         ],
-        "how_to_modify": "To modify the layout, you can add or change the structure of the JSX returned in this file. Ensure that any new components or styles you introduce are properly imported.",
-        "risks": "Changes to the layout may affect the overall appearance and functionality of all pages that use this layout. Be cautious with structural changes and test thoroughly.",
-        "blurb": "This is the cozy home for your app's pages, where they all gather to share a common look and feel!",
-        "dev_summary": "This file serves as a layout component in a Next.js application, providing a consistent structure across different pages. It interfaces with global styles and is crucial for maintaining a unified design. Be mindful of how changes can ripple through the app.",
-        "vibecoder_summary": "Imagine this layout as the stage where all your app's actors (pages) perform. It sets the scene and ensures everyone looks good together. Tweak the backdrop, but remember: a change in the stage can change the whole show!",
+        "how_to_modify": "To modify the layout, you can edit the JSX structure within this file. If you need to change styles, update the 'globals.css' file. Ensure that any new components added are properly imported and used within the layout.",
+        "risks": "Changes to the layout structure may affect the overall appearance and functionality of the application. Be cautious when modifying styles or adding new components, as this could lead to inconsistencies or layout issues across different pages.",
+        "blurb": "The layout component is like the frame of a picture, holding everything together and providing a consistent look and feel across the Offdeal app.",
+        "dev_summary": "This TypeScript file implements a layout component for a Next.js application. It interfaces with global styles and serves as a base for routing. Ensure to check for any layout-breaking changes when modifying.",
+        "vibecoder_summary": "Imagine this layout as the cozy living room of your app, where all the guests (pages) come to hang out. You can rearrange the furniture (components) or change the wallpaper (styles) to make it feel just right, but be careful not to knock down any walls!",
         "edit_points": []
       }
     },
     {
       "path": "offdeal-frontend/src/app/page.tsx",
       "language": "ts",
-      "ext": "",
-      "size": 41334,
-      "lines": 983,
-      "hash": "8cfa15ce3da2bbab33e15b6cab30e6865d9bf86381e9a45d2f8911be0bff56b6",
-      "mtime": 1757602652.9985085,
+      "exports": [
+        "default"
+      ],
       "imports": [
         {
           "raw": "react",
@@ -3528,9 +3472,6 @@
           "raw": "../types",
           "kind": "esm"
         }
-      ],
-      "exports": [
-        "default"
       ],
       "functions": [
         {
@@ -3724,12 +3665,16 @@
         "isClientComponent": true
       },
       "warnings": [],
-      "blurb": "This is your go-to page component for rendering dynamic content in a Next.js app. It interacts with React hooks to manage state and lifecycle events.",
+      "blurb": "This is the heart of your page, where all the magic happens! It's like the stage where your actors (components) perform their roles, and the audience (users) interact with them.",
       "skipped": false,
       "skipReason": null,
+      "size": 41334,
+      "lines": 983,
+      "hash": "8cfa15ce3da2bbab33e15b6cab30e6865d9bf86381e9a45d2f8911be0bff56b6",
+      "mtime": 1757602652.9985085,
       "summary": {
         "title": "Page Component in Next.js",
-        "purpose": "This file defines a client-side page component for a Next.js application, serving as a route that renders UI elements based on state and effects.",
+        "purpose": "This file defines a React component that serves as a page in a Next.js application, handling client-side rendering and state management.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [
@@ -3737,24 +3682,19 @@
           "../lib/api",
           "../types"
         ],
-        "how_to_modify": "To modify this file, focus on the hooks (useState, useEffect, useMemo) to manage state and side effects. You can also adjust the rendering logic based on the component's state.",
-        "risks": "Be cautious when modifying state management logic as it can lead to unexpected UI behavior. Ensure that any changes to external dependencies are compatible with the existing code.",
-        "blurb": "This is your go-to page component for rendering dynamic content in a Next.js app. It interacts with React hooks to manage state and lifecycle events.",
-        "dev_summary": "Defines a client-side page component in Next.js. Utilizes React hooks for state and effects. No direct API interactions; relies on external modules for data types and API calls.",
-        "vibecoder_summary": "Imagine this file as a stage where actors (UI elements) perform based on the script (state) and director's cues (effects). Tweak the script to change the performance, but be careful not to confuse the actors!",
-        "edit_points": "Focus on the useState and useEffect hooks for managing component behavior. Consider how changes might affect the overall user experience."
+        "how_to_modify": "To modify this component, you can add or update hooks like useState, useEffect, or useMemo to manage state and side effects. Ensure that any changes align with the routing and rendering logic of Next.js.",
+        "risks": "Modifying state management or side effects without understanding the component's lifecycle could lead to unexpected behavior or performance issues. Additionally, changes to the routing logic may affect navigation.",
+        "blurb": "This is the heart of your page, where all the magic happens! It's like the stage where your actors (components) perform their roles, and the audience (users) interact with them.",
+        "dev_summary": "Defines a client-side page component in Next.js using React hooks for state and effects. No direct functions or classes are defined, but it relies on external libraries for API interactions and type definitions.",
+        "vibecoder_summary": "Imagine this file as a cozy little caf\u00e9 where your React components gather to chat and share stories. The hooks are like the baristas, brewing up fresh coffee (state) and serving it just in time (effects) to keep the conversations lively!",
+        "edit_points": []
       }
     },
     {
       "path": "offdeal-frontend/src/app/globals.css",
       "language": "other",
-      "ext": "",
-      "size": 2408,
-      "lines": 128,
-      "hash": "2ab6c631cbd7a617b4bf441b1f19c465799f92833058e0fd489d0df0391a6867",
-      "mtime": 1757602652.9987152,
-      "imports": [],
       "exports": [],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3772,20 +3712,19 @@
       ],
       "blurb": "Invalid file entry",
       "skipped": true,
-      "skipReason": "validation_failed"
+      "skipReason": "validation_failed",
+      "size": 2408,
+      "lines": 128,
+      "hash": "2ab6c631cbd7a617b4bf441b1f19c465799f92833058e0fd489d0df0391a6867",
+      "mtime": 1757602652.9987152
     },
     {
       "path": "offdeal-frontend/src/lib/api.ts",
       "language": "ts",
-      "ext": "",
-      "size": 3034,
-      "lines": 96,
-      "hash": "91e09c0b8d4869a95889089a058eead203a4cfb1b1ad9550fe7435036c325804",
-      "mtime": 1757602652.9992561,
-      "imports": [],
       "exports": [
         "named"
       ],
+      "imports": [],
       "functions": [],
       "classes": [],
       "routes": [],
@@ -3804,23 +3743,31 @@
         "isAPI": false
       },
       "warnings": [],
-      "blurb": "Think of this file as the post office of your application, handling all the requests and responses between your app and the outside world.",
+      "blurb": "Think of this file as the post office of your application, managing all the messages sent to and from the server. Changes here can affect how well your app communicates with the outside world.",
       "skipped": false,
       "skipReason": null,
+      "size": 3034,
+      "lines": 96,
+      "hash": "91e09c0b8d4869a95889089a058eead203a4cfb1b1ad9550fe7435036c325804",
+      "mtime": 1757602652.9992561,
       "summary": {
         "title": "API Module",
-        "purpose": "This TypeScript file serves as a library for API interactions within the offdeal frontend application.",
+        "purpose": "This TypeScript file serves as a library for handling API interactions within the offdeal-frontend application.",
         "key_functions": [],
         "internal_dependencies": [],
         "external_dependencies": [],
-        "how_to_modify": "To modify this file, consider adding new functions for API requests or updating existing ones to handle new endpoints or data formats. Ensure to maintain consistent naming conventions and error handling practices.",
-        "risks": "Modifying this file could lead to broken API calls if not done carefully. Ensure that any changes are thoroughly tested to avoid runtime errors or unexpected behavior in the application.",
-        "blurb": "Think of this file as the post office of your application, handling all the requests and responses between your app and the outside world.",
-        "dev_summary": "This file is a TypeScript module for managing API interactions. It currently has no defined functions, classes, or constants. Be cautious when adding new code to ensure it aligns with existing patterns.",
-        "vibecoder_summary": "Imagine this file as a friendly messenger that carries your messages to and from the big world of the internet. If you want to send new messages or change how they\u2019re sent, just make sure the messenger knows how to do it without getting lost!",
-        "edit_points": []
+        "how_to_modify": "You can add new functions to handle specific API requests or modify existing ones to change how data is fetched or sent. Ensure to maintain TypeScript types for consistency.",
+        "risks": "Modifying this file without understanding the API structure may lead to broken functionality or runtime errors. Be cautious about changing data handling logic, as it could affect multiple parts of the application.",
+        "blurb": "Think of this file as the post office of your application, managing all the messages sent to and from the server. Changes here can affect how well your app communicates with the outside world.",
+        "dev_summary": "This file is designed for API interactions but currently lacks defined functions or classes. It may serve as a placeholder for future development. Ensure to define clear interfaces for any new API methods added.",
+        "vibecoder_summary": "Imagine this file as a blank canvas waiting for an artist to paint it with vibrant API calls. Each brushstroke (or function) you add will help your application tell its story to the server and back!",
+        "edit_points": "Look for areas where you can define new functions for API requests. Consider adding error handling and response parsing to ensure robust communication."
       }
     }
   ],
-  "warnings": []
+  "metadata": {
+    "total_files": 42,
+    "generated_at": "2024-01-15T00:00:00Z"
+  },
+  "generatedAt": "2025-09-11T23:14:34.979480+00:00"
 }

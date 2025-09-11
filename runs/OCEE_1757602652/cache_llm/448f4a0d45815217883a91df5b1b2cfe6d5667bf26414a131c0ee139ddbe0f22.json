@@ -1,0 +1,17 @@
+{
+  "title": "Email Schema Definition",
+  "purpose": "Defines data structures and validation for email-related data using Pydantic.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "__future__",
+    "typing",
+    "pydantic"
+  ],
+  "how_to_modify": "To modify the email schema, add or change Pydantic models or fields to reflect the desired email data structure. Ensure that any changes maintain data validation rules.",
+  "risks": "Modifying the schema incorrectly may lead to validation errors or data integrity issues. Ensure that any changes are tested thoroughly.",
+  "blurb": "This file is like a blueprint for emails, ensuring that all email data is structured and validated correctly before being used in the application.",
+  "dev_summary": "Defines Pydantic models for email data validation. No functions or classes are defined directly in this file. Be cautious with changes to maintain data integrity.",
+  "vibecoder_summary": "Imagine this file as a recipe for baking the perfect email! It lists all the ingredients (data fields) and how to mix them (validation rules) to ensure every email is just right.",
+  "edit_points": "Look for areas where Pydantic models are defined or where new fields can be added to enhance email validation."
+}

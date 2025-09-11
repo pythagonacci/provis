@@ -15,9 +15,6 @@
     "web": [],
     "api": [
       {
-        "path": "backend/app/__init__.py"
-      },
-      {
         "path": "backend/app/config.py"
       },
       {
@@ -25,9 +22,6 @@
       },
       {
         "path": "backend/app/main.py"
-      },
-      {
-        "path": "backend/app/models/__init__.py"
       },
       {
         "path": "backend/app/models/deck.py"
@@ -39,9 +33,6 @@
         "path": "backend/app/models/prospect.py"
       },
       {
-        "path": "backend/app/routers/__init__.py"
-      },
-      {
         "path": "backend/app/routers/deck.py"
       },
       {
@@ -51,19 +42,7 @@
         "path": "backend/app/routers/prospect.py"
       },
       {
-        "path": "backend/app/schemas/__init__.py"
-      },
-      {
         "path": "backend/app/schemas/deck.py"
-      },
-      {
-        "path": "backend/app/schemas/email.py"
-      },
-      {
-        "path": "backend/app/schemas/prospect.py"
-      },
-      {
-        "path": "backend/app/services/__init__.py"
       },
       {
         "path": "backend/app/services/ai.py"
@@ -76,21 +55,6 @@
       },
       {
         "path": "backend/app/services/slides.py"
-      },
-      {
-        "path": "backend/app/services/utils.py"
-      },
-      {
-        "path": "backend/app/templates/deck.html"
-      },
-      {
-        "path": "backend/migrate_add_phone.py"
-      },
-      {
-        "path": "backend/requirements.txt"
-      },
-      {
-        "path": "backend/static/init"
       }
     ],
     "workers": [],
@@ -419,7 +383,12 @@
     ]
   },
   "entrypoints": [
-    "backend/app/routers/deck.py"
+    {
+      "path": "backend/app/routers/deck.py",
+      "framework": "fastapi",
+      "kind": "api",
+      "route": "/{deck_id}/slides/{index}/ai-edit"
+    }
   ],
   "entryPoints": [
     "backend/app/routers/deck.py"
@@ -427,135 +396,3093 @@
   "swimlanes": {
     "web": [],
     "api": [
-      "backend/app/__init__.py",
       "backend/app/config.py",
       "backend/app/database.py",
       "backend/app/main.py",
-      "backend/app/models/__init__.py",
       "backend/app/models/deck.py",
       "backend/app/models/email.py",
       "backend/app/models/prospect.py",
-      "backend/app/routers/__init__.py",
       "backend/app/routers/deck.py",
       "backend/app/routers/email.py",
       "backend/app/routers/prospect.py",
-      "backend/app/schemas/__init__.py",
       "backend/app/schemas/deck.py",
-      "backend/app/schemas/email.py",
-      "backend/app/schemas/prospect.py",
-      "backend/app/services/__init__.py",
       "backend/app/services/ai.py",
       "backend/app/services/emailgeneration.py",
       "backend/app/services/pdf.py",
-      "backend/app/services/slides.py",
-      "backend/app/services/utils.py",
-      "backend/app/templates/deck.html",
-      "backend/migrate_add_phone.py",
-      "backend/requirements.txt",
-      "backend/static/init"
+      "backend/app/services/slides.py"
     ],
     "workers": [],
     "other": []
   },
-  "control_flow": [],
+  "control_flow": [
+    {
+      "from": "backend/app/database.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/prospect.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/models/prospect.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/models/deck.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/schemas/deck.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/services/ai.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/services/pdf.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/services/slides.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "backend/app/models/prospect.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/prospect.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/deck.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/email.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/emailgeneration.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/ai.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/pdf.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/slides.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    }
+  ],
   "data_flow": {
-    "inputs": [],
-    "stores": [],
-    "externals": []
+    "inputs": [
+      {
+        "type": "env",
+        "key": "ALLOWED_ORIGINS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "ALLOWED_ORIGINS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "APP_BASE_URL",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "APP_BASE_URL",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "BULLET_MAX_CHARS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "BULLET_MAX_CHARS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "DB_URL",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "DB_URL",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "FILE_STORAGE_DIR",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "FILE_STORAGE_DIR",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "MAX_BULLETS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "MAX_BULLETS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "OPENAI_API_KEY",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "OPENAI_API_KEY",
+          "value": "***REDACTED***"
+        }
+      },
+      {
+        "type": "env",
+        "key": "STUB_MODE",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "STUB_MODE",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "TITLE_MAX_CHARS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "TITLE_MAX_CHARS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "",
+        "handler": "create_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "",
+        "handler": "list_prospects",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "get_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/{prospect_id}",
+        "handler": "update_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "SlideAIEditRequest",
+        "fields": [
+          {
+            "name": "prompt",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/routers/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{deck_id}",
+        "handler": "get_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/{deck_id}",
+        "handler": "update_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{deck_id}/render",
+        "handler": "render_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{deck_id}/slides/{index}",
+        "handler": "get_slide",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/{deck_id}/slides/{index}",
+        "handler": "patch_slide",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{deck_id}/slides/{index}/ai-edit",
+        "handler": "ai_edit_slide",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/debug/ai-edit-test",
+        "handler": "debug_ai_edit_test",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailAIEditRequest",
+        "fields": [
+          {
+            "name": "prompt",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/routers/email.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_email_sequence",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "list_emails_for_prospect",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/item/{email_id}",
+        "handler": "get_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/item/{email_id}",
+        "handler": "update_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "DELETE",
+        "path": "/item/{email_id}",
+        "handler": "delete_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/item/{email_id}/ai-edit",
+        "handler": "ai_edit_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "ProspectCreate",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "contact_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "EmailStr",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "phone_number",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "industry",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "revenue_range",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "sale_motivation",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "signals",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "notes",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "company_name": "John Doe"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "ProspectUpdate",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "contact_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "EmailStr",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "phone_number",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "industry",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "revenue_range",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "sale_motivation",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "signals",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "notes",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Slide",
+        "fields": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "bullets",
+            "type": "Any",
+            "required": true,
+            "default": "Field(default_factory=list)"
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "DeckOut",
+        "fields": [
+          {
+            "name": "id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "prospect_id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "title",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "slides",
+            "type": "Any",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "pdf_url",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "id": 42,
+          "prospect_id": 42,
+          "title": "sample_value",
+          "slides": "example"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "SlideIn",
+        "fields": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "bullets",
+            "type": "Any",
+            "required": true,
+            "default": "Field(default_factory=list)"
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "DeckUpdate",
+        "fields": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "slides",
+            "type": "Any",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "slides": "example"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailOut",
+        "fields": [
+          {
+            "name": "id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "prospect_id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "sequence_index",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "subject",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "body",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "id": 42,
+          "prospect_id": 42,
+          "sequence_index": 42,
+          "subject": "sample_value",
+          "body": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailIn",
+        "fields": [
+          {
+            "name": "subject",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "body",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "subject": "sample_value",
+          "body": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailUpdate",
+        "fields": [
+          {
+            "name": "subject",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "body",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailBatchOut",
+        "fields": [
+          {
+            "name": "items",
+            "type": "Any",
+            "required": true,
+            "default": "Field(default_factory=list)"
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "items": "Field(default_factory=list)"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "ProspectContext",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "contact_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "industry",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "revenue_range",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "sale_motivation",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "signals",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      }
+    ],
+    "stores": [
+      {
+        "type": "dbModel",
+        "name": "slidepatchs",
+        "columns": [],
+        "path": "backend/app/routers/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideaieditrequests",
+        "columns": [],
+        "path": "backend/app/routers/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailaieditrequests",
+        "columns": [],
+        "path": "backend/app/routers/email.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospects",
+        "columns": [],
+        "path": "backend/app/models/prospect.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/email.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/models/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "decks",
+        "columns": [],
+        "path": "backend/app/models/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/models/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emails",
+        "columns": [],
+        "path": "backend/app/models/email.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/models/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectcreates",
+        "columns": [],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectupdates",
+        "columns": [],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slides",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckouts",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideins",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckupdates",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailins",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailupdates",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailbatchouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectcontexts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      }
+    ],
+    "externals": [
+      {
+        "type": "api",
+        "name": "OpenAI",
+        "client": "backend/app/services/emailgeneration.py",
+        "base_url": null,
+        "path": "backend/app/services/emailgeneration.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "calls"
+          }
+        ],
+        "usedFor": "External service/client calls.",
+        "example": {}
+      },
+      {
+        "type": "api",
+        "name": "OpenAI",
+        "client": "backend/app/services/ai.py",
+        "base_url": null,
+        "path": "backend/app/services/ai.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "calls"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "calls"
+          }
+        ],
+        "usedFor": "External service/client calls.",
+        "example": {}
+      }
+    ],
+    "outputs": [
+      {
+        "type": "responseSchema",
+        "name": "ProspectOut",
+        "method": "POST",
+        "path": "",
+        "handler": "create_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "ProspectOut",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "get_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "ProspectOut",
+        "method": "PATCH",
+        "path": "/{prospect_id}",
+        "handler": "update_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "GET",
+        "path": "/{deck_id}",
+        "handler": "get_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "PATCH",
+        "path": "/{deck_id}",
+        "handler": "update_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "POST",
+        "path": "/{deck_id}/render",
+        "handler": "render_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailBatchOut",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_email_sequence",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailBatchOut",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "list_emails_for_prospect",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailOut",
+        "method": "GET",
+        "path": "/item/{email_id}",
+        "handler": "get_email",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailOut",
+        "method": "PATCH",
+        "path": "/item/{email_id}",
+        "handler": "update_email",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailOut",
+        "method": "POST",
+        "path": "/item/{email_id}/ai-edit",
+        "handler": "ai_edit_email",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      }
+    ]
   },
   "policies": [
     {
-      "path": "backend/app/config.py",
-      "why": "Contains configuration settings that may include policy definitions.",
-      "type": "unknown"
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "path": "backend/app/main.py",
+      "appliedAt": "backend/app/main.py:18"
+    },
+    {
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "path": "backend/app/main.py",
+      "appliedAt": "backend/app/main.py"
+    },
+    {
+      "type": "dependency",
+      "name": "Depends",
+      "path": "backend/app/routers/prospect.py",
+      "appliedAt": "backend/app/routers/prospect.py:11"
+    },
+    {
+      "type": "dependency",
+      "name": "Depends",
+      "path": "backend/app/routers/prospect.py",
+      "appliedAt": "backend/app/routers/prospect.py:30"
+    },
+    {
+      "type": "dependency",
+      "name": "Depends",
+      "path": "backend/app/routers/prospect.py",
+      "appliedAt": "backend/app/routers/prospect.py:34"
     }
   ],
   "contracts": [
     {
-      "path": "backend/app/schemas/deck.py",
-      "why": "Defines the schema for deck data, ensuring data integrity."
+      "kind": "request",
+      "name": "Session",
+      "path": "",
+      "fields": []
     },
     {
+      "kind": "request",
+      "name": "Session",
+      "path": "/{prospect_id}",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "SlideAIEditRequest",
+      "path": "backend/app/routers/deck.py",
+      "fields": [
+        {
+          "name": "prompt",
+          "type": "str",
+          "required": true,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/{prospect_id}/generate",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/{deck_id}",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/{deck_id}/render",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/{deck_id}/slides/{index}",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/{deck_id}/slides/{index}/ai-edit",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/debug/ai-edit-test",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "EmailAIEditRequest",
+      "path": "backend/app/routers/email.py",
+      "fields": [
+        {
+          "name": "prompt",
+          "type": "str",
+          "required": true,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/item/{email_id}",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "Session",
+      "path": "/item/{email_id}/ai-edit",
+      "fields": []
+    },
+    {
+      "kind": "request",
+      "name": "ProspectCreate",
       "path": "backend/app/schemas/prospect.py",
-      "why": "Defines the schema for prospect data, ensuring data integrity."
+      "fields": [
+        {
+          "name": "company_name",
+          "type": "str",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "contact_name",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "email",
+          "type": "EmailStr",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "phone_number",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "industry",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "revenue_range",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "location",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "sale_motivation",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "signals",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "notes",
+          "type": "str",
+          "required": false,
+          "default": null
+        }
+      ]
     },
     {
+      "kind": "request",
+      "name": "ProspectUpdate",
+      "path": "backend/app/schemas/prospect.py",
+      "fields": [
+        {
+          "name": "company_name",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "contact_name",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "email",
+          "type": "EmailStr",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "phone_number",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "industry",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "revenue_range",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "location",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "sale_motivation",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "signals",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "notes",
+          "type": "str",
+          "required": false,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "Slide",
+      "path": "backend/app/schemas/deck.py",
+      "fields": [
+        {
+          "name": "title",
+          "type": "str",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "bullets",
+          "type": "Any",
+          "required": true,
+          "default": "Field(default_factory=list)"
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "DeckOut",
+      "path": "backend/app/schemas/deck.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "prospect_id",
+          "type": "int",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "title",
+          "type": "str",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "slides",
+          "type": "Any",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "pdf_url",
+          "type": "str",
+          "required": false,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "SlideIn",
+      "path": "backend/app/schemas/deck.py",
+      "fields": [
+        {
+          "name": "title",
+          "type": "str",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "bullets",
+          "type": "Any",
+          "required": true,
+          "default": "Field(default_factory=list)"
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "DeckUpdate",
+      "path": "backend/app/schemas/deck.py",
+      "fields": [
+        {
+          "name": "title",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "slides",
+          "type": "Any",
+          "required": true,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "EmailOut",
       "path": "backend/app/schemas/email.py",
-      "why": "Defines the schema for email data, ensuring data integrity."
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "prospect_id",
+          "type": "int",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "sequence_index",
+          "type": "int",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "subject",
+          "type": "str",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "body",
+          "type": "str",
+          "required": true,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "EmailIn",
+      "path": "backend/app/schemas/email.py",
+      "fields": [
+        {
+          "name": "subject",
+          "type": "str",
+          "required": true,
+          "default": null
+        },
+        {
+          "name": "body",
+          "type": "str",
+          "required": true,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "EmailUpdate",
+      "path": "backend/app/schemas/email.py",
+      "fields": [
+        {
+          "name": "subject",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "body",
+          "type": "str",
+          "required": false,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "EmailBatchOut",
+      "path": "backend/app/schemas/email.py",
+      "fields": [
+        {
+          "name": "items",
+          "type": "Any",
+          "required": true,
+          "default": "Field(default_factory=list)"
+        }
+      ]
+    },
+    {
+      "kind": "request",
+      "name": "ProspectContext",
+      "path": "backend/app/schemas/email.py",
+      "fields": [
+        {
+          "name": "company_name",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "contact_name",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "industry",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "revenue_range",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "location",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "sale_motivation",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "signals",
+          "type": "str",
+          "required": false,
+          "default": null
+        }
+      ]
+    },
+    {
+      "kind": "response",
+      "name": "ProspectOut",
+      "path": "backend/app/routers/prospect.py",
+      "fields": []
+    },
+    {
+      "kind": "response",
+      "name": "DeckOut",
+      "path": "backend/app/routers/deck.py",
+      "fields": []
+    },
+    {
+      "kind": "response",
+      "name": "EmailBatchOut",
+      "path": "backend/app/routers/email.py",
+      "fields": []
+    },
+    {
+      "kind": "response",
+      "name": "EmailOut",
+      "path": "backend/app/routers/email.py",
+      "fields": []
+    },
+    {
+      "kind": "pydantic.Model",
+      "name": "Settings",
+      "fields": [
+        {
+          "name": "DB_URL",
+          "type": "str",
+          "required": true,
+          "default": "sqlite:///./bdr.db"
+        },
+        {
+          "name": "APP_BASE_URL",
+          "type": "str",
+          "required": true,
+          "default": "http://localhost:8000"
+        },
+        {
+          "name": "FILE_STORAGE_DIR",
+          "type": "str",
+          "required": true,
+          "default": "./app/generated"
+        },
+        {
+          "name": "OPENAI_API_KEY",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "STUB_MODE",
+          "type": "bool",
+          "required": true,
+          "default": true
+        },
+        {
+          "name": "ALLOWED_ORIGINS",
+          "type": "str",
+          "required": true,
+          "default": "*"
+        },
+        {
+          "name": "TITLE_MAX_CHARS",
+          "type": "int",
+          "required": true,
+          "default": 200
+        },
+        {
+          "name": "BULLET_MAX_CHARS",
+          "type": "int",
+          "required": true,
+          "default": 500
+        },
+        {
+          "name": "MAX_BULLETS",
+          "type": "int",
+          "required": true,
+          "default": 8
+        }
+      ],
+      "path": "backend/app/config.py"
+    },
+    {
+      "kind": "pydantic.Model",
+      "name": "SlidePatch",
+      "fields": [
+        {
+          "name": "title",
+          "type": "str",
+          "required": false,
+          "default": null
+        },
+        {
+          "name": "bullets",
+          "type": "Any",
+          "required": false,
+          "default": null
+        }
+      ],
+      "path": "backend/app/routers/deck.py"
+    },
+    {
+      "kind": "sqlalchemy",
+      "name": "Prospect",
+      "table": "prospects",
+      "columns": [],
+      "path": "backend/app/models/prospect.py"
+    },
+    {
+      "kind": "sqlalchemy",
+      "name": "Deck",
+      "table": "decks",
+      "columns": [],
+      "path": "backend/app/models/deck.py"
+    },
+    {
+      "kind": "sqlalchemy",
+      "name": "Email",
+      "table": "emails",
+      "columns": [],
+      "path": "backend/app/models/email.py"
     }
   ],
   "summaries": {
-    "file": {
-      "backend/app/routers/deck.py": "",
-      "json": "",
-      "fastapi": "",
-      "sqlalchemy.orm": "",
-      "pydantic": "",
-      "typing": "",
-      "database": "",
-      "models.prospect": "",
-      "models.deck": "",
-      "schemas.deck": "",
-      "services.ai": "",
-      "services.pdf": "",
-      "services.slides": "",
-      "config": "",
-      "backend/app/services/emailgeneration.py": "",
-      "backend/app/services/ai.py": "",
-      "backend/app/main.py": "",
-      "backend/app/routers/prospect.py": "",
-      "backend/app/routers/email.py": "",
-      "backend/app/database.py": "",
-      "backend/app/models/prospect.py": "",
-      "backend/app/models/deck.py": "",
-      "backend/app/models/email.py": "",
-      "backend/app/config.py": "",
-      "backend/app/schemas/prospect.py": "",
-      "backend/app/schemas/deck.py": "",
-      "backend/app/schemas/email.py": "",
-      "backend/app/services/pdf.py": "",
-      "backend/app/services/slides.py": ""
+    "README.md": {
+      "summary": "Supporting module with 0 connections"
     },
-    "folder": {
-      "backend/app": ""
+    ".gitignore": {
+      "summary": "Supporting module with 0 connections"
     },
-    "narrative": [
-      {
-        "label": "Receive Request",
-        "detail": "The API endpoint receives a request to edit a slide in a deck.",
-        "scenario": "A valid request is made to /{deck_id}/slides/{index}/ai-edit with the necessary parameters."
-      },
-      {
-        "label": "Validate Input",
-        "detail": "The input data is validated against the defined schemas.",
-        "scenario": "The input data conforms to the schemas defined in backend/app/schemas/deck.py."
-      },
-      {
-        "label": "Fetch Deck",
-        "detail": "The system retrieves the specified deck from the database.",
-        "scenario": "The deck with the given deck_id exists in the database."
-      },
-      {
-        "label": "Fetch Slide",
-        "detail": "The system retrieves the specified slide from the deck.",
-        "scenario": "The slide at the specified index exists in the deck."
-      },
-      {
-        "label": "Process AI Edit",
-        "detail": "The system processes the AI editing request using the AI service.",
-        "scenario": "The AI service successfully returns the edited slide content."
-      },
-      {
-        "label": "Update Slide",
-        "detail": "The system updates the slide with the new content returned by the AI service.",
-        "scenario": "The slide is successfully updated in the database."
-      },
-      {
-        "label": "Return Response",
-        "detail": "The system sends a success response back to the client.",
-        "scenario": "The response includes the updated slide data."
-      }
-    ]
+    "backend/requirements.txt": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "backend/migrate_add_phone.py": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "backend/app/config.py": {
+      "summary": "Application configuration and settings"
+    },
+    "backend/app/database.py": {
+      "summary": "Database connection and setup"
+    },
+    "backend/app/__init__.py": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "backend/app/main.py": {
+      "summary": "FastAPI application entry point"
+    },
+    "backend/app/routers/prospect.py": {
+      "summary": "FastAPI router with 1 outgoing calls"
+    },
+    "backend/app/routers/deck.py": {
+      "summary": "FastAPI router with 8 outgoing calls"
+    },
+    "backend/app/routers/__init__.py": {
+      "summary": "FastAPI router with 0 outgoing calls"
+    },
+    "backend/app/routers/email.py": {
+      "summary": "FastAPI router with 2 outgoing calls"
+    },
+    "backend/app/models/prospect.py": {
+      "summary": "Data model with 1 tables"
+    },
+    "backend/app/models/deck.py": {
+      "summary": "Data model with 1 tables"
+    },
+    "backend/app/models/__init__.py": {
+      "summary": "Data model with 0 tables"
+    },
+    "backend/app/models/email.py": {
+      "summary": "Data model with 1 tables"
+    },
+    "backend/app/schemas/prospect.py": {
+      "summary": "Pydantic schema definitions"
+    },
+    "backend/app/schemas/deck.py": {
+      "summary": "Pydantic schema definitions"
+    },
+    "backend/app/schemas/__init__.py": {
+      "summary": "Pydantic schema definitions"
+    },
+    "backend/app/schemas/email.py": {
+      "summary": "Pydantic schema definitions"
+    },
+    "backend/app/templates/deck.html": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "backend/app/services/emailgeneration.py": {
+      "summary": "Service module with 1 dependencies"
+    },
+    "backend/app/services/ai.py": {
+      "summary": "Service module with 1 dependencies"
+    },
+    "backend/app/services/__init__.py": {
+      "summary": "Service module with 0 dependencies"
+    },
+    "backend/app/services/pdf.py": {
+      "summary": "Service module with 1 dependencies"
+    },
+    "backend/app/services/utils.py": {
+      "summary": "Service module with 0 dependencies"
+    },
+    "backend/app/services/slides.py": {
+      "summary": "Service module with 1 dependencies"
+    },
+    "backend/static/init": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/postcss.config.mjs": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/next-env.d.ts": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/README.md": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/.gitignore": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/package-lock.json": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/package.json": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/tsconfig.json": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/eslint.config.mjs": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/next.config.ts": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/src/types.ts": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/src/app/layout.tsx": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/src/app/page.tsx": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/src/app/globals.css": {
+      "summary": "Supporting module with 0 connections"
+    },
+    "offdeal-frontend/src/lib/api.ts": {
+      "summary": "Supporting module with 0 connections"
+    }
   },
   "keyFiles": [
     "backend/app/routers/deck.py",
@@ -574,278 +3501,2761 @@
     {
       "title": "Validate Input",
       "description": "The input data is validated against the defined schemas.",
-      "fileId": null
+      "fileId": "backend/app/routers/deck.py"
     },
     {
       "title": "Fetch Deck",
       "description": "The system retrieves the specified deck from the database.",
-      "fileId": null
+      "fileId": "backend/app/models/prospect.py"
     },
     {
       "title": "Fetch Slide",
       "description": "The system retrieves the specified slide from the deck.",
-      "fileId": null
+      "fileId": "backend/app/models/prospect.py"
     },
     {
       "title": "Process AI Edit",
       "description": "The system processes the AI editing request using the AI service.",
-      "fileId": null
+      "fileId": "backend/app/routers/deck.py"
     },
     {
       "title": "Update Slide",
       "description": "The system updates the slide with the new content returned by the AI service.",
-      "fileId": null
+      "fileId": "backend/app/routers/deck.py"
     },
     {
       "title": "Return Response",
       "description": "The system sends a success response back to the client.",
-      "fileId": null
+      "fileId": "backend/app/routers/deck.py"
     }
   ],
-  "dataIn": [],
-  "dataOut": [],
-  "orchestrators": [],
+  "dataIn": [
+    "ALLOWED_ORIGINS",
+    "APP_BASE_URL",
+    "BULLET_MAX_CHARS",
+    "DB_URL",
+    "DeckOut",
+    "DeckUpdate",
+    "EmailAIEditRequest",
+    "EmailBatchOut",
+    "EmailIn",
+    "EmailOut",
+    "EmailUpdate",
+    "FILE_STORAGE_DIR",
+    "MAX_BULLETS",
+    "OPENAI_API_KEY",
+    "ProspectContext",
+    "ProspectCreate",
+    "ProspectUpdate",
+    "STUB_MODE",
+    "Session",
+    "Slide",
+    "SlideAIEditRequest",
+    "SlideIn",
+    "TITLE_MAX_CHARS"
+  ],
+  "dataOut": [
+    "DeckOut",
+    "EmailBatchOut",
+    "EmailOut",
+    "ProspectOut"
+  ],
+  "orchestrators": [
+    "backend/app/routers/deck.py",
+    "backend/app/main.py",
+    "backend/app/routers/email.py"
+  ],
   "sources": [
     "backend/app/routers/deck.py"
   ],
-  "sinks": [],
-  "controlFlow": [],
+  "sinks": [
+    "backend/app/config.py",
+    "backend/app/schemas/deck.py"
+  ],
+  "controlFlow": [
+    {
+      "from": "backend/app/database.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/prospect.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/models/prospect.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/models/deck.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/schemas/deck.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/services/ai.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/services/pdf.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/services/slides.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/deck.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/routers/email.py",
+      "to": "backend/app/models/prospect.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/prospect.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/deck.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/models/email.py",
+      "to": "backend/app/database.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/emailgeneration.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/ai.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/pdf.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/services/slides.py",
+      "to": "backend/app/config.py",
+      "kind": "call"
+    }
+  ],
   "dataFlow": {
-    "inputs": [],
-    "stores": [],
-    "externals": []
+    "inputs": [
+      {
+        "type": "env",
+        "key": "ALLOWED_ORIGINS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "ALLOWED_ORIGINS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "APP_BASE_URL",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "APP_BASE_URL",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "BULLET_MAX_CHARS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "BULLET_MAX_CHARS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "DB_URL",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "DB_URL",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "FILE_STORAGE_DIR",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "FILE_STORAGE_DIR",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "MAX_BULLETS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "MAX_BULLETS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "OPENAI_API_KEY",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "OPENAI_API_KEY",
+          "value": "***REDACTED***"
+        }
+      },
+      {
+        "type": "env",
+        "key": "STUB_MODE",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "STUB_MODE",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "TITLE_MAX_CHARS",
+        "path": "backend/app/config.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/database.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/main.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/main.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/emailgeneration.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/pdf.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads env"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/slides.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads env"
+          }
+        ],
+        "usedFor": "Configuration/secret loaded at runtime.",
+        "example": {
+          "key": "TITLE_MAX_CHARS",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "",
+        "handler": "create_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "",
+        "handler": "list_prospects",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "get_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/{prospect_id}",
+        "handler": "update_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "SlideAIEditRequest",
+        "fields": [
+          {
+            "name": "prompt",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/routers/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{deck_id}",
+        "handler": "get_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/{deck_id}",
+        "handler": "update_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{deck_id}/render",
+        "handler": "render_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{deck_id}/slides/{index}",
+        "handler": "get_slide",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/{deck_id}/slides/{index}",
+        "handler": "patch_slide",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{deck_id}/slides/{index}/ai-edit",
+        "handler": "ai_edit_slide",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/debug/ai-edit-test",
+        "handler": "debug_ai_edit_test",
+        "file_path": "backend/app/routers/deck.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailAIEditRequest",
+        "fields": [
+          {
+            "name": "prompt",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/routers/email.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "validates"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_email_sequence",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "list_emails_for_prospect",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "GET",
+        "path": "/item/{email_id}",
+        "handler": "get_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "PATCH",
+        "path": "/item/{email_id}",
+        "handler": "update_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "DELETE",
+        "path": "/item/{email_id}",
+        "handler": "delete_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Session",
+        "method": "POST",
+        "path": "/item/{email_id}/ai-edit",
+        "handler": "ai_edit_email",
+        "file_path": "backend/app/routers/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "ProspectCreate",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "contact_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "EmailStr",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "phone_number",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "industry",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "revenue_range",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "sale_motivation",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "signals",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "notes",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "company_name": "John Doe"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "ProspectUpdate",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "contact_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "email",
+            "type": "EmailStr",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "phone_number",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "industry",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "revenue_range",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "sale_motivation",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "signals",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "notes",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "Slide",
+        "fields": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "bullets",
+            "type": "Any",
+            "required": true,
+            "default": "Field(default_factory=list)"
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "DeckOut",
+        "fields": [
+          {
+            "name": "id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "prospect_id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "title",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "slides",
+            "type": "Any",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "pdf_url",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "id": 42,
+          "prospect_id": 42,
+          "title": "sample_value",
+          "slides": "example"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "SlideIn",
+        "fields": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "bullets",
+            "type": "Any",
+            "required": true,
+            "default": "Field(default_factory=list)"
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "DeckUpdate",
+        "fields": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "slides",
+            "type": "Any",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "validates"
+          }
+        ],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "slides": "example"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailOut",
+        "fields": [
+          {
+            "name": "id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "prospect_id",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "sequence_index",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "subject",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "body",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "id": 42,
+          "prospect_id": 42,
+          "sequence_index": 42,
+          "subject": "sample_value",
+          "body": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailIn",
+        "fields": [
+          {
+            "name": "subject",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "body",
+            "type": "str",
+            "required": true,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "subject": "sample_value",
+          "body": "sample_value"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailUpdate",
+        "fields": [
+          {
+            "name": "subject",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "body",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      },
+      {
+        "type": "requestSchema",
+        "name": "EmailBatchOut",
+        "fields": [
+          {
+            "name": "items",
+            "type": "Any",
+            "required": true,
+            "default": "Field(default_factory=list)"
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "items": "Field(default_factory=list)"
+        }
+      },
+      {
+        "type": "requestSchema",
+        "name": "ProspectContext",
+        "fields": [
+          {
+            "name": "company_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "contact_name",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "industry",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "revenue_range",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "location",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "sale_motivation",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "signals",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "Validates incoming request bodies.",
+        "example": {}
+      }
+    ],
+    "stores": [
+      {
+        "type": "dbModel",
+        "name": "slidepatchs",
+        "columns": [],
+        "path": "backend/app/routers/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideaieditrequests",
+        "columns": [],
+        "path": "backend/app/routers/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailaieditrequests",
+        "columns": [],
+        "path": "backend/app/routers/email.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospects",
+        "columns": [],
+        "path": "backend/app/models/prospect.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/email.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/models/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "decks",
+        "columns": [],
+        "path": "backend/app/models/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          },
+          {
+            "edge": {
+              "from": "backend/app/models/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emails",
+        "columns": [],
+        "path": "backend/app/models/email.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/models/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectcreates",
+        "columns": [],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectupdates",
+        "columns": [],
+        "path": "backend/app/schemas/prospect.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slides",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckouts",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideins",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckupdates",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "reads/writes rows in"
+          }
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailins",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailupdates",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailbatchouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectcontexts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
+        "touches": [],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
+      }
+    ],
+    "externals": [
+      {
+        "type": "api",
+        "name": "OpenAI",
+        "client": "backend/app/services/emailgeneration.py",
+        "base_url": null,
+        "path": "backend/app/services/emailgeneration.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/services/emailgeneration.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "calls"
+          }
+        ],
+        "usedFor": "External service/client calls.",
+        "example": {}
+      },
+      {
+        "type": "api",
+        "name": "OpenAI",
+        "client": "backend/app/services/ai.py",
+        "base_url": null,
+        "path": "backend/app/services/ai.py",
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/routers/deck.py",
+            "action": "calls"
+          },
+          {
+            "edge": {
+              "from": "backend/app/services/ai.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "calls"
+          }
+        ],
+        "usedFor": "External service/client calls.",
+        "example": {}
+      }
+    ],
+    "outputs": [
+      {
+        "type": "responseSchema",
+        "name": "ProspectOut",
+        "method": "POST",
+        "path": "",
+        "handler": "create_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "ProspectOut",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "get_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "ProspectOut",
+        "method": "PATCH",
+        "path": "/{prospect_id}",
+        "handler": "update_prospect",
+        "file_path": "backend/app/routers/prospect.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "GET",
+        "path": "/{deck_id}",
+        "handler": "get_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "PATCH",
+        "path": "/{deck_id}",
+        "handler": "update_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "DeckOut",
+        "method": "POST",
+        "path": "/{deck_id}/render",
+        "handler": "render_deck",
+        "file_path": "backend/app/routers/deck.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailBatchOut",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "handler": "generate_email_sequence",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailBatchOut",
+        "method": "GET",
+        "path": "/{prospect_id}",
+        "handler": "list_emails_for_prospect",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailOut",
+        "method": "GET",
+        "path": "/item/{email_id}",
+        "handler": "get_email",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailOut",
+        "method": "PATCH",
+        "path": "/item/{email_id}",
+        "handler": "update_email",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailOut",
+        "method": "POST",
+        "path": "/item/{email_id}/ai-edit",
+        "handler": "ai_edit_email",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Defines response structure.",
+        "example": {
+          "example": true
+        }
+      }
+    ]
   },
   "nodeIndex": {
-    "backend/app/services/__init__.py": {
+    "backend/app/config.py": {
       "lane": "api",
       "role": "sink",
-      "incoming": [],
+      "incoming": [
+        "backend/app/database.py",
+        "backend/app/main.py",
+        "backend/app/routers/deck.py",
+        "backend/app/services/emailgeneration.py",
+        "backend/app/services/ai.py",
+        "backend/app/services/pdf.py",
+        "backend/app/services/slides.py"
+      ],
       "outgoing": [],
       "policies": [],
       "envs": [],
-      "relatedData": []
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests",
+        "OpenAI",
+        "OpenAI"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest"
+      ]
     },
-    "backend/app/services/pdf.py": {
+    "backend/app/database.py": {
       "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
+      "role": "handler",
+      "incoming": [
+        "backend/app/main.py",
+        "backend/app/routers/prospect.py",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        "backend/app/models/email.py"
+      ],
+      "outgoing": [
+        "backend/app/config.py"
+      ],
       "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/routers/__init__.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/routers/email.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/routers/deck.py": {
-      "role": "entrypoint",
-      "lane": "web"
-    },
-    "backend/app/routers/prospect.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/models/prospect.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/schemas/__init__.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests",
+        "emailaieditrequests",
+        "prospects",
+        "decks",
+        "emails"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest",
+        "EmailAIEditRequest"
+      ]
     },
     "backend/app/main.py": {
       "lane": "api",
-      "role": "sink",
+      "role": "handler",
       "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/services/slides.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/services/emailgeneration.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
+      "outgoing": [
+        "backend/app/config.py",
+        "backend/app/database.py"
+      ],
+      "policies": [
+        {
+          "type": "middleware",
+          "name": "CORSMiddleware",
+          "path": "backend/app/main.py",
+          "appliedAt": "backend/app/main.py:18"
+        },
+        {
+          "type": "middleware",
+          "name": "CORSMiddleware",
+          "path": "backend/app/main.py",
+          "appliedAt": "backend/app/main.py"
+        }
+      ],
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [],
+      "reqSchemas": []
     },
     "backend/app/models/deck.py": {
       "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
+      "role": "handler",
+      "incoming": [
+        "backend/app/routers/deck.py"
+      ],
+      "outgoing": [
+        "backend/app/database.py"
+      ],
       "policies": [],
       "envs": [],
-      "relatedData": []
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest"
+      ]
     },
-    "backend/app/models/__init__.py": {
+    "backend/app/models/email.py": {
       "lane": "api",
-      "role": "sink",
+      "role": "handler",
       "incoming": [],
-      "outgoing": [],
+      "outgoing": [
+        "backend/app/database.py"
+      ],
       "policies": [],
       "envs": [],
-      "relatedData": []
+      "relatedData": [],
+      "reqSchemas": []
+    },
+    "backend/app/models/prospect.py": {
+      "lane": "api",
+      "role": "handler",
+      "incoming": [
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py"
+      ],
+      "outgoing": [
+        "backend/app/database.py"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests",
+        "emailaieditrequests"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest",
+        "EmailAIEditRequest"
+      ]
+    },
+    "backend/app/routers/deck.py": {
+      "role": "entrypoint",
+      "lane": "api"
+    },
+    "backend/app/routers/email.py": {
+      "lane": "api",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "backend/app/database.py",
+        "backend/app/models/prospect.py"
+      ],
+      "policies": [],
+      "envs": [],
+      "relatedData": [
+        "prospects"
+      ],
+      "reqSchemas": []
+    },
+    "backend/app/routers/prospect.py": {
+      "lane": "api",
+      "role": "handler",
+      "incoming": [],
+      "outgoing": [
+        "backend/app/database.py"
+      ],
+      "policies": [
+        {
+          "type": "dependency",
+          "name": "Depends",
+          "path": "backend/app/routers/prospect.py",
+          "appliedAt": "backend/app/routers/prospect.py:11"
+        },
+        {
+          "type": "dependency",
+          "name": "Depends",
+          "path": "backend/app/routers/prospect.py",
+          "appliedAt": "backend/app/routers/prospect.py:30"
+        },
+        {
+          "type": "dependency",
+          "name": "Depends",
+          "path": "backend/app/routers/prospect.py",
+          "appliedAt": "backend/app/routers/prospect.py:34"
+        }
+      ],
+      "envs": [],
+      "relatedData": [],
+      "reqSchemas": []
     },
     "backend/app/schemas/deck.py": {
       "lane": "api",
       "role": "sink",
-      "incoming": [],
+      "incoming": [
+        "backend/app/routers/deck.py"
+      ],
       "outgoing": [],
       "policies": [],
       "envs": [],
-      "relatedData": []
-    },
-    "backend/app/database.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/__init__.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/config.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/requirements.txt": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/schemas/email.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/templates/deck.html": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/migrate_add_phone.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest"
+      ]
     },
     "backend/app/services/ai.py": {
       "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
+      "role": "handler",
+      "incoming": [
+        "backend/app/routers/deck.py"
+      ],
+      "outgoing": [
+        "backend/app/config.py"
+      ],
       "policies": [],
-      "envs": [],
-      "relatedData": []
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest"
+      ]
     },
-    "backend/static/init": {
+    "backend/app/services/emailgeneration.py": {
       "lane": "api",
-      "role": "sink",
+      "role": "handler",
       "incoming": [],
-      "outgoing": [],
+      "outgoing": [
+        "backend/app/config.py"
+      ],
       "policies": [],
-      "envs": [],
-      "relatedData": []
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [],
+      "reqSchemas": []
     },
-    "backend/app/models/email.py": {
+    "backend/app/services/pdf.py": {
       "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
+      "role": "handler",
+      "incoming": [
+        "backend/app/routers/deck.py"
+      ],
+      "outgoing": [
+        "backend/app/config.py"
+      ],
       "policies": [],
-      "envs": [],
-      "relatedData": []
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest"
+      ]
     },
-    "backend/app/services/utils.py": {
+    "backend/app/services/slides.py": {
       "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
+      "role": "handler",
+      "incoming": [
+        "backend/app/routers/deck.py"
+      ],
+      "outgoing": [
+        "backend/app/config.py"
+      ],
       "policies": [],
-      "envs": [],
-      "relatedData": []
-    },
-    "backend/app/schemas/prospect.py": {
-      "lane": "api",
-      "role": "sink",
-      "incoming": [],
-      "outgoing": [],
-      "policies": [],
-      "envs": [],
-      "relatedData": []
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [
+        "slidepatchs",
+        "slideaieditrequests"
+      ],
+      "reqSchemas": [
+        "SlideAIEditRequest"
+      ]
     }
   },
-  "suspectRank": [],
+  "debug": {
+    "data_flow_skipped": [],
+    "extract_errors": []
+  },
+  "suspectRank": [
+    {
+      "path": "backend/app/routers/deck.py",
+      "score": 12,
+      "reason": "High fan-out (8 calls); Critical service/router; Database model"
+    },
+    {
+      "path": "backend/app/services/emailgeneration.py",
+      "score": 5,
+      "reason": "Critical service/router; External service dependency"
+    },
+    {
+      "path": "backend/app/services/ai.py",
+      "score": 5,
+      "reason": "Critical service/router; External service dependency"
+    }
+  ],
   "recentChanges": []
 }

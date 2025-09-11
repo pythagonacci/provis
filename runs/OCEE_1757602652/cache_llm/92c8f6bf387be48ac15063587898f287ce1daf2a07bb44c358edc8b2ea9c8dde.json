@@ -1,0 +1,20 @@
+{
+  "title": "Model Initialization Module",
+  "purpose": "This module serves as an initializer for the model components of the backend application, allowing for structured imports and organization of model-related functionalities.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "prospect",
+    "deck",
+    "email"
+  ],
+  "how_to_modify": "To modify this file, you can add new model imports or reorganize existing ones. Ensure that any new models are properly defined in their respective files and that they are correctly imported here.",
+  "risks": "Improper modifications may lead to import errors or circular dependencies. Ensure that all models are correctly referenced and that any changes do not disrupt the existing structure.",
+  "blurb": "Think of this file as the front desk of a hotel, where all the guests (models) check in. It keeps everything organized and ensures that the right guests are welcomed into the building.",
+  "dev_summary": "This file initializes model imports for the backend. It currently has no defined functions or classes. Be cautious when adding imports to avoid circular dependencies.",
+  "vibecoder_summary": "Imagine this file as a library catalog. It lists all the books (models) available in the library (backend), making it easy to find and check them out. If you want to add a new book, just make sure it’s in the library first!",
+  "edit_points": [
+    "Add new model imports",
+    "Reorganize existing imports"
+  ]
+}

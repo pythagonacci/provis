@@ -1,0 +1,24 @@
+{
+  "title": "Deck Router",
+  "purpose": "This file defines the API routes related to deck management in a FastAPI application, handling requests for creating, reading, updating, and deleting deck resources.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "json",
+    "fastapi",
+    "sqlalchemy.orm",
+    "pydantic",
+    "typing",
+    "database",
+    "models.prospect",
+    "models.deck",
+    "schemas.deck",
+    "services.ai"
+  ],
+  "how_to_modify": "To modify the API routes, add or update route functions using FastAPI decorators. Ensure that any changes to the data models or schemas are reflected in the corresponding imports and function signatures.",
+  "risks": "Modifying the routes without proper validation may lead to broken API endpoints or data inconsistencies. Ensure that changes are tested thoroughly to avoid runtime errors.",
+  "blurb": "Think of this file as the traffic controller for deck-related requests, guiding them to the right destination and ensuring everything runs smoothly.",
+  "dev_summary": "Defines API routes for deck management in a FastAPI app. Interfaces with SQLAlchemy for database operations and Pydantic for data validation. Be cautious of changes that affect data models or schemas.",
+  "vibecoder_summary": "Imagine this file as a friendly librarian who helps you find and manage your decks. You can ask for new decks, update old ones, or even remove them, but be careful not to misplace any books or the library might get confused!",
+  "edit_points": []
+}

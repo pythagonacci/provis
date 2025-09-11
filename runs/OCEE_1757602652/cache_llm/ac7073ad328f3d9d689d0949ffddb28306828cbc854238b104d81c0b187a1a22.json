@@ -1,0 +1,16 @@
+{
+  "title": "Prospect Schema Definition",
+  "purpose": "Defines data validation and serialization for prospect-related data using Pydantic.",
+  "key_functions": [],
+  "internal_dependencies": [],
+  "external_dependencies": [
+    "pydantic",
+    "typing"
+  ],
+  "how_to_modify": "To modify the schema, add or update Pydantic model fields to reflect the desired data structure for prospects. Ensure that types are correctly specified using Python's typing module.",
+  "risks": "Incorrect field definitions may lead to data validation errors, which could cause downstream failures in data processing or API responses. Be cautious when changing field types or removing fields.",
+  "blurb": "This file is like a blueprint for prospects, ensuring that all the necessary information is captured and validated before it gets used in the application.",
+  "dev_summary": "Defines Pydantic models for prospect data validation. No functions or classes are defined yet, but it serves as a foundational schema. Ensure to maintain type integrity when modifying.",
+  "vibecoder_summary": "Imagine this file as a recipe for making the perfect prospect cake. It lists all the ingredients (data fields) and their measurements (types) to ensure every cake turns out just right!",
+  "edit_points": "Focus on adding fields to the Pydantic model or adjusting existing field types. Review the Pydantic documentation for best practices on defining models."
+}

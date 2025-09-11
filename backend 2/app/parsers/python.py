@@ -516,41 +516,6 @@ def _parse_with_ast_fallback(text: str, tree: ast.AST) -> Dict[str, Any]:
     return result
 
 
-def _ast_value_to_py(node):
-    """Convert AST node to Python value or readable string."""
-    import ast
-    if isinstance(node, ast.Constant):
-        return node.value
-    elif isinstance(node, ast.Str):  # Python < 3.8
-        return node.s
-    elif isinstance(node, ast.Num):  # Python < 3.8
-        return node.n
-    elif isinstance(node, ast.NameConstant):  # Python < 3.8
-        return node.value
-    elif isinstance(node, ast.List):
-        return [_ast_value_to_py(elt) for elt in node.elts]
-    elif isinstance(node, ast.Dict):
-        return {_ast_value_to_py(k): _ast_value_to_py(v) for k, v in zip(node.keys, node.values)}
-    elif isinstance(node, ast.Call):
-        # Special case for Field(default_factory=list)
-        fn = getattr(node.func, "id", None)
-        if fn == "Field":
-            for kw in node.keywords or []:
-                if kw.arg == "default_factory":
-                    factory_name = getattr(kw.value, "id", "list")
-                    return f"Field(default_factory={factory_name})"
-        # Try to unparse if available (Python 3.9+)
-        if hasattr(ast, "unparse"):
-            try:
-                return ast.unparse(node)
-            except:
-                pass
-        return "call(...)"
-    elif isinstance(node, ast.Name):
-        return node.id
-    else:
-        return str(type(node).__name__)
-
 def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
     """Extract Pydantic models from Python code."""
     models = []
@@ -560,40 +525,8 @@ def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
             if isinstance(node, ast.ClassDef):
                 base_names = [getattr(b, "id", getattr(b, "attr", "")) for b in node.bases]
                 if any("BaseModel" in str(b) or "BaseSettings" in str(b) for b in base_names):
-                    fields = []
-                    
-                    for n in ast.walk(node):
-                        if isinstance(n, ast.AnnAssign) and hasattr(n.target, "id"):
-                            field_info = {
-                                "name": n.target.id,
-                                "type": "Any",
-                                "required": True,
-                                "default": None
-                            }
-                            
-                            # Extract type annotation
-                            if n.annotation:
-                                if hasattr(n.annotation, "id"):
-                                    field_info["type"] = n.annotation.id
-                                elif hasattr(n.annotation, "slice"):  # Optional[Type]
-                                    if hasattr(n.annotation.value, "id") and n.annotation.value.id == "Optional":
-                                        field_info["required"] = False
-                                        if hasattr(n.annotation.slice, "id"):
-                                            field_info["type"] = n.annotation.slice.id
-                                elif hasattr(n.annotation, "elts"):  # Union types
-                                    field_info["type"] = "Union"
-                            
-                            # Extract default value
-                            if n.value:
-                                field_info["default"] = _ast_value_to_py(n.value)
-                            
-                            fields.append(field_info)
-                    
-                    models.append({
-                        "name": node.name,
-                        "fields": fields,
-                        "path": path
-                    })
+                    fields = [n.target.id for n in ast.walk(node) if isinstance(n, ast.AnnAssign) and hasattr(n.target, "id")]
+                    models.append({"name": node.name, "fields": fields, "path": path})
     except Exception:
         pass
     return models
@@ -606,103 +539,17 @@ def extract_sqlalchemy_models(text: str, path: str) -> List[Dict[str, Any]]:
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 base_names = [getattr(b, "id", getattr(b, "attr", "")) for b in node.bases]
-                # Exclude Pydantic Settings models
-                if any("BaseSettings" in str(b) for b in base_names):
-                    continue
-                
-                # Check for SQLAlchemy inheritance - be more flexible
-                is_sqlalchemy = False
-                has_tablename = False
-                
-                # Check for __tablename__ assignment
-                for n in node.body:
-                    if isinstance(n, ast.Assign):
-                        for target in n.targets:
-                            if hasattr(target, "id") and target.id == "__tablename__":
-                                has_tablename = True
-                                break
-                
-                # Check base classes - be more flexible with naming
-                for base_name in base_names:
-                    base_str = str(base_name).lower()
-                    if any(keyword in base_str for keyword in ["base", "declarativebase", "model", "db"]):
-                        is_sqlalchemy = True
-                        break
-                
-                # Also check for common SQLAlchemy patterns in class body
-                if not is_sqlalchemy:
-                    for n in node.body:
+                if any("Base" in str(b) or "DeclarativeBase" in str(b) for b in base_names):
+                    fields = []
+                    for n in ast.walk(node):
                         if isinstance(n, ast.Assign) and isinstance(n.value, ast.Call):
-                            # Look for Column, String, Integer, etc.
                             fn = getattr(n.value.func, "id", getattr(n.value.func, "attr", ""))
-                            if str(fn).lower() in ["column", "string", "integer", "boolean", "datetime", "text"]:
-                                is_sqlalchemy = True
-                                break
-                
-                if is_sqlalchemy or has_tablename:
-                    # Extract table name
-                    table_name = None
-                    columns = []
-                    
-                    for n in node.body:
-                        # Look for __tablename__ assignment
-                        if isinstance(n, ast.Assign):
-                            for target in n.targets:
-                                if hasattr(target, "id") and target.id == "__tablename__":
-                                    if isinstance(n.value, ast.Constant):
-                                        table_name = n.value.value
-                                    elif isinstance(n.value, ast.Str):  # Python < 3.8
-                                        table_name = n.value.s
-                        
-                        # Look for Column assignments
-                        elif isinstance(n, ast.Assign) and isinstance(n.value, ast.Call):
-                            fn = getattr(n.value.func, "id", getattr(n.value.func, "attr", ""))
-                            if str(fn).lower() in ["column", "string", "integer", "boolean", "datetime", "text", "float"]:
-                                column_info = {"name": None, "type": "Unknown", "pk": False, "nullable": True}
-                                
-                                # Extract column name from target
+                            if str(fn).lower() == "column":
                                 for t in n.targets:
-                                    if hasattr(t, "id"):
-                                        column_info["name"] = t.id
-                                
-                                # Extract column type
-                                if str(fn).lower() == "column":
-                                    # Column() with type as first arg
-                                    if n.value.args:
-                                        arg = n.value.args[0]
-                                        if hasattr(arg, "id"):
-                                            column_info["type"] = arg.id
-                                        elif isinstance(arg, ast.Constant):
-                                            column_info["type"] = str(arg.value)
-                                        elif isinstance(arg, ast.Str):  # Python < 3.8
-                                            column_info["type"] = arg.s
-                                    
-                                    # Check for primary_key, nullable in keywords
-                                    for kw in n.value.keywords:
-                                        if kw.arg == "primary_key" and isinstance(kw.value, ast.Constant):
-                                            column_info["pk"] = kw.value.value
-                                        elif kw.arg == "nullable" and isinstance(kw.value, ast.Constant):
-                                            column_info["nullable"] = kw.value.value
-                                else:
-                                    # Direct type assignment (String(), Integer(), etc.)
-                                    column_info["type"] = str(fn)
-                                
-                                if column_info["name"]:
-                                    columns.append(column_info)
-                    
-                    # Use class name as table name if __tablename__ not found
-                    if not table_name:
-                        table_name = node.name.lower() + "s"
-                    
-                    models.append({
-                        "name": node.name,
-                        "table": table_name,
-                        "columns": columns,
-                        "path": path
-                    })
-    except Exception as e:
-        # Debug: print the error to understand what's failing
-        print(f"SQLAlchemy extraction error in {path}: {e}")
+                                    if hasattr(t, "id"): 
+                                        fields.append(t.id)
+                    models.append({"name": node.name, "fields": fields, "path": path})
+    except Exception:
         pass
     return models
 
@@ -761,136 +608,11 @@ def extract_externals(text: str, path: str) -> List[Dict[str, Any]]:
 def extract_fastapi_policies(text: str, path: str) -> List[Dict[str, Any]]:
     """Extract FastAPI policies from Python code."""
     items = []
-    try:
-        tree = ast.parse(text)
-        lines = text.split('\n')
-        
-        # Look for middleware additions
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call):
-                if hasattr(node.func, "attr") and node.func.attr == "add_middleware":
-                    # Extract middleware name from first argument
-                    middleware_name = "Unknown"
-                    if node.args:
-                        if hasattr(node.args[0], "id"):
-                            middleware_name = node.args[0].id
-                        elif isinstance(node.args[0], ast.Constant):
-                            middleware_name = str(node.args[0].value)
-                    
-                    # Get line number for appliedAt
-                    line_no = getattr(node, 'lineno', 0)
-                    applied_at = f"{path}:{line_no}" if line_no > 0 else path
-                    
-                    items.append({
-                        "type": "middleware", 
-                        "name": middleware_name, 
-                        "path": path,
-                        "appliedAt": applied_at
-                    })
-        
-        # Look for dependencies in APIRouter or route decorators
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call):
-                line_no = getattr(node, 'lineno', 0)
-                applied_at = f"{path}:{line_no}" if line_no > 0 else path
-                
-                # APIRouter(dependencies=[...])
-                if hasattr(node.func, "id") and node.func.id == "APIRouter":
-                    for kw in node.keywords:
-                        if kw.arg == "dependencies" and isinstance(kw.value, ast.List):
-                            items.append({
-                                "type": "dependency", 
-                                "name": "APIRouter dependencies", 
-                                "path": path,
-                                "appliedAt": applied_at
-                            })
-                
-                # Route decorators with dependencies
-                elif hasattr(node.func, "attr") and node.func.attr in ["get", "post", "put", "delete", "patch"]:
-                    for kw in node.keywords:
-                        if kw.arg == "dependencies" and isinstance(kw.value, ast.List):
-                            items.append({
-                                "type": "dependency", 
-                                "name": f"{node.func.attr} dependencies", 
-                                "path": path,
-                                "appliedAt": applied_at
-                            })
-                
-                # Look for Depends() calls in function parameters
-                elif hasattr(node.func, "id") and node.func.id == "Depends":
-                    items.append({
-                        "type": "dependency",
-                        "name": "Depends",
-                        "path": path,
-                        "appliedAt": applied_at
-                    })
-        
-        # Look for security/authentication patterns
-        if "HTTPBearer" in text or "HTTPAuthorizationCredentials" in text:
-            items.append({
-                "type": "security",
-                "name": "HTTP Bearer Authentication",
-                "path": path,
-                "appliedAt": path
-            })
-            
-        if "CORSMiddleware" in text:
-            items.append({
-                "type": "middleware",
-                "name": "CORSMiddleware",
-                "path": path,
-                "appliedAt": path
-            })
-            
-    except Exception:
-        pass
+    if "add_middleware(" in text:
+        items.append({"type": "middleware", "name": "add_middleware", "path": path})
+    if "dependencies=[" in text and "Depends(" in text:
+        items.append({"type": "middleware", "name": "dependencies(Depends)", "path": path})
     return items
-
-def extract_fastapi_routes(text: str, path: str) -> List[Dict[str, Any]]:
-    """Extract FastAPI routes with request/response schemas."""
-    routes = []
-    try:
-        tree = ast.parse(text)
-        
-        for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
-                # Look for route decorators
-                for decorator in node.decorator_list:
-                    if isinstance(decorator, ast.Call) and hasattr(decorator.func, "attr"):
-                        if decorator.func.attr in ["get", "post", "put", "delete", "patch"]:
-                            route_info = {
-                                "method": decorator.func.attr.upper(),
-                                "path": "/",
-                                "handler": node.name,
-                                "request_schema": None,
-                                "response_schema": None,
-                                "file_path": path
-                            }
-                            
-                            # Extract path from decorator args
-                            if decorator.args and isinstance(decorator.args[0], ast.Constant):
-                                route_info["path"] = decorator.args[0].value
-                            elif decorator.args and isinstance(decorator.args[0], ast.Str):  # Python < 3.8
-                                route_info["path"] = decorator.args[0].s
-                            
-                            # Extract request schema from function parameters
-                            for arg in node.args.args:
-                                if arg.annotation:
-                                    if hasattr(arg.annotation, "id"):
-                                        route_info["request_schema"] = arg.annotation.id
-                                    elif hasattr(arg.annotation, "slice"):  # Optional[Type]
-                                        if hasattr(arg.annotation.slice, "id"):
-                                            route_info["request_schema"] = arg.annotation.slice.id
-                            
-                            # Extract response schema from decorator keywords
-                            for kw in decorator.keywords:
-                                if kw.arg == "response_model" and hasattr(kw.value, "id"):
-                                    route_info["response_schema"] = kw.value.id
-                            
-                            routes.append(route_info)
-    except Exception:
-        pass
-    return routes
 
 def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str] = None) -> Dict[str, Any]:
     """Parse Python file with robust libcst parsing and framework awareness."""
@@ -997,7 +719,6 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
     env_vars = extract_env_keys(text, file_path)
     externals = extract_externals(text, file_path)
     fastapi_policies = extract_fastapi_policies(text, file_path)
-    fastapi_routes = extract_fastapi_routes(text, file_path)
 
     return {
         "imports": resolved_imports,
@@ -1017,8 +738,7 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
             "sqlalchemyModels": sqlalchemy_models,
             "envVars": env_vars,
             "externals": externals,
-            "fastapiPolicies": fastapi_policies,
-            "fastapiRoutes": fastapi_routes
+            "fastapiPolicies": fastapi_policies
         },
         "hints": hints
     }
