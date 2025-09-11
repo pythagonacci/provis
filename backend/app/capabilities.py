@@ -143,8 +143,8 @@ def _write_capability_with_defaults(repo_dir: Path, cap: dict, cap_id: str):
     cap_path = repo_dir / "capabilities" / cap_id / "capability.json"
     cap_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Write with proper formatting
-    _write_json(cap_path, cap)
+    # Write with proper formatting atomically
+    write_json_atomic(cap_path, cap)
 
 
 # ---- Types (minimal, runtime-validated) ----
@@ -364,6 +364,29 @@ def _normalize_edges(edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 def _normalize_paths(paths: List[str]) -> List[str]:
     """Normalize path arrays: deduplicate and sort."""
     return sorted(list(set(paths)))
+
+def _normalize_swimlanes(swimlanes: Dict[str, List[str]], files_idx: Dict[str, Any]) -> Dict[str, List[str]]:
+    """Normalize swimlanes: ensure all lanes exist, sort paths, drop missing files."""
+    normalized = {}
+    for lane in ["web", "api", "workers", "other"]:
+        paths = swimlanes.get(lane, [])
+        # Filter to only existing files and normalize
+        valid_paths = [p for p in paths if p in files_idx]
+        normalized[lane] = _normalize_paths(valid_paths)
+    return normalized
+
+def _normalize_anchors(anchors: List[Anchor], files_idx: Dict[str, Any]) -> Tuple[List[Anchor], List[str]]:
+    """Normalize anchors: resolve to canonical paths, drop unresolved, collect warnings."""
+    valid_anchors = []
+    warnings = []
+    
+    for anchor in anchors:
+        if anchor.path in files_idx:
+            valid_anchors.append(anchor)
+        else:
+            warnings.append(f"Anchor path not found in files: {anchor.path}")
+    
+    return valid_anchors, warnings
 
 def _validate_references(cap: Dict[str, Any], files_idx: Dict[str, Any]) -> Dict[str, Any]:
     """Validate that all referenced paths exist in files_idx, mark missing ones."""
@@ -965,10 +988,15 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         "workers": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("workers", []) ]),
         "other": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("other", []) ]),
     }
+    
+    # Apply comprehensive normalization
+    files_idx = {f["path"]: f for f in files.get("files", [])}
+    lanes_map = _normalize_swimlanes(lanes_map, files_idx)
+    valid_anchors, anchor_warnings = _normalize_anchors(anchors, files_idx)
     narrative = await _llm_narrative(
         llm,
-        name=anchors[0].route if anchors else "Capability",
-        anchors=[a.path for a in anchors],
+        name=valid_anchors[0].route if valid_anchors else "Capability",
+        anchors=[a.path for a in valid_anchors],
         lanes=lanes_map,
         edges=edges,
         data=data,
@@ -1179,6 +1207,10 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     capability = normalize_capability_paths(capability, repo_dir)
     capability = provide_trivial_fallbacks(capability)
     capability = add_camelcase_mirrors(capability)
+    
+    # Add normalization warnings
+    if anchor_warnings:
+        capability["warnings"] = capability.get("warnings", []) + anchor_warnings
 
     return cap_id, capability
 
@@ -1257,10 +1289,18 @@ async def build_all_capabilities(files_payload: Dict[str, Any], graph_payload: D
 
     # Create semaphore for concurrency control
     semaphore = asyncio.Semaphore(settings.LLM_CONCURRENCY)
+    
+    # Track capability budget
+    cap_budget = settings.LLM_CAP_BUDGET
+    budget_warnings = []
 
     index: List[Dict[str, Any]] = []
     by_id: Dict[str, Any] = {}
-    for g in groups:
+    for i, g in enumerate(groups):
+        if i >= cap_budget:
+            budget_warnings.append(f"Capability budget ({cap_budget}) exceeded, stopping at {i} capabilities")
+            break
+            
         cap_id, cap = await _build_capability(files_payload, graph_payload, repo_dir, g, semaphore)
         by_id[cap_id] = cap
         index.append({
@@ -1296,10 +1336,16 @@ async def build_all_capabilities(files_payload: Dict[str, Any], graph_payload: D
         }
         stable_index.append(stable_item)
     
-    # Write capabilities index
+    # Write capabilities index atomically
     index_path = repo_dir / "capabilities" / "index.json"
     index_path.parent.mkdir(exist_ok=True)
-    _write_json(index_path, {"index": stable_index})
+    index_data = {"index": stable_index}
+    write_json_atomic(index_path, index_data)
+    
+    # Record metrics for index creation
+    metrics = get_metrics_collector()
+    index_bytes = len(json.dumps(index_data, indent=2).encode('utf-8'))
+    metrics.record_artifact_created("capabilities_index", index_bytes)
     
     # Write individual capability files with comprehensive defaults
     files_idx = {f["path"]: f for f in files}
@@ -1307,12 +1353,22 @@ async def build_all_capabilities(files_payload: Dict[str, Any], graph_payload: D
         # Validate references before persisting
         cap = _validate_references(cap, files_idx)
         _write_capability_with_defaults(repo_dir, cap, cid)
+        
+        # Record metrics for capability creation
+        cap_bytes = len(json.dumps(cap, indent=2).encode('utf-8'))
+        metrics.record_artifact_created("capability", cap_bytes)
 
-    return {
+    result = {
         "repoId": files_payload.get("repoId", "unknown"),
         "generatedAt": _now(),
         "capabilities": stable_index
     }
+    
+    # Add budget warnings if any
+    if budget_warnings:
+        result["warnings"] = budget_warnings
+    
+    return result
 
 
 def list_capabilities_index(base: Path) -> Dict[str, Any]:

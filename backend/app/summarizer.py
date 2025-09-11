@@ -374,6 +374,9 @@ async def run_summarization(repo_dir: Path) -> Tuple[Dict[str, Any], Dict[str, A
     # Atomic write for glossary only (capabilities are written by build_all_capabilities)
     write_json_atomic(repo_dir / "glossary.json", glossary_payload)
     
+    # Note: Legacy capabilities.json is no longer written to avoid duplication
+    # The canonical artifacts are in capabilities/index.json and capabilities/{id}/capability.json
+    
     logger.info(f"Summarization complete: {files_summarized} files, {len(capabilities_payload.get('capabilities', []))} capabilities, {len(glossary_payload.get('terms', []))} glossary terms")
     
     return files_payload, capabilities_payload, glossary_payload
