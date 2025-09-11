@@ -12,6 +12,7 @@ import itertools
 logger = logging.getLogger(__name__)
 
 from .llm.client import LLMClient
+from .llm.prompts import sanitize_for_llm
 from .utils.io import write_json_atomic
 from .config import settings
 from .observability import get_metrics_collector
@@ -45,19 +46,30 @@ def ensure_capability_defaults(cap: dict) -> dict:
     return fixed
 
 def to_repo_relative(path: str, repo_root: Path) -> str:
-    """Convert absolute paths to repo-relative paths."""
+    """Convert absolute paths to repo-relative paths using strict POSIX normalization."""
     if not path:
         return path
-    path = str(path)
-    repo_str = str(repo_root)
-    if path.startswith(repo_str):
-        return str(Path(path).relative_to(repo_root))
-    # Handle common absolute path patterns
-    path = path.lstrip("/").replace("Users/", "").replace("C:\\", "")
-    # Remove snapshot prefixes if present
-    if "/snapshot/" in path:
-        path = path.split("/snapshot/", 1)[1]
-    return path
+    
+    try:
+        # Normalize the path using Path.resolve() for absolute paths
+        path_obj = Path(path).resolve()
+        repo_obj = Path(repo_root).resolve()
+        
+        # If path is under repo_root, use relative_to for clean relative path
+        if path_obj.is_relative_to(repo_obj):
+            return path_obj.relative_to(repo_obj).as_posix()
+        
+        # If path contains /snapshot/, extract the part after it
+        path_str = path_obj.as_posix()
+        if "/snapshot/" in path_str:
+            return path_str.split("/snapshot/", 1)[1]
+        
+        # For other paths, return as POSIX string
+        return path_obj.as_posix()
+        
+    except (ValueError, OSError):
+        # Fallback for malformed paths - ensure POSIX format
+        return str(path).replace("\\", "/")
 
 def normalize_capability_paths(cap: dict, repo_root: Path) -> dict:
     """Normalize all paths in capability to repo-relative format."""
@@ -640,9 +652,14 @@ async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, An
     } for p in context_paths][:400]
     raw_edges = _edge_subset_within(context_paths, graph)
     route = anchors[0].route if anchors else "/"
+    # Sanitize context to prevent secret leakage
+    sanitized_anchors = sanitize_for_llm(str([a.__dict__ for a in anchors]))
+    sanitized_subset = sanitize_for_llm(str(subset))
+    sanitized_edges = sanitize_for_llm(str(raw_edges))
+    
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative, and avoid hallucinations. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"ANCHORS:\n{[a.__dict__ for a in anchors]}\n\nCONTEXT NODES (focused):\n{subset}\n\nRAW EDGES WITHIN CONTEXT (may be incomplete):\n{raw_edges}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes (web|api|workers|other) and propose edges (import|call|http|queue|webhook). Exclude shared infra. RETURN strict JSON per schema."},
+        {"role": "user", "content": f"ANCHORS:\n{sanitized_anchors}\n\nCONTEXT NODES (focused):\n{sanitized_subset}\n\nRAW EDGES WITHIN CONTEXT (may be incomplete):\n{sanitized_edges}\n\nTASK:\nInfer the minimal end-to-end set of files for the capability serving route {route}. Assign lanes (web|api|workers|other) and propose edges (import|call|http|queue|webhook). Exclude shared infra. RETURN strict JSON per schema."},
     ]
     metrics = get_metrics_collector()
     start_time = time.time()
@@ -659,16 +676,25 @@ async def _llm_expand(llm: LLMClient, anchors: List[Anchor], files: Dict[str, An
 
     # Fallback: if model returns empty, synthesize from context
     if not res.get("nodes"):
-        nodes = [{"path": p, "lane": _infer_lane_from_path(p)} for p in context_paths[:60]]
+        limit = getattr(settings, "LLM_FILE_SUMMARY_BUDGET", 50)
+        nodes = [{"path": p, "lane": _infer_lane_from_path(p)} for p in context_paths[:limit]]
         edges = raw_edges[:1000]
+        
+        # Add warning if truncation occurred
+        if len(context_paths) > limit:
+            logger.warning(f"Trimmed context files from {len(context_paths)} to {limit} due to budget limit")
+        
         return {"nodes": nodes, "edges": edges}
     return res
 
 
 async def _llm_extract_data(llm: LLMClient, nodes: List[Dict[str, Any]], semaphore: asyncio.Semaphore) -> Dict[str, Any]:
+    # Sanitize context to prevent secret leakage
+    sanitized_nodes = sanitize_for_llm(str(nodes))
+    
     messages = [
         {"role": "system", "content": "You are a senior staff engineer documenting a codebase. Be precise, conservative. Always return strict JSON that matches the provided schema."},
-        {"role": "user", "content": f"NODES:\n{nodes}\n\nTASK:\nIdentify inputs, stores, externals, contracts, policies across these nodes. Include concise 'why' citing which file suggests it. RETURN strict JSON per schema."},
+        {"role": "user", "content": f"NODES:\n{sanitized_nodes}\n\nTASK:\nIdentify inputs, stores, externals, contracts, policies across these nodes. Include concise 'why' citing which file suggests it. RETURN strict JSON per schema."},
     ]
     
     metrics = get_metrics_collector()

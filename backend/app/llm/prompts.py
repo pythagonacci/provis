@@ -1,4 +1,5 @@
 from __future__ import annotations
+import re
 from typing import Any, Dict, List
 
 SYSTEM_FILE = (
@@ -88,21 +89,47 @@ GLOSSARY_SCHEMA: Dict[str, Any] = {
     "additionalProperties": False,
 }
 
+def sanitize_for_llm(text: str) -> str:
+    """Sanitize text to prevent accidental leakage of secrets to LLM."""
+    if not text:
+        return text
+    
+    # Patterns to scrub (case-insensitive)
+    secret_patterns = [
+        r'(?i)(api[_-]?key|secret|token|password|passwd|pwd)\s*[:=]\s*["\']?[^\s"\']+["\']?',
+        r'(?i)(auth[_-]?token|bearer[_-]?token|access[_-]?token)\s*[:=]\s*["\']?[^\s"\']+["\']?',
+        r'(?i)(private[_-]?key|public[_-]?key)\s*[:=]\s*["\']?[^\s"\']+["\']?',
+        r'(?i)(database[_-]?url|db[_-]?url|connection[_-]?string)\s*[:=]\s*["\']?[^\s"\']+["\']?',
+        r'(?i)(redis[_-]?url|mongodb[_-]?url)\s*[:=]\s*["\']?[^\s"\']+["\']?',
+    ]
+    
+    sanitized = text
+    for pattern in secret_patterns:
+        sanitized = re.sub(pattern, r'\1=***REDACTED***', sanitized)
+    
+    return sanitized
+
 def file_messages(context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    # Sanitize context to prevent secret leakage
+    sanitized_context = sanitize_for_llm(str(context))
     return [
         {"role": "system", "content": SYSTEM_FILE},
-        {"role": "user", "content": f"Produce strict JSON per schema.\nContext:\n{context}"},
+        {"role": "user", "content": f"Produce strict JSON per schema.\nContext:\n{sanitized_context}"},
     ]
 
 def capability_messages(context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    # Sanitize context to prevent secret leakage
+    sanitized_context = sanitize_for_llm(str(context))
     return [
         {"role": "system", "content": SYSTEM_CAPABILITY},
-        {"role": "user", "content": f"Produce strict JSON per schema.\nContext:\n{context}"},
+        {"role": "user", "content": f"Produce strict JSON per schema.\nContext:\n{sanitized_context}"},
     ]
 
 def glossary_messages(base_terms: list[str]) -> List[Dict[str, Any]]:
     terms_txt = ", ".join(base_terms)
+    # Sanitize terms to prevent secret leakage
+    sanitized_terms = sanitize_for_llm(terms_txt)
     return [
         {"role": "system", "content": SYSTEM_GLOSSARY},
-        {"role": "user", "content": f"Create a glossary for these terms: {terms_txt}. Return strict JSON."},
+        {"role": "user", "content": f"Create a glossary for these terms: {sanitized_terms}. Return strict JSON."},
     ]
