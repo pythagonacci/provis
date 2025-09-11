@@ -45,36 +45,120 @@ def ensure_capability_defaults(cap: dict) -> dict:
             fixed[key] = default
     return fixed
 
-def to_repo_relative(path: str, repo_root: Path) -> str:
-    """Convert absolute paths to repo-relative paths using strict POSIX normalization."""
+def norm(path: str, repo_root: str) -> str:
+    """Normalize paths to repo-relative format, handling both absolute and relative paths."""
     if not path:
         return path
     
     try:
-        # Normalize the path using Path.resolve() for absolute paths
-        path_obj = Path(path).resolve()
-        repo_obj = Path(repo_root).resolve()
+        # For non-repo modules ("fastapi", "json", etc.), return just the module id
+        if not path.startswith(("backend/", "apps/", "src/", "/")) and "/" not in path:
+            return path.split("/")[-1]
         
-        # If path is under repo_root, use relative_to for clean relative path
-        if path_obj.is_relative_to(repo_obj):
-            return path_obj.relative_to(repo_obj).as_posix()
+        # If path is already relative and starts with backend/, apps/, or src/, return as-is
+        if path.startswith(("backend/", "apps/", "src/")):
+            return path
         
-        # If path contains /snapshot/, extract the part after it
-        path_str = path_obj.as_posix()
-        if "/snapshot/" in path_str:
-            return path_str.split("/snapshot/", 1)[1]
+        # For absolute paths, normalize using Path.resolve()
+        if path.startswith("/"):
+            path_obj = Path(path).resolve()
+            repo_obj = Path(repo_root).resolve()
+            
+            # If path is under repo_root, use relative_to for clean relative path
+            if path_obj.is_relative_to(repo_obj):
+                return path_obj.relative_to(repo_obj).as_posix()
+            
+            # If path contains /snapshot/, extract the part after it
+            path_str = path_obj.as_posix()
+            if "/snapshot/" in path_str:
+                return path_str.split("/snapshot/", 1)[1]
         
         # For other paths, return as POSIX string
-        return path_obj.as_posix()
+        return str(path).replace("\\", "/")
         
     except (ValueError, OSError):
         # Fallback for malformed paths - ensure POSIX format
         return str(path).replace("\\", "/")
 
+def to_repo_relative(path: str, repo_root: Path) -> str:
+    """Legacy wrapper for norm() function."""
+    return norm(path, str(repo_root))
+
+def anchors_to_entrypoints(anchors: List[dict], repo_root: str) -> List[dict]:
+    """Convert anchors to entrypoints with framework/kind detection."""
+    out = []
+    for a in anchors or []:
+        p = norm(a["path"], repo_root)
+        fw = "fastapi" if p.endswith(".py") else "unknown"
+        k = a.get("kind") or ("api" if "routers/" in p or "main.py" in p else "other")
+        out.append({"path": p, "framework": fw, "kind": k, "route": a.get("route")})
+    return out
+
+def lane_for_path(p: str) -> str:
+    """Determine swimlane for a file path."""
+    p = p.lower()
+    if "/routers/" in p or "/services/" in p or "/models/" in p or "/schemas/" in p or p.endswith("/main.py"):
+        return "api"
+    if "/workers/" in p or "/jobs/" in p or "/queue/" in p:
+        return "workers"
+    if "/app/" in p and (p.endswith(".tsx") or p.endswith(".ts") or p.endswith(".jsx")):
+        return "web"
+    return "api"  # default for this backend repo
+
+def build_swimlanes(all_files: List[str]) -> dict:
+    """Build swimlanes from file paths."""
+    lanes = {"web": [], "api": [], "workers": [], "other": []}
+    for f in all_files:
+        lanes[lane_for_path(f)].append(f)
+    return lanes
+
+def filter_edges(edges: List[dict], repo_root: str) -> List[dict]:
+    """Filter edges to only include repo-to-repo connections."""
+    def is_repo_file(x): 
+        return norm(x, repo_root).startswith(("backend/", "apps/", "src/"))
+    
+    out = []
+    for e in edges or []:
+        src, dst = norm(e["from"], repo_root), norm(e["to"], repo_root)
+        if not (is_repo_file(src) and is_repo_file(dst)):
+            continue  # drop edges to 'fastapi', 'pydantic', etc.
+        k = e.get("kind") or "call"
+        out.append({"from": src, "to": dst, "kind": k})
+    return out
+
+def _derive_repo_to_repo_edges(files_list: List[dict], repo_root: str) -> List[dict]:
+    """Derive repo-to-repo edges from import relationships."""
+    edges = []
+    
+    for f in files_list:
+        src_path = norm(f["path"], repo_root)
+        if not src_path.startswith(("backend/", "apps/", "src/")):
+            continue
+            
+        imports = f.get("imports", [])
+        for imp in imports:
+            # Check if import resolves to a repo file
+            resolved = imp.get("resolved", "")
+            if resolved and norm(resolved, repo_root).startswith(("backend/", "apps/", "src/")):
+                dst_path = norm(resolved, repo_root)
+                if src_path != dst_path:  # Avoid self-loops
+                    edges.append({
+                        "from": src_path,
+                        "to": dst_path,
+                        "kind": "import"
+                    })
+    
+    return edges
+
 def normalize_capability_paths(cap: dict, repo_root: Path) -> dict:
     """Normalize all paths in capability to repo-relative format."""
-    # Normalize entryPoints
+    # Normalize entryPoints (legacy format)
     cap["entryPoints"] = [to_repo_relative(p, repo_root) for p in cap.get("entryPoints", [])]
+    
+    # Normalize entrypoints (new format)
+    for ep in cap.get("entrypoints", []):
+        if "path" in ep:
+            ep["path"] = to_repo_relative(ep["path"], repo_root)
     
     # Normalize controlFlow edges
     for edge in cap.get("controlFlow", []):
@@ -1008,18 +1092,15 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
             if key not in folder_rollup:
                 folder_rollup[key] = s
 
-    # Narrative & lanes mapping
-    lanes_map: Dict[Lane, List[str]] = _build_swimlanes(expansion.get("nodes", []))
-    # Normalize swimlanes to repo-relative paths and ensure all keys exist
-    lanes_map = {
-        "web": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("web", []) ]),
-        "api": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("api", []) ]),
-        "workers": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("workers", []) ]),
-        "other": _normalize_paths([ _to_repo_relative(p, repo_dir) for p in lanes_map.get("other", []) ]),
-    }
+    # Narrative & lanes mapping - use the new build_swimlanes function
+    # lanes_map is already set above by build_swimlanes(all_files)
+    # Ensure lanes_map is properly defined for narrative generation
+    if 'lanes_map' not in locals():
+        # Rebuild all_files if not defined
+        if 'all_files' not in locals():
+            all_files = sorted(set([norm(p, str(repo_dir)) for p in files_idx.keys() if norm(p, str(repo_dir)).startswith(("backend/", "apps/", "src/"))]))
+        lanes_map = build_swimlanes(all_files)
     
-    # Apply comprehensive normalization
-    lanes_map = _normalize_swimlanes(lanes_map, files_idx)
     valid_anchors, anchor_warnings = _normalize_anchors(anchors, files_idx)
     narrative = await _llm_narrative(
         llm,
@@ -1040,19 +1121,29 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         di = ex.get("name") or ex.get("path") or "external"
         touches[di] = await _llm_touches(llm, di, expansion.get("nodes", []), edges, semaphore)
 
-    # Build UI-aligned fields
+    # Build UI-aligned fields using new helper functions
+    repo_root = str(repo_dir)
+    
+    # 1) Promote anchors → entrypoints (and infer framework/kind)
+    entrypoints = anchors_to_entrypoints([{"path": a.path, "kind": a.kind, "route": a.route} for a in anchors], repo_root)
+    entry_points = [e["path"] for e in entrypoints]
+    
+    # 2) Fill swimlanes properly
+    all_files = sorted(set([norm(p, repo_root) for p in files_idx.keys() if norm(p, repo_root).startswith(("backend/", "apps/", "src/"))]))
+    lanes_map = build_swimlanes(all_files)
+    
+    # 3) Move flow → control_flow and filter out libraries
+    control_flow = filter_edges(edges, repo_root)
+    
+    # If no repo-to-repo edges found, derive them from import relationships
+    if not control_flow:
+        control_flow = _derive_repo_to_repo_edges(files_list, repo_root)
+    
+    # Build lane mapping for nodeIndex
     lane_for_path: Dict[str, str] = {}
     for lane, paths in lanes_map.items():
         for p in paths:
             lane_for_path[p] = lane
-    # Normalize edges to repo-relative and enhance kinds
-    edges = [{"from": _to_repo_relative(e["from"], repo_dir), "to": _to_repo_relative(e["to"], repo_dir), "kind": e.get("kind")} for e in edges]
-    edges = _normalize_edges(edges)  # Dedupe, prune self-loops, sort
-    control_flow = _enhance_control_flow(edges, lane_for_path)
-
-    # Entrypoints enriched with framework
-    entrypoints = [{"path": _to_repo_relative(a.path, repo_dir), "framework": _infer_framework_from_path(a.path), "kind": a.kind} for a in anchors]
-    entry_points = [e["path"] for e in entrypoints]
 
     # Embed touches/examples in data_flow
     def _embed_touches(items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -1078,15 +1169,100 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
             out["client"] = _to_repo_relative(out["client"], repo_dir)
         return out
 
+    # 4) Extract proper data flow from parsed files
+    inputs = []
+    stores = []
+    externals = []
+    contracts = []
+    
+    # Extract from parsed files
+    for f in files_list:
+        path = norm(f["path"], repo_root)
+        symbols = f.get("symbols", {})
+        
+        # Extract Pydantic models (request schemas + contracts)
+        for model in symbols.get("pydanticModels", []):
+            model_name = model.get("name", "")
+            model_fields = model.get("fields", [])
+            
+            # Treat request-like models as inputs
+            if "/schemas/" in path or model_name.lower().endswith("request"):
+                inputs.append({
+                    "type": "requestSchema",
+                    "name": model_name,
+                    "path": path,
+                    "fields": model_fields
+                })
+            
+            # All models are contracts
+            contracts.append({
+                "name": model_name,
+                "kind": "pydantic.Model",
+                "path": path,
+                "fields": model_fields
+            })
+        
+        # Extract SQLAlchemy models (stores + contracts)
+        for model in symbols.get("sqlalchemyModels", []):
+            model_name = model.get("name", "")
+            model_fields = model.get("fields", [])
+            
+            stores.append({
+                "type": "dbModel",
+                "name": model_name,
+                "path": path,
+                "fields": model_fields
+            })
+            
+            contracts.append({
+                "name": model_name,
+                "kind": "sqlalchemy.Model",
+                "path": path,
+                "fields": model_fields
+            })
+        
+        # Extract environment variables
+        for env_var in symbols.get("envVars", []):
+            inputs.append({
+                "type": "env",
+                "key": env_var,
+                "path": path
+            })
+        
+        # Extract external services from imports
+        imports = f.get("imports", [])
+        for imp in imports:
+            module = imp.get("module", "")
+            if "openai" in module:
+                externals.append({"type": "api", "name": "OpenAI", "client": path})
+            elif "smtplib" in module or "sendgrid" in module:
+                externals.append({"type": "smtp", "name": "SMTP", "client": path})
+            elif "boto3" in module:
+                externals.append({"type": "api", "name": "AWS", "client": path})
+
     data_flow = {
-        "inputs": [_rel_item(x) for x in _embed_touches(data.get("inputs", []))],
-        "stores": [_rel_item(x) for x in _embed_touches(data.get("stores", []))],
-        "externals": [_rel_item(x) for x in _embed_touches(data.get("externals", []))],
+        "inputs": [_rel_item(x) for x in _embed_touches(inputs)],
+        "stores": [_rel_item(x) for x in _embed_touches(stores)],
+        "externals": [_rel_item(x) for x in _embed_touches(externals)],
     }
 
-    # Policy typing and heuristic enrichment
-    policies_typed = [{**p, "type": _classify_policy_type(p)} for p in data.get("policies", [])]
-    contracts = data.get("contracts", [])
+    # 7) Extract policies with appliedAt
+    policies_typed = []
+    for f in files_list:
+        path = norm(f["path"], repo_root)
+        symbols = f.get("symbols", {})
+        
+        # Extract FastAPI policies
+        for policy in symbols.get("fastapiPolicies", []):
+            # Try to resolve appliedAt: if file is a router, appliedAt is the same file
+            applied_at = path if "/routers/" in path or "main.py" in path else None
+            policies_typed.append({**policy, "appliedAt": applied_at})
+    
+    # Add LLM-generated policies as fallback
+    policies_typed.extend([{**p, "type": _classify_policy_type(p)} for p in data.get("policies", [])])
+    
+    # Use extracted contracts instead of LLM-generated ones
+    contracts = contracts
     
     # Heuristic enrichment for policies and contracts if sparse
     policies_typed, contracts = _enrich_policies_contracts_heuristics(policies_typed, contracts, expansion.get("nodes", []), files_idx)
@@ -1206,7 +1382,7 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         })
     capability["steps"] = steps
 
-    # Build nodeIndex
+    # 8) Clean up nodeIndex and warnings - only repo files, normalized paths
     all_nodes = set(itertools.chain.from_iterable(lanes_map.values()))
     in_map: Dict[str, List[str]] = {}
     out_map: Dict[str, List[str]] = {}
@@ -1216,6 +1392,10 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     node_index: Dict[str, Any] = {}
     entry_set = {ep["path"] for ep in entrypoints}
     for n in all_nodes:
+        # Only include repo files, skip stdlib/external modules
+        if not n.startswith(("backend/", "apps/", "src/")):
+            continue
+            
         incoming = in_map.get(n, [])
         outgoing = out_map.get(n, [])
         role = "entrypoint" if n in entry_set else ("sink" if len(outgoing) == 0 else "handler")

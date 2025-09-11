@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The API receives a request to access a specific slide in a deck using the deck_id and index.",
+      "scenario": "A user sends a GET request to /{deck_id}/slides/{index}."
+    },
+    {
+      "label": "Validate Input",
+      "detail": "The input parameters (deck_id and index) are validated to ensure they are in the correct format.",
+      "scenario": "The API checks if deck_id is a valid UUID and index is a non-negative integer."
+    },
+    {
+      "label": "Fetch Deck Data",
+      "detail": "The application queries the database to retrieve the deck associated with the provided deck_id.",
+      "scenario": "The application successfully retrieves the deck data from the database."
+    },
+    {
+      "label": "Fetch Slide Data",
+      "detail": "The application retrieves the specific slide data from the deck using the provided index.",
+      "scenario": "The application successfully retrieves the slide data from the deck."
+    },
+    {
+      "label": "Format Response",
+      "detail": "The application formats the slide data into a JSON response structure.",
+      "scenario": "The slide data is successfully formatted for the response."
+    },
+    {
+      "label": "Send Response",
+      "detail": "The application sends the formatted slide data back to the client as a JSON response.",
+      "scenario": "The API responds with a 200 OK status and the slide data."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Deck ID",
+      "detail": "The provided deck_id does not match any existing decks in the database.",
+      "scenario": "The API responds with a 404 Not Found status."
+    },
+    {
+      "label": "Index Out of Bounds",
+      "detail": "The provided index is greater than the number of slides in the deck.",
+      "scenario": "The API responds with a 400 Bad Request status."
+    },
+    {
+      "label": "Database Connection Failure",
+      "detail": "The application fails to connect to the database while trying to fetch the deck or slide data.",
+      "scenario": "The API responds with a 500 Internal Server Error status."
+    }
+  ]
+}

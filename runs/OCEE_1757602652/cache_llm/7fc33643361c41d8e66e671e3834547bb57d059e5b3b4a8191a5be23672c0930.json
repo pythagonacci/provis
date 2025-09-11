@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Initialize Deck",
+      "detail": "Send a request to create a new deck with the necessary parameters.",
+      "scenario": "User sends a POST request to /{deck_id}/slides/{index} with valid deck data."
+    },
+    {
+      "label": "Retrieve Slides",
+      "detail": "Fetch the slides associated with the specified deck ID.",
+      "scenario": "User sends a GET request to /{deck_id}/slides/{index}."
+    },
+    {
+      "label": "Add Slide",
+      "detail": "Send a request to add a new slide to the specified deck.",
+      "scenario": "User sends a POST request to /{deck_id}/slides/{index} with valid slide data."
+    },
+    {
+      "label": "Update Slide",
+      "detail": "Send a request to update an existing slide in the specified deck.",
+      "scenario": "User sends a PUT request to /{deck_id}/slides/{index} with updated slide data."
+    },
+    {
+      "label": "Delete Slide",
+      "detail": "Send a request to delete a slide from the specified deck.",
+      "scenario": "User sends a DELETE request to /{deck_id}/slides/{index}."
+    },
+    {
+      "label": "Confirm Changes",
+      "detail": "Verify that the changes made to the slides are reflected correctly.",
+      "scenario": "User sends a GET request to /{deck_id}/slides/{index} to confirm the updates."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Deck ID",
+      "detail": "Attempt to access slides with an invalid deck ID.",
+      "scenario": "User sends a GET request to /{invalid_deck_id}/slides/{index}."
+    },
+    {
+      "label": "Unauthorized Access",
+      "detail": "Attempt to modify slides without proper authentication.",
+      "scenario": "User sends a POST request to /{deck_id}/slides/{index} without valid credentials."
+    },
+    {
+      "label": "Invalid Slide Data",
+      "detail": "Attempt to add a slide with missing or invalid data.",
+      "scenario": "User sends a POST request to /{deck_id}/slides/{index} with incomplete slide data."
+    }
+  ]
+}

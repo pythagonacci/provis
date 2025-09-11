@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Initialize Application",
+      "detail": "Start the FastAPI application by running the main.py file.",
+      "scenario": "The application starts successfully without any errors."
+    },
+    {
+      "label": "Send Request to Create Deck",
+      "detail": "Send a POST request to the /deck endpoint with the required data to create a new deck.",
+      "scenario": "The deck is created successfully, and a 201 Created response is returned."
+    },
+    {
+      "label": "Retrieve Deck Information",
+      "detail": "Send a GET request to the /deck/{deck_id} endpoint to retrieve the created deck's information.",
+      "scenario": "The deck information is returned successfully with a 200 OK response."
+    },
+    {
+      "label": "Update Deck Information",
+      "detail": "Send a PUT request to the /deck/{deck_id} endpoint with updated data for the deck.",
+      "scenario": "The deck is updated successfully, and a 200 OK response is returned."
+    },
+    {
+      "label": "Generate PDF for Deck",
+      "detail": "Send a POST request to the /deck/{deck_id}/generate-pdf endpoint to generate a PDF for the deck.",
+      "scenario": "The PDF is generated successfully, and a 200 OK response is returned with the PDF file."
+    },
+    {
+      "label": "Delete Deck",
+      "detail": "Send a DELETE request to the /deck/{deck_id} endpoint to delete the deck.",
+      "scenario": "The deck is deleted successfully, and a 204 No Content response is returned."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Deck Creation Request",
+      "detail": "Send a POST request to the /deck endpoint with missing or invalid data.",
+      "scenario": "The request fails with a 400 Bad Request response due to validation errors."
+    },
+    {
+      "label": "Deck Not Found",
+      "detail": "Send a GET request to the /deck/{deck_id} endpoint with a non-existent deck ID.",
+      "scenario": "The request fails with a 404 Not Found response."
+    },
+    {
+      "label": "Unauthorized Access",
+      "detail": "Attempt to access a protected endpoint without proper authentication.",
+      "scenario": "The request fails with a 401 Unauthorized response."
+    }
+  ]
+}

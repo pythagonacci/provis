@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Receive Prospect ID",
+      "detail": "The API receives a request with a valid prospect ID.",
+      "scenario": "Happy path: A valid prospect ID is provided."
+    },
+    {
+      "label": "Validate Prospect ID",
+      "detail": "The system checks if the provided prospect ID exists in the database.",
+      "scenario": "Happy path: The prospect ID is found in the database."
+    },
+    {
+      "label": "Generate Deck",
+      "detail": "The system calls the deck generation service to create a new deck based on the prospect data.",
+      "scenario": "Happy path: The deck is generated successfully."
+    },
+    {
+      "label": "Prepare Email Content",
+      "detail": "The system prepares the email content using the generated deck information.",
+      "scenario": "Happy path: Email content is prepared without errors."
+    },
+    {
+      "label": "Send Email",
+      "detail": "The system sends the email to the prospect using the email generation service.",
+      "scenario": "Happy path: The email is sent successfully."
+    },
+    {
+      "label": "Log Activity",
+      "detail": "The system logs the activity of generating the deck and sending the email for auditing purposes.",
+      "scenario": "Happy path: Activity is logged successfully."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Prospect ID",
+      "detail": "The API receives a request with an invalid or non-existent prospect ID.",
+      "scenario": "Failure case: The system returns a 404 error indicating the prospect ID is not found."
+    },
+    {
+      "label": "Deck Generation Failure",
+      "detail": "The deck generation service fails to create a deck due to internal errors.",
+      "scenario": "Failure case: The system returns a 500 error indicating a failure in deck generation."
+    },
+    {
+      "label": "Email Sending Failure",
+      "detail": "The email service fails to send the email due to network issues.",
+      "scenario": "Failure case: The system returns a 503 error indicating the email service is unavailable."
+    }
+  ]
+}

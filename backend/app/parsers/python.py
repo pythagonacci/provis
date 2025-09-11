@@ -516,6 +516,69 @@ def _parse_with_ast_fallback(text: str, tree: ast.AST) -> Dict[str, Any]:
     return result
 
 
+def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
+    """Extract Pydantic models from Python code."""
+    models = []
+    try:
+        tree = ast.parse(text)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                bases = [getattr(b, "id", getattr(getattr(b, "attr", None), "lower", lambda: "")()) for b in node.bases]
+                if "BaseModel".lower() in [str(b).lower() for b in bases]:
+                    fields = []
+                    for n in ast.walk(node):
+                        if isinstance(n, ast.AnnAssign) and hasattr(n.target, "id"):
+                            fields.append(n.target.id)
+                    models.append({"name": node.name, "fields": fields, "path": path})
+    except Exception:
+        pass
+    return models
+
+def extract_sqlalchemy_models(text: str, path: str) -> List[Dict[str, Any]]:
+    """Extract SQLAlchemy models from Python code."""
+    models = []
+    try:
+        tree = ast.parse(text)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef):
+                bases = [getattr(b, "id", getattr(getattr(b, "attr", None), "lower", lambda: "")()) for b in node.bases]
+                if any("Base" in str(b) or "DeclarativeBase" in str(b) for b in bases):
+                    fields = []
+                    for n in ast.walk(node):
+                        # Simple: attribute assignment with Column(...) call
+                        if isinstance(n, ast.Assign) and any(getattr(t, "id", None) for t in n.targets):
+                            if isinstance(n.value, ast.Call) and getattr(getattr(n.value.func, "id", "") or getattr(n.value.func, "attr", ""), "").lower() == "column":
+                                for t in n.targets:
+                                    if hasattr(t, "id"): 
+                                        fields.append(t.id)
+                    models.append({"name": node.name, "fields": fields, "path": path})
+    except Exception:
+        pass
+    return models
+
+def extract_env_keys(text: str) -> List[str]:
+    """Extract environment variable keys from Python code."""
+    keys = set()
+    # Pattern for os.getenv() and os.environ[]
+    patterns = [
+        r'os\.getenv\(\s*[\'"]([A-Z0-9_]+)[\'"]\s*\)',
+        r'environ\[\s*[\'"]([A-Z0-9_]+)[\'"]\s*\]',
+        r'os\.environ\[\s*[\'"]([A-Z0-9_]+)[\'"]\s*\]'
+    ]
+    for pattern in patterns:
+        for match in re.finditer(pattern, text):
+            keys.add(match.group(1))
+    return sorted(list(keys))
+
+def extract_fastapi_policies(text: str, path: str) -> List[Dict[str, Any]]:
+    """Extract FastAPI policies from Python code."""
+    items = []
+    if "add_middleware(" in text:
+        items.append({"type": "middleware", "name": "add_middleware", "path": path})
+    if "dependencies=[" in text and "Depends(" in text:
+        items.append({"type": "middleware", "name": "dependencies(Depends)", "path": path})
+    return items
+
 def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str] = None) -> Dict[str, Any]:
     """Parse Python file with robust libcst parsing and framework awareness."""
     text = _read_text(p)
@@ -615,6 +678,12 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
     if snapshot:
         external_dependencies = _parse_dependencies(snapshot)
 
+    # Extract new structured data
+    pydantic_models = extract_pydantic_models(text, file_path)
+    sqlalchemy_models = extract_sqlalchemy_models(text, file_path)
+    env_vars = extract_env_keys(text)
+    fastapi_policies = extract_fastapi_policies(text, file_path)
+
     return {
         "imports": resolved_imports,
         "exports": [],  # Python doesn't use explicit exports
@@ -627,7 +696,12 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
             "dbModels": db_models,
             "middleware": middleware,
             "components": [], # Not applicable to Python
-            "utilities": external_dependencies  # External dependencies from requirements.txt/pyproject.toml
+            "utilities": external_dependencies,  # External dependencies from requirements.txt/pyproject.toml
+            # New structured data for capabilities
+            "pydanticModels": pydantic_models,
+            "sqlalchemyModels": sqlalchemy_models,
+            "envVars": env_vars,
+            "fastapiPolicies": fastapi_policies
         },
         "hints": hints
     }

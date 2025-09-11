@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Initialize Application",
+      "detail": "Start the backend application using the main entry point.",
+      "scenario": "The application starts without errors and is ready to accept requests."
+    },
+    {
+      "label": "Send Prospect Request",
+      "detail": "Send a request to the prospect endpoint with valid data.",
+      "scenario": "The server processes the request and returns a success response."
+    },
+    {
+      "label": "Generate Email",
+      "detail": "Trigger the email generation service with the prospect data.",
+      "scenario": "The email is generated successfully and sent to the specified address."
+    },
+    {
+      "label": "Create Deck",
+      "detail": "Send a request to create a new deck with valid data.",
+      "scenario": "The server creates the deck and returns the deck details."
+    },
+    {
+      "label": "Fetch Deck Details",
+      "detail": "Request the details of the created deck.",
+      "scenario": "The server returns the correct details of the deck."
+    },
+    {
+      "label": "Render Frontend Page",
+      "detail": "Load the frontend page that interacts with the backend services.",
+      "scenario": "The page loads successfully and displays the relevant information."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Prospect Data",
+      "detail": "Send a request to the prospect endpoint with invalid data.",
+      "scenario": "The server returns a validation error response."
+    },
+    {
+      "label": "Email Generation Failure",
+      "detail": "Trigger the email generation service with incomplete data.",
+      "scenario": "The server returns an error indicating that required fields are missing."
+    },
+    {
+      "label": "Deck Creation Failure",
+      "detail": "Send a request to create a deck with invalid parameters.",
+      "scenario": "The server returns an error response indicating the failure to create the deck."
+    }
+  ]
+}

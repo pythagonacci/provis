@@ -1,0 +1,61 @@
+{
+  "steps": [
+    {
+      "label": "Initialize Application",
+      "detail": "Start the FastAPI application by running the main.py file.",
+      "scenario": "The application should start without errors and be accessible."
+    },
+    {
+      "label": "Access Health Check Endpoint",
+      "detail": "Send a GET request to the /healthz endpoint.",
+      "scenario": "The server should respond with a 200 OK status indicating that the service is healthy."
+    },
+    {
+      "label": "Send Email Data",
+      "detail": "Send a POST request to the /email endpoint with valid email data.",
+      "scenario": "The server should process the request and return a success response."
+    },
+    {
+      "label": "Send Prospect Data",
+      "detail": "Send a POST request to the /prospect endpoint with valid prospect data.",
+      "scenario": "The server should process the request and return a success response."
+    },
+    {
+      "label": "Send Deck Data",
+      "detail": "Send a POST request to the /deck endpoint with valid deck data.",
+      "scenario": "The server should process the request and return a success response."
+    },
+    {
+      "label": "Retrieve Email Data",
+      "detail": "Send a GET request to the /email endpoint to retrieve stored email data.",
+      "scenario": "The server should return the stored email data successfully."
+    },
+    {
+      "label": "Retrieve Prospect Data",
+      "detail": "Send a GET request to the /prospect endpoint to retrieve stored prospect data.",
+      "scenario": "The server should return the stored prospect data successfully."
+    },
+    {
+      "label": "Retrieve Deck Data",
+      "detail": "Send a GET request to the /deck endpoint to retrieve stored deck data.",
+      "scenario": "The server should return the stored deck data successfully."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Email Data",
+      "detail": "Send a POST request to the /email endpoint with invalid email data.",
+      "scenario": "The server should respond with a 400 Bad Request status indicating validation errors."
+    },
+    {
+      "label": "Service Unavailable",
+      "detail": "Attempt to access the /healthz endpoint when the application is down.",
+      "scenario": "The server should respond with a 503 Service Unavailable status."
+    },
+    {
+      "label": "Unauthorized Access",
+      "detail": "Send a request to a protected endpoint without proper authentication.",
+      "scenario": "The server should respond with a 401 Unauthorized status."
+    }
+  ]
+}

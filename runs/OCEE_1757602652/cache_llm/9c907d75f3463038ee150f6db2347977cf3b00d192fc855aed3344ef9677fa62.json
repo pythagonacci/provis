@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The API receives a request to render a deck using the specified deck_id.",
+      "scenario": "A valid request is made to the endpoint /{deck_id}/render."
+    },
+    {
+      "label": "Validate Deck ID",
+      "detail": "The system checks if the provided deck_id exists in the database.",
+      "scenario": "The deck_id is found in the database."
+    },
+    {
+      "label": "Fetch Deck Data",
+      "detail": "The system retrieves the deck data associated with the deck_id from the database.",
+      "scenario": "The deck data is successfully fetched."
+    },
+    {
+      "label": "Prepare Data for Rendering",
+      "detail": "The system prepares the fetched deck data for rendering by applying necessary transformations.",
+      "scenario": "Data preparation is completed without errors."
+    },
+    {
+      "label": "Render Deck",
+      "detail": "The system renders the deck using the prepared data and the specified template.",
+      "scenario": "The deck is rendered successfully."
+    },
+    {
+      "label": "Return Rendered Deck",
+      "detail": "The system sends the rendered deck back to the client as a response.",
+      "scenario": "The rendered deck is returned successfully to the client."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Deck ID",
+      "detail": "The provided deck_id does not exist in the database.",
+      "scenario": "The system responds with a 404 error indicating that the deck was not found."
+    },
+    {
+      "label": "Database Connection Failure",
+      "detail": "The system fails to connect to the database while trying to fetch the deck data.",
+      "scenario": "The system responds with a 500 error indicating a database connection issue."
+    },
+    {
+      "label": "Rendering Error",
+      "detail": "An error occurs during the rendering process due to invalid data.",
+      "scenario": "The system responds with a 500 error indicating a rendering failure."
+    }
+  ]
+}

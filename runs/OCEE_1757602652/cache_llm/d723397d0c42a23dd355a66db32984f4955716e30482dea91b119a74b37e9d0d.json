@@ -1,0 +1,61 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The API receives a request to generate a deck for a specific prospect.",
+      "scenario": "A valid request is sent to the endpoint /{prospect_id}/generate."
+    },
+    {
+      "label": "Validate Prospect ID",
+      "detail": "The system checks if the provided prospect ID exists in the database.",
+      "scenario": "The prospect ID is valid and exists in the database."
+    },
+    {
+      "label": "Fetch Prospect Data",
+      "detail": "The system retrieves the prospect's data from the database.",
+      "scenario": "The prospect data is successfully fetched."
+    },
+    {
+      "label": "Generate Deck Content",
+      "detail": "The system generates the content for the deck using the prospect's data.",
+      "scenario": "The content is generated without any issues."
+    },
+    {
+      "label": "Create Deck Object",
+      "detail": "A new deck object is created with the generated content.",
+      "scenario": "The deck object is created successfully."
+    },
+    {
+      "label": "Save Deck to Database",
+      "detail": "The newly created deck is saved to the database.",
+      "scenario": "The deck is saved without any errors."
+    },
+    {
+      "label": "Send Confirmation Email",
+      "detail": "An email is sent to the prospect confirming the deck generation.",
+      "scenario": "The email is sent successfully."
+    },
+    {
+      "label": "Return Success Response",
+      "detail": "The API returns a success response to the client.",
+      "scenario": "The response is returned with the generated deck details."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Prospect ID",
+      "detail": "The provided prospect ID does not exist in the database.",
+      "scenario": "The system returns a 404 error indicating the prospect was not found."
+    },
+    {
+      "label": "Database Connection Failure",
+      "detail": "The system fails to connect to the database while fetching prospect data.",
+      "scenario": "The system returns a 500 error indicating a database connection issue."
+    },
+    {
+      "label": "Email Sending Failure",
+      "detail": "The system encounters an error while sending the confirmation email.",
+      "scenario": "The system logs the error and returns a success response without the email confirmation."
+    }
+  ]
+}

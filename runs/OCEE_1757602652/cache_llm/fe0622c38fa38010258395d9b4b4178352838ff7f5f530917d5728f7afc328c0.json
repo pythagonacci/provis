@@ -1,0 +1,56 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The system receives a request to render a deck using the specified deck_id.",
+      "scenario": "A valid deck_id is provided in the request."
+    },
+    {
+      "label": "Validate Deck ID",
+      "detail": "The system checks if the provided deck_id exists in the database.",
+      "scenario": "The deck_id exists and is valid."
+    },
+    {
+      "label": "Fetch Deck Data",
+      "detail": "The system retrieves the deck data associated with the valid deck_id from the database.",
+      "scenario": "The deck data is successfully retrieved."
+    },
+    {
+      "label": "Fetch Related Data",
+      "detail": "The system fetches any related data, such as prospects or emails, associated with the deck.",
+      "scenario": "All related data is successfully fetched."
+    },
+    {
+      "label": "Process Data",
+      "detail": "The system processes the fetched data to prepare it for rendering.",
+      "scenario": "Data processing completes without errors."
+    },
+    {
+      "label": "Render Deck",
+      "detail": "The system renders the deck using the processed data and prepares the output.",
+      "scenario": "The deck is rendered successfully."
+    },
+    {
+      "label": "Return Response",
+      "detail": "The system sends the rendered deck as a response to the client.",
+      "scenario": "The response is sent successfully with the rendered deck."
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Deck ID",
+      "detail": "The provided deck_id does not exist in the database.",
+      "scenario": "The system returns a 404 error indicating the deck was not found."
+    },
+    {
+      "label": "Database Connection Failure",
+      "detail": "The system fails to connect to the database while fetching data.",
+      "scenario": "The system returns a 500 error indicating a database connection issue."
+    },
+    {
+      "label": "Rendering Error",
+      "detail": "An error occurs during the rendering process due to invalid data.",
+      "scenario": "The system returns a 500 error indicating a rendering failure."
+    }
+  ]
+}

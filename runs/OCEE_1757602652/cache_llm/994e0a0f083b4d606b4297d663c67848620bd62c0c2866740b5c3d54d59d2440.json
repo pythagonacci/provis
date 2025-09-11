@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Receive Email Request",
+      "detail": "The system receives an email request at the endpoint /item/{email_id}/ai-edit.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Validate Email ID",
+      "detail": "The system validates the provided email_id to ensure it exists in the database.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Fetch Email Data",
+      "detail": "The system retrieves the email data associated with the validated email_id from the database.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Process AI Editing",
+      "detail": "The system processes the email content using AI editing services.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Generate Edited Email",
+      "detail": "The system generates the edited version of the email based on AI processing.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Return Edited Email",
+      "detail": "The system returns the edited email to the user as a response.",
+      "scenario": "Happy Path"
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Email ID",
+      "detail": "The user provides an email_id that does not exist in the database.",
+      "scenario": "Failure Case"
+    },
+    {
+      "label": "AI Processing Error",
+      "detail": "An error occurs during the AI processing of the email content.",
+      "scenario": "Failure Case"
+    },
+    {
+      "label": "Database Connection Failure",
+      "detail": "The system fails to connect to the database while fetching email data.",
+      "scenario": "Failure Case"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "steps": [
+    {
+      "label": "Receive Email Request",
+      "detail": "The system receives an email request at the endpoint /item/{email_id}.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Validate Email ID",
+      "detail": "The system validates the provided email_id to ensure it is in the correct format.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Fetch Email Data",
+      "detail": "The system queries the database to fetch the email data associated with the provided email_id.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Check Email Existence",
+      "detail": "The system checks if the email data exists in the database.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Return Email Data",
+      "detail": "The system returns the fetched email data as a JSON response.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Log Request",
+      "detail": "The system logs the request for auditing and monitoring purposes.",
+      "scenario": "Happy Path"
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Email ID Format",
+      "detail": "The provided email_id does not match the expected format.",
+      "scenario": "Failure Case"
+    },
+    {
+      "label": "Email Not Found",
+      "detail": "The system does not find any email data associated with the provided email_id.",
+      "scenario": "Failure Case"
+    },
+    {
+      "label": "Database Connection Error",
+      "detail": "The system encounters an error while trying to connect to the database.",
+      "scenario": "Failure Case"
+    }
+  ]
+}

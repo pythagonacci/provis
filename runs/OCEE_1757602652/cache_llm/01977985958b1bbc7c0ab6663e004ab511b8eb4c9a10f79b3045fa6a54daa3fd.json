@@ -1,0 +1,56 @@
+{
+  "steps": [
+    {
+      "label": "Receive Request",
+      "detail": "The API receives a request to edit a slide identified by deck_id and index.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Validate Input",
+      "detail": "The input parameters are validated to ensure they are in the correct format and within acceptable ranges.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Fetch Deck Data",
+      "detail": "The system retrieves the deck data from the database using the provided deck_id.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Fetch Slide Data",
+      "detail": "The specific slide data is fetched from the deck using the provided index.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Process AI Edit",
+      "detail": "The AI service processes the slide data to apply the requested edits.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Update Slide Data",
+      "detail": "The edited slide data is updated in the database.",
+      "scenario": "Happy Path"
+    },
+    {
+      "label": "Return Success Response",
+      "detail": "A success response is returned to the client indicating the slide has been edited successfully.",
+      "scenario": "Happy Path"
+    }
+  ],
+  "edge_cases": [
+    {
+      "label": "Invalid Deck ID",
+      "detail": "The provided deck_id does not exist in the database.",
+      "scenario": "Failure Case"
+    },
+    {
+      "label": "Slide Index Out of Range",
+      "detail": "The provided index is outside the range of available slides in the deck.",
+      "scenario": "Failure Case"
+    },
+    {
+      "label": "AI Service Unavailable",
+      "detail": "The AI service is down or unreachable, preventing the processing of edits.",
+      "scenario": "Failure Case"
+    }
+  ]
+}
