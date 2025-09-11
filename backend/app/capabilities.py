@@ -1246,13 +1246,17 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     try:
         from app.parsers.python import (
             extract_pydantic_models, extract_sqlalchemy_models, extract_env_keys,
-            extract_externals, extract_fastapi_policies, extract_fastapi_routes
+            extract_externals, extract_fastapi_policies, extract_fastapi_routes,
+            extract_request_schema, extract_response_schema, extract_store_model,
+            detect_externals, extract_file_summary
         )
     except ModuleNotFoundError:
         # Local fallback (same repo)
         from .parsers.python import (
             extract_pydantic_models, extract_sqlalchemy_models, extract_env_keys,
-            extract_externals, extract_fastapi_policies, extract_fastapi_routes
+            extract_externals, extract_fastapi_policies, extract_fastapi_routes,
+            extract_request_schema, extract_response_schema, extract_store_model,
+            detect_externals, extract_file_summary
         )
     from pathlib import Path
     
@@ -1341,14 +1345,28 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
                     "path": path,
                 })
             
-            # 2) SQLAlchemy (stores & contracts)
+            # 2) SQLAlchemy (stores & contracts) - Enhanced with detailed structure
             for m in sqlalchemy_models:
-                stores.append({
-                    "type": "dbModel",
-                    "name": m.get("table") or m["name"],
-                    "columns": m.get("columns", []),
-                    "path": path,
-                })
+                # Extract detailed model structure
+                model_details = extract_store_model(text, path, m["name"])
+                if model_details and "error" not in model_details:
+                    stores.append({
+                        "type": "dbModel",
+                        "dbModel": model_details["dbModel"],
+                        "table": model_details["table"],
+                        "fields": model_details["fields"],
+                        "path": path,
+                        "usedFor": "System of record persisted via SQLAlchemy.",
+                        "example": model_details["example"]
+                    })
+                else:
+                    # Fallback to basic structure
+                    stores.append({
+                        "type": "dbModel",
+                        "name": m.get("table") or m["name"],
+                        "columns": m.get("columns", []),
+                        "path": path,
+                    })
                 contracts.append({"kind": "sqlalchemy", **m, "path": path})
             
             # 3) Env keys (inputs)
@@ -1546,7 +1564,73 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     
     # Clean outputs will be added to capability later
     
-    # 8) Promote contracts (request/response schemas)
+    # 8) Extract request/response schemas for each entrypoint
+    for ep in entrypoints:
+        ep_path = ep["path"]
+        source_path = resolve_source_path(repo_dir, ep_path)
+        if source_path and source_path.exists():
+            try:
+                text = source_path.read_text()
+                
+                # Extract request schema
+                req_schema = extract_request_schema(text, ep_path, ep)
+                if req_schema and "error" not in req_schema:
+                    inputs.append({
+                        "type": "requestSchema",
+                        "name": req_schema.get("name", "Request"),
+                        "fields": req_schema.get("fields", []),
+                        "pathParams": req_schema.get("pathParams", []),
+                        "queryParams": req_schema.get("queryParams", []),
+                        "path": ep_path,
+                        "usedFor": "Validates incoming request bodies.",
+                        "example": req_schema.get("example", {})
+                    })
+                
+                # Extract response schema
+                resp_schema = extract_response_schema(text, ep_path, ep)
+                if resp_schema and "error" not in resp_schema:
+                    outputs.append({
+                        "type": "responseSchema",
+                        "name": resp_schema.get("schema", {}).get("name", "Response"),
+                        "responseType": resp_schema.get("type", "json"),
+                        "schema": resp_schema.get("schema", {}),
+                        "mime": resp_schema.get("mime"),
+                        "path": ep_path,
+                        "usedFor": "Defines response structure.",
+                        "example": resp_schema.get("example", {})
+                    })
+                    
+            except Exception as e:
+                debug["extract_errors"].append({"path": ep_path, "extractor": "request_response_schema", "error": repr(e)})
+    
+    # 9) Extract flow-aware externals
+    for f in files_list:
+        path = norm(f["path"], repo_root)
+        if not path.endswith('.py'):
+            continue
+            
+        source_path = resolve_source_path(repo_dir, path)
+        if not source_path:
+            continue
+            
+        try:
+            text = source_path.read_text()
+            flow_externals = detect_externals(text, path)
+            for ext in flow_externals:
+                externals.append({
+                    "type": "api",
+                    "service": ext["service"],
+                    "actor": ext["actor"],
+                    "sends": ext["sends"],
+                    "returns": ext["returns"],
+                    "path": path,
+                    "usedFor": ext["usedFor"]
+                })
+                
+        except Exception as e:
+            debug["extract_errors"].append({"path": path, "extractor": "flow_externals", "error": repr(e)})
+    
+    # 10) Promote contracts (request/response schemas)
     promoted_contracts = []
     
     # Add request schemas from data_flow.inputs
@@ -1723,7 +1807,7 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         "data": {k: v for k, v in data.items() if k in ("inputs", "stores", "externals")},
         # UI-aligned fields
         "entrypoints": entrypoints,
-        "entryPoints": [e["path"] for e in entrypoints],
+        # entryPoints removed - use entrypoints instead
         "swimlanes": lanes_map,
         "control_flow": control_flow,
         "data_flow": data_flow,
@@ -1817,7 +1901,33 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         }
     capability["nodeIndex"] = node_index
 
-    # Add debug info temporarily
+    # Add debug info with missing reasons
+    debug_missing = {}
+    
+    # Check for missing request schemas
+    request_schemas = [i for i in data_flow.get("inputs", []) if i.get("type") == "requestSchema"]
+    if not request_schemas:
+        debug_missing["requestSchema"] = "no pydantic model on route"
+    
+    # Check for missing outputs
+    response_outputs = [o for o in data_flow.get("outputs", []) if o.get("type") == "responseSchema"]
+    if not response_outputs:
+        debug_missing["outputs"] = "no response model or FileResponse found"
+    
+    # Check for missing stores
+    if not data_flow.get("stores"):
+        debug_missing["stores"] = "no SQLAlchemy models detected"
+    
+    # Check for missing externals
+    if not data_flow.get("externals"):
+        debug_missing["externals"] = "no external service calls detected"
+    
+    # Check for missing file summaries
+    summaries = capability.get("summaries", {})
+    if not summaries or not any(isinstance(s, dict) and s.get("summary") for s in summaries.values()):
+        debug_missing["summaries"] = "no docstrings or fallback summaries generated"
+    
+    debug["missing"] = debug_missing
     capability["debug"] = debug
     
     # Apply comprehensive post-processing
@@ -1826,31 +1936,39 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
     capability = provide_trivial_fallbacks(capability)
     capability = add_camelcase_mirrors(capability)
     
-    # 12) Add fallback file summaries if LLM summaries are empty
-    summaries = capability.get("summaries", {})
-    if not summaries or not any(isinstance(s, dict) and s.get("summary") for s in summaries.values()):
-        capability["summaries"] = {}
-        for f in files_list:
-            path = f["path"]
-            # Generate simple fallback summary
-            if "/routers/" in path:
-                summary = f"FastAPI router with {len([e for e in control_flow if e['from'] == path])} outgoing calls"
-            elif "/services/" in path:
-                summary = f"Service module with {len([e for e in control_flow if e['from'] == path])} dependencies"
-            elif "/models/" in path:
-                summary = f"Data model with {len([s for s in stores if s.get('path') == path])} tables"
-            elif "/schemas/" in path:
-                summary = f"Pydantic schema definitions"
-            elif path.endswith("main.py"):
-                summary = "FastAPI application entry point"
-            elif path.endswith("config.py"):
-                summary = "Application configuration and settings"
-            elif path.endswith("database.py"):
-                summary = "Database connection and setup"
-            else:
-                summary = f"Supporting module with {len([e for e in control_flow if e['from'] == path or e['to'] == path])} connections"
-            
-            capability["summaries"][path] = {"summary": summary}
+    # 12) Add file summaries using extract_file_summary
+    capability["summaries"] = {}
+    for f in files_list:
+        path = f["path"]
+        source_path = resolve_source_path(repo_dir, path)
+        if source_path and source_path.exists():
+            try:
+                text = source_path.read_text()
+                summary = extract_file_summary(text, path)
+                capability["summaries"][path] = {"summary": summary}
+            except Exception as e:
+                # Fallback summary
+                if "/routers/" in path:
+                    summary = f"FastAPI router with {len([e for e in control_flow if e['from'] == path])} outgoing calls"
+                elif "/services/" in path:
+                    summary = f"Service module with {len([e for e in control_flow if e['from'] == path])} dependencies"
+                elif "/models/" in path:
+                    summary = f"Data model with {len([s for s in stores if s.get('path') == path])} tables"
+                elif "/schemas/" in path:
+                    summary = f"Pydantic schema definitions"
+                elif path.endswith("main.py"):
+                    summary = "FastAPI application entry point"
+                elif path.endswith("config.py"):
+                    summary = "Application configuration and settings"
+                elif path.endswith("database.py"):
+                    summary = "Database connection and setup"
+                else:
+                    summary = f"Supporting module with {len([e for e in control_flow if e['from'] == path or e['to'] == path])} connections"
+                
+                capability["summaries"][path] = {"summary": summary}
+                debug["extract_errors"].append({"path": path, "extractor": "file_summary", "error": repr(e)})
+        else:
+            capability["summaries"][path] = {"summary": f"Module at {path}"}
     
     # Fix router lanes after normalization
     lane_for_path_map = {n: lane_for_path(n) for n in graph_nodes}
@@ -1935,7 +2053,7 @@ async def _build_capability(files_payload: Dict[str, Any], graph_payload: Dict[s
         suspects.sort(key=lambda x: x["score"], reverse=True)
         return suspects[:3]
     
-    capability["suspectRank"] = calculate_suspect_ranking(files_list, control_flow)
+    # suspectRank removed - not needed for UI
     
     # Add normalization warnings
     if anchor_warnings:

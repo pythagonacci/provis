@@ -4,9 +4,7 @@
       "id": "cap_healthz",
       "name": "healthz",
       "purpose": "Initialize Application",
-      "entryPoints": [
-        "backend/app/main.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "__future__",
         "backend/app/main.py",
@@ -70,12 +68,7 @@
       "id": "cap_root",
       "name": "/",
       "purpose": "Initialize Application",
-      "entryPoints": [
-        "backend/app/routers/prospect.py",
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py",
-        "offdeal-frontend/src/app/page.tsx"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "__future__",
         "backend/app/routers/deck.py",
@@ -160,10 +153,7 @@
       "id": "cap_{prospect_id}_generate",
       "name": "{prospect_id}/generate",
       "purpose": "Receive Request",
-      "entryPoints": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "__future__",
         "backend/app/routers/deck.py",
@@ -235,9 +225,7 @@
       "id": "cap_{deck_id}_render",
       "name": "{deck_id}/render",
       "purpose": "Receive Request",
-      "entryPoints": [
-        "backend/app/routers/deck.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "backend/app/routers/deck.py",
         "config",
@@ -302,9 +290,7 @@
       "id": "cap_{deck_id}_slides_{index}",
       "name": "{deck_id}/slides/{index}",
       "purpose": "Initialize Deck",
-      "entryPoints": [
-        "backend/app/routers/deck.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "backend/app/routers/deck.py",
         "config",
@@ -369,9 +355,7 @@
       "id": "cap_{deck_id}_slides_{index}_ai-edit",
       "name": "{deck_id}/slides/{index}/ai-edit",
       "purpose": "Receive Request",
-      "entryPoints": [
-        "backend/app/routers/deck.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "backend/app/routers/deck.py",
         "config",
@@ -436,9 +420,7 @@
       "id": "cap_debug_ai-edit-test",
       "name": "debug/ai-edit-test",
       "purpose": "Initialize Application",
-      "entryPoints": [
-        "backend/app/routers/deck.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "backend/app/routers/deck.py",
         "config",
@@ -503,9 +485,7 @@
       "id": "cap_item_{email_id}",
       "name": "item/{email_id}",
       "purpose": "Receive Email Request",
-      "entryPoints": [
-        "backend/app/routers/email.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "__future__",
         "backend/app/routers/email.py",
@@ -571,9 +551,7 @@
       "id": "cap_item_{email_id}_ai-edit",
       "name": "item/{email_id}/ai-edit",
       "purpose": "Receive Email Request",
-      "entryPoints": [
-        "backend/app/routers/email.py"
-      ],
+      "entryPoints": [],
       "keyFiles": [
         "__future__",
         "backend/app/routers/email.py",

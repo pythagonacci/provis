@@ -551,6 +551,377 @@ def _ast_value_to_py(node):
     else:
         return str(type(node).__name__)
 
+def is_pydantic_model(t) -> bool:
+    """Check if type annotation is a Pydantic model."""
+    if t is None:
+        return False
+    try:
+        # Check for BaseModel in MRO
+        if hasattr(t, '__mro__'):
+            for base in t.__mro__:
+                if hasattr(base, '__module__') and 'pydantic' in base.__module__:
+                    if hasattr(base, '__name__') and 'BaseModel' in base.__name__:
+                        return True
+        # Check for model_fields attribute (Pydantic v2)
+        if hasattr(t, 'model_fields'):
+            return True
+        # Check for __fields__ attribute (Pydantic v1)
+        if hasattr(t, '__fields__'):
+            return True
+    except:
+        pass
+    return False
+
+def example_for_type(t) -> Any:
+    """Generate sensible example values for type annotations."""
+    if t is None:
+        return None
+    
+    type_str = str(t).lower()
+    
+    # String types
+    if 'str' in type_str or 'string' in type_str:
+        if 'email' in type_str:
+            return "user@example.com"
+        elif 'url' in type_str:
+            return "https://example.com"
+        elif 'uuid' in type_str:
+            return "123e4567-e89b-12d3-a456-426614174000"
+        else:
+            return "example_string"
+    
+    # Numeric types
+    elif 'int' in type_str:
+        return 42
+    elif 'float' in type_str:
+        return 3.14
+    elif 'bool' in type_str:
+        return True
+    
+    # Collection types
+    elif 'list' in type_str or 'array' in type_str:
+        return ["item1", "item2"]
+    elif 'dict' in type_str or 'mapping' in type_str:
+        return {"key": "value"}
+    elif 'set' in type_str:
+        return ["item1", "item2"]
+    
+    # Date/time types
+    elif 'datetime' in type_str:
+        return "2025-01-01T12:00:00Z"
+    elif 'date' in type_str:
+        return "2025-01-01"
+    elif 'time' in type_str:
+        return "12:00:00"
+    
+    # Default fallback
+    else:
+        return "example_value"
+
+def example_for_sqla_type(sqla_type_str: str) -> Any:
+    """Generate examples for SQLAlchemy column types."""
+    type_str = str(sqla_type_str).lower()
+    
+    if 'integer' in type_str or 'int' in type_str:
+        return 1
+    elif 'string' in type_str or 'text' in type_str or 'varchar' in type_str:
+        return "example_text"
+    elif 'boolean' in type_str or 'bool' in type_str:
+        return True
+    elif 'datetime' in type_str:
+        return "2025-01-01T12:00:00Z"
+    elif 'float' in type_str or 'numeric' in type_str:
+        return 1.0
+    elif 'json' in type_str:
+        return {"key": "value"}
+    else:
+        return "example_value"
+
+def extract_request_schema(text: str, path: str, route_info: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract request schema from FastAPI route function."""
+    import ast
+    import typing
+    
+    try:
+        tree = ast.parse(text)
+        
+        # Find the route function
+        func_name = route_info.get("handler")
+        if not func_name:
+            return {}
+        
+        # Find function definition
+        func_def = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == func_name:
+                func_def = node
+                break
+        
+        if not func_def:
+            return {}
+        
+        # Extract type hints
+        fields = []
+        example = {}
+        model_name = None
+        path_params = []
+        query_params = []
+        
+        # Parse function parameters
+        for arg in func_def.args.args:
+            if arg.arg == "self":  # Skip self parameter
+                continue
+                
+            # Try to get type annotation
+            ann = None
+            if arg.annotation:
+                try:
+                    # Simple type resolution
+                    ann_str = ast.unparse(arg.annotation) if hasattr(ast, "unparse") else str(arg.annotation)
+                    ann = ann_str
+                except:
+                    ann = str(arg.annotation)
+            
+            # Check if it's a Pydantic model
+            if ann and ("BaseModel" in ann or "Request" in ann):
+                model_name = ann
+                # This would be a request body model
+                fields.append({
+                    "name": arg.arg,
+                    "type": ann,
+                    "required": True
+                })
+                example[arg.arg] = example_for_type(ann)
+            else:
+                # Regular parameter
+                param_info = {
+                    "name": arg.arg,
+                    "type": ann or "str",
+                    "required": True
+                }
+                
+                # Determine if it's path or query param based on route pattern
+                route_path = route_info.get("route", "")
+                if f"{{{arg.arg}}}" in route_path:
+                    path_params.append(param_info)
+                else:
+                    query_params.append(param_info)
+                
+                example[arg.arg] = example_for_type(ann)
+        
+        return {
+            "name": model_name,
+            "fields": fields,
+            "example": example,
+            "pathParams": path_params,
+            "queryParams": query_params
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+def extract_response_schema(text: str, path: str, route_info: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract response schema from FastAPI route."""
+    import ast
+    
+    try:
+        tree = ast.parse(text)
+        
+        # Find the route function
+        func_name = route_info.get("handler")
+        if not func_name:
+            return {}
+        
+        # Find function definition
+        func_def = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == func_name:
+                func_def = node
+                break
+        
+        if not func_def:
+            return {}
+        
+        # Check for FileResponse or StreamingResponse in return type
+        if func_def.returns:
+            return_type = ast.unparse(func_def.returns) if hasattr(ast, "unparse") else str(func_def.returns)
+            if "FileResponse" in return_type:
+                return {
+                    "type": "file",
+                    "mime": "application/pdf",  # Default for this app
+                    "example": {"filename": "deck.pdf"}
+                }
+            elif "StreamingResponse" in return_type:
+                return {
+                    "type": "stream",
+                    "mime": "application/octet-stream",
+                    "example": {"stream": "binary_data"}
+                }
+        
+        # Look for response_model in decorator
+        for decorator in func_def.decorator_list:
+            if isinstance(decorator, ast.Call):
+                # Check for response_model keyword argument
+                for kw in decorator.keywords or []:
+                    if kw.arg == "response_model":
+                        model_name = ast.unparse(kw.value) if hasattr(ast, "unparse") else str(kw.value)
+                        return {
+                            "type": "json",
+                            "schema": {
+                                "name": model_name,
+                                "fields": []  # Would need to extract from model definition
+                            },
+                            "example": {"id": 1, "status": "success"}
+                        }
+        
+        # Default JSON response
+        return {
+            "type": "json",
+            "schema": {"name": "Response", "fields": []},
+            "example": {"status": "success"}
+        }
+        
+    except Exception as e:
+        return {"type": "json", "schema": {"name": "Response", "fields": []}, "example": {"status": "success"}}
+
+def extract_store_model(text: str, path: str, model_name: str) -> Dict[str, Any]:
+    """Extract SQLAlchemy model details."""
+    import ast
+    
+    try:
+        tree = ast.parse(text)
+        
+        # Find the model class
+        model_class = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name == model_name:
+                model_class = node
+                break
+        
+        if not model_class:
+            return {}
+        
+        # Extract columns
+        fields = []
+        example = {}
+        
+        for item in model_class.body:
+            if isinstance(item, ast.Assign):
+                for target in item.targets:
+                    if isinstance(target, ast.Name):
+                        col_name = target.id
+                        
+                        # Skip relationship attributes
+                        if col_name in ["decks", "emails", "prospect"]:
+                            continue
+                            
+                        # Get column type
+                        col_type = "str"  # default
+                        if isinstance(item.value, ast.Call):
+                            if hasattr(item.value.func, "id"):
+                                col_type = item.value.func.id
+                        
+                        nullable = True  # default
+                        example[col_name] = example_for_sqla_type(col_type)
+                        
+                        fields.append({
+                            "name": col_name,
+                            "type": col_type,
+                            "nullable": nullable
+                        })
+        
+        return {
+            "dbModel": model_name,
+            "table": model_name.lower() + "s",  # Simple pluralization
+            "fields": fields,
+            "example": example
+        }
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+def detect_externals(text: str, path: str) -> List[Dict[str, Any]]:
+    """Detect external service calls in Python code."""
+    import ast
+    
+    externals = []
+    
+    try:
+        tree = ast.parse(text)
+        
+        # Check imports for external libraries
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name == "openai":
+                        externals.append({
+                            "service": "openai",
+                            "actor": path,
+                            "sends": {"prompt": "string", "params": "dict"},
+                            "returns": {"type": "json", "shape": "ChatCompletion"},
+                            "usedFor": "LLM content generation"
+                        })
+            elif isinstance(node, ast.ImportFrom):
+                if node.module == "openai":
+                    externals.append({
+                        "service": "openai", 
+                        "actor": path,
+                        "sends": {"prompt": "string", "params": "dict"},
+                        "returns": {"type": "json", "shape": "ChatCompletion"},
+                        "usedFor": "LLM content generation"
+                    })
+                elif "smtp" in (node.module or ""):
+                    externals.append({
+                        "service": "smtp",
+                        "actor": path,
+                        "sends": {"to": "email", "subject": "string", "body": "string"},
+                        "returns": {"type": "status", "shape": "bool"},
+                        "usedFor": "Email delivery"
+                    })
+        
+    except Exception as e:
+        pass
+    
+    return externals
+
+def extract_file_summary(text: str, path: str) -> str:
+    """Extract file summary from docstrings and comments."""
+    import ast
+    
+    try:
+        tree = ast.parse(text)
+        
+        # Get module docstring
+        if (tree.body and isinstance(tree.body[0], ast.Expr) and 
+            isinstance(tree.body[0].value, ast.Constant) and 
+            isinstance(tree.body[0].value.value, str)):
+            return tree.body[0].value.value.strip()
+        
+        # Get first class/function docstring
+        for node in tree.body:
+            if isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+                if (node.body and isinstance(node.body[0], ast.Expr) and
+                    isinstance(node.body[0].value, ast.Constant) and
+                    isinstance(node.body[0].value.value, str)):
+                    return node.body[0].value.value.strip()
+        
+        # Infer from file path and content
+        if "/routers/" in path:
+            return "FastAPI router with API endpoints for the application."
+        elif "/models/" in path:
+            return "SQLAlchemy database models defining data structures."
+        elif "/schemas/" in path:
+            return "Pydantic schemas for request/response validation."
+        elif "/services/" in path:
+            return "Business logic and external service integrations."
+        elif "/config" in path:
+            return "Application configuration and environment settings."
+        else:
+            return "Supporting module for the application."
+            
+    except Exception as e:
+        return f"Module at {path}"
+
 def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
     """Extract Pydantic models from Python code."""
     models = []

@@ -390,9 +390,6 @@
       "route": "/{deck_id}/slides/{index}/ai-edit"
     }
   ],
-  "entryPoints": [
-    "backend/app/routers/deck.py"
-  ],
   "swimlanes": {
     "web": [],
     "api": [
@@ -2069,9 +2066,14 @@
     "stores": [
       {
         "type": "dbModel",
-        "name": "slidepatchs",
-        "columns": [],
+        "dbModel": "SlidePatch",
+        "table": "slidepatchs",
+        "fields": [],
         "path": "backend/app/routers/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2153,17 +2155,18 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "slideaieditrequests",
-        "columns": [],
+        "dbModel": "SlideAIEditRequest",
+        "table": "slideaieditrequests",
+        "fields": [],
         "path": "backend/app/routers/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2245,17 +2248,18 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "emailaieditrequests",
-        "columns": [],
+        "dbModel": "EmailAIEditRequest",
+        "table": "emailaieditrequests",
+        "fields": [],
         "path": "backend/app/routers/email.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2277,17 +2281,84 @@
             "actor": "backend/app/models/prospect.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "prospects",
-        "columns": [],
+        "dbModel": "Prospect",
+        "table": "prospects",
+        "fields": [
+          {
+            "name": "__tablename__",
+            "type": "str",
+            "nullable": true
+          },
+          {
+            "name": "id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "company_name",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "contact_name",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "email",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "phone_number",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "industry",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "revenue_range",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "location",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "sale_motivation",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "signals",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "Column",
+            "nullable": true
+          }
+        ],
         "path": "backend/app/models/prospect.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2319,17 +2390,54 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "decks",
-        "columns": [],
+        "dbModel": "Deck",
+        "table": "decks",
+        "fields": [
+          {
+            "name": "__tablename__",
+            "type": "str",
+            "nullable": true
+          },
+          {
+            "name": "id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "prospect_id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "title",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "slides_json",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "pdf_path",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "Column",
+            "nullable": true
+          }
+        ],
         "path": "backend/app/models/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2351,17 +2459,59 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "emails",
-        "columns": [],
+        "dbModel": "Email",
+        "table": "emails",
+        "fields": [
+          {
+            "name": "__tablename__",
+            "type": "str",
+            "nullable": true
+          },
+          {
+            "name": "id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "prospect_id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "sequence_index",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "subject",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "body",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "updated_at",
+            "type": "Column",
+            "nullable": true
+          }
+        ],
         "path": "backend/app/models/email.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2373,39 +2523,42 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "prospectcreates",
-        "columns": [],
+        "dbModel": "ProspectCreate",
+        "table": "prospectcreates",
+        "fields": [],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "prospectupdates",
-        "columns": [],
+        "dbModel": "ProspectUpdate",
+        "table": "prospectupdates",
+        "fields": [],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "slides",
-        "columns": [],
+        "dbModel": "Slide",
+        "table": "slides",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2417,17 +2570,18 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "deckouts",
-        "columns": [],
+        "dbModel": "DeckOut",
+        "table": "deckouts",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2439,17 +2593,18 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "slideins",
-        "columns": [],
+        "dbModel": "SlideIn",
+        "table": "slideins",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2461,17 +2616,18 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "deckupdates",
-        "columns": [],
+        "dbModel": "DeckUpdate",
+        "table": "deckupdates",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -2483,66 +2639,67 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "emailouts",
-        "columns": [],
+        "dbModel": "EmailOut",
+        "table": "emailouts",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "emailins",
-        "columns": [],
+        "dbModel": "EmailIn",
+        "table": "emailins",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "emailupdates",
-        "columns": [],
+        "dbModel": "EmailUpdate",
+        "table": "emailupdates",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "emailbatchouts",
-        "columns": [],
+        "dbModel": "EmailBatchOut",
+        "table": "emailbatchouts",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "prospectcontexts",
-        "columns": [],
+        "dbModel": "ProspectContext",
+        "table": "prospectcontexts",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       }
     ],
     "externals": [
@@ -3358,130 +3515,130 @@
   ],
   "summaries": {
     "README.md": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at README.md"
     },
     ".gitignore": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at .gitignore"
     },
     "backend/requirements.txt": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Supporting module for the application."
     },
     "backend/migrate_add_phone.py": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Simple migration script to add phone_number column to prospects table"
     },
     "backend/app/config.py": {
-      "summary": "Application configuration and settings"
+      "summary": "Centralized application configuration.\n\n    Loads from environment with sensible local defaults so the app\n    can run end-to-end in stub mode without extra setup."
     },
     "backend/app/database.py": {
-      "summary": "Database connection and setup"
+      "summary": "Supporting module for the application."
     },
     "backend/app/__init__.py": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Supporting module for the application."
     },
     "backend/app/main.py": {
-      "summary": "FastAPI application entry point"
+      "summary": "Supporting module for the application."
     },
     "backend/app/routers/prospect.py": {
-      "summary": "FastAPI router with 1 outgoing calls"
+      "summary": "FastAPI router with API endpoints for the application."
     },
     "backend/app/routers/deck.py": {
-      "summary": "FastAPI router with 8 outgoing calls"
+      "summary": "Debug endpoint to test AI editing functionality"
     },
     "backend/app/routers/__init__.py": {
-      "summary": "FastAPI router with 0 outgoing calls"
+      "summary": "FastAPI router with API endpoints for the application."
     },
     "backend/app/routers/email.py": {
-      "summary": "FastAPI router with 2 outgoing calls"
+      "summary": "FastAPI router with API endpoints for the application."
     },
     "backend/app/models/prospect.py": {
-      "summary": "Data model with 1 tables"
+      "summary": "SQLAlchemy database models defining data structures."
     },
     "backend/app/models/deck.py": {
-      "summary": "Data model with 1 tables"
+      "summary": "SQLAlchemy database models defining data structures."
     },
     "backend/app/models/__init__.py": {
-      "summary": "Data model with 0 tables"
+      "summary": "SQLAlchemy database models defining data structures."
     },
     "backend/app/models/email.py": {
-      "summary": "Data model with 1 tables"
+      "summary": "SQLAlchemy database models defining data structures."
     },
     "backend/app/schemas/prospect.py": {
-      "summary": "Pydantic schema definitions"
+      "summary": "Pydantic schemas for request/response validation."
     },
     "backend/app/schemas/deck.py": {
-      "summary": "Pydantic schema definitions"
+      "summary": "Pydantic schemas for request/response validation."
     },
     "backend/app/schemas/__init__.py": {
-      "summary": "Pydantic schema definitions"
+      "summary": "Pydantic schemas for request/response validation."
     },
     "backend/app/schemas/email.py": {
-      "summary": "Pydantic schema definitions"
+      "summary": "Pydantic schemas for request/response validation."
     },
     "backend/app/templates/deck.html": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at backend/app/templates/deck.html"
     },
     "backend/app/services/emailgeneration.py": {
-      "summary": "Service module with 1 dependencies"
+      "summary": "Business logic and external service integrations."
     },
     "backend/app/services/ai.py": {
-      "summary": "Service module with 1 dependencies"
+      "summary": "Accept bullets as list[str], str with delimiters, or anything else (-> []).\n    Splits on newlines/semicolon/dot/bullet chars, trims, de-dups empties."
     },
     "backend/app/services/__init__.py": {
-      "summary": "Service module with 0 dependencies"
+      "summary": "Business logic and external service integrations."
     },
     "backend/app/services/pdf.py": {
-      "summary": "Service module with 1 dependencies"
+      "summary": "Renders the provided slides into a PDF and writes it to FILE_STORAGE_DIR (or out_dir).\n    Returns a relative URL path suitable for building a URL, e.g. '/generated/acme_offdeal.pdf'."
     },
     "backend/app/services/utils.py": {
-      "summary": "Service module with 0 dependencies"
+      "summary": "Business logic and external service integrations."
     },
     "backend/app/services/slides.py": {
-      "summary": "Service module with 1 dependencies"
+      "summary": "Ensure each slide has title + list[str] bullets, enforce limits."
     },
     "backend/static/init": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Supporting module for the application."
     },
     "offdeal-frontend/postcss.config.mjs": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/postcss.config.mjs"
     },
     "offdeal-frontend/next-env.d.ts": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/next-env.d.ts"
     },
     "offdeal-frontend/README.md": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/README.md"
     },
     "offdeal-frontend/.gitignore": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/.gitignore"
     },
     "offdeal-frontend/package-lock.json": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Supporting module for the application."
     },
     "offdeal-frontend/package.json": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Supporting module for the application."
     },
     "offdeal-frontend/tsconfig.json": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Supporting module for the application."
     },
     "offdeal-frontend/eslint.config.mjs": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/eslint.config.mjs"
     },
     "offdeal-frontend/next.config.ts": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/next.config.ts"
     },
     "offdeal-frontend/src/types.ts": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/src/types.ts"
     },
     "offdeal-frontend/src/app/layout.tsx": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/src/app/layout.tsx"
     },
     "offdeal-frontend/src/app/page.tsx": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/src/app/page.tsx"
     },
     "offdeal-frontend/src/app/globals.css": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/src/app/globals.css"
     },
     "offdeal-frontend/src/lib/api.ts": {
-      "summary": "Supporting module with 0 connections"
+      "summary": "Module at offdeal-frontend/src/lib/api.ts"
     }
   },
   "keyFiles": [
@@ -5227,9 +5384,14 @@
     "stores": [
       {
         "type": "dbModel",
-        "name": "slidepatchs",
-        "columns": [],
+        "dbModel": "SlidePatch",
+        "table": "slidepatchs",
+        "fields": [],
         "path": "backend/app/routers/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5311,17 +5473,18 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "slideaieditrequests",
-        "columns": [],
+        "dbModel": "SlideAIEditRequest",
+        "table": "slideaieditrequests",
+        "fields": [],
         "path": "backend/app/routers/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5403,17 +5566,18 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "emailaieditrequests",
-        "columns": [],
+        "dbModel": "EmailAIEditRequest",
+        "table": "emailaieditrequests",
+        "fields": [],
         "path": "backend/app/routers/email.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5435,17 +5599,84 @@
             "actor": "backend/app/models/prospect.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "prospects",
-        "columns": [],
+        "dbModel": "Prospect",
+        "table": "prospects",
+        "fields": [
+          {
+            "name": "__tablename__",
+            "type": "str",
+            "nullable": true
+          },
+          {
+            "name": "id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "company_name",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "contact_name",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "email",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "phone_number",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "industry",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "revenue_range",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "location",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "sale_motivation",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "signals",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "notes",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "Column",
+            "nullable": true
+          }
+        ],
         "path": "backend/app/models/prospect.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5477,17 +5708,54 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "decks",
-        "columns": [],
+        "dbModel": "Deck",
+        "table": "decks",
+        "fields": [
+          {
+            "name": "__tablename__",
+            "type": "str",
+            "nullable": true
+          },
+          {
+            "name": "id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "prospect_id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "title",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "slides_json",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "pdf_path",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "Column",
+            "nullable": true
+          }
+        ],
         "path": "backend/app/models/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5509,17 +5777,59 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "emails",
-        "columns": [],
+        "dbModel": "Email",
+        "table": "emails",
+        "fields": [
+          {
+            "name": "__tablename__",
+            "type": "str",
+            "nullable": true
+          },
+          {
+            "name": "id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "prospect_id",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "sequence_index",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "subject",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "body",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "Column",
+            "nullable": true
+          },
+          {
+            "name": "updated_at",
+            "type": "Column",
+            "nullable": true
+          }
+        ],
         "path": "backend/app/models/email.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5531,39 +5841,42 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "prospectcreates",
-        "columns": [],
+        "dbModel": "ProspectCreate",
+        "table": "prospectcreates",
+        "fields": [],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "prospectupdates",
-        "columns": [],
+        "dbModel": "ProspectUpdate",
+        "table": "prospectupdates",
+        "fields": [],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "slides",
-        "columns": [],
+        "dbModel": "Slide",
+        "table": "slides",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5575,17 +5888,18 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "deckouts",
-        "columns": [],
+        "dbModel": "DeckOut",
+        "table": "deckouts",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5597,17 +5911,18 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "slideins",
-        "columns": [],
+        "dbModel": "SlideIn",
+        "table": "slideins",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5619,17 +5934,18 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "deckupdates",
-        "columns": [],
+        "dbModel": "DeckUpdate",
+        "table": "deckupdates",
+        "fields": [],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        },
         "touches": [
           {
             "edge": {
@@ -5641,66 +5957,67 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ],
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        }
+        ]
       },
       {
         "type": "dbModel",
-        "name": "emailouts",
-        "columns": [],
+        "dbModel": "EmailOut",
+        "table": "emailouts",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "emailins",
-        "columns": [],
+        "dbModel": "EmailIn",
+        "table": "emailins",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "emailupdates",
-        "columns": [],
+        "dbModel": "EmailUpdate",
+        "table": "emailupdates",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "emailbatchouts",
-        "columns": [],
+        "dbModel": "EmailBatchOut",
+        "table": "emailbatchouts",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       },
       {
         "type": "dbModel",
-        "name": "prospectcontexts",
-        "columns": [],
+        "dbModel": "ProspectContext",
+        "table": "prospectcontexts",
+        "fields": [],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        }
+        },
+        "touches": []
       }
     ],
     "externals": [
@@ -5921,8 +6238,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py",
         "OpenAI",
         "OpenAI"
       ],
@@ -5958,12 +6275,12 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests",
-        "emailaieditrequests",
-        "prospects",
-        "decks",
-        "emails"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        "backend/app/models/email.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest",
@@ -6018,8 +6335,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6050,9 +6367,9 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests",
-        "emailaieditrequests"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py",
+        "backend/app/routers/email.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest",
@@ -6060,8 +6377,46 @@
       ]
     },
     "backend/app/routers/deck.py": {
+      "lane": "api",
       "role": "entrypoint",
-      "lane": "api"
+      "incoming": [],
+      "outgoing": [
+        "backend/app/database.py",
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        "backend/app/schemas/deck.py",
+        "backend/app/services/ai.py",
+        "backend/app/services/pdf.py",
+        "backend/app/services/slides.py",
+        "backend/app/config.py"
+      ],
+      "policies": [],
+      "envs": [
+        "ALLOWED_ORIGINS",
+        "APP_BASE_URL",
+        "BULLET_MAX_CHARS",
+        "DB_URL",
+        "FILE_STORAGE_DIR",
+        "MAX_BULLETS",
+        "OPENAI_API_KEY",
+        "STUB_MODE",
+        "TITLE_MAX_CHARS"
+      ],
+      "relatedData": [
+        "backend/app/models/prospect.py",
+        "backend/app/models/deck.py",
+        "backend/app/schemas/deck.py",
+        "backend/app/schemas/deck.py",
+        "backend/app/schemas/deck.py",
+        "backend/app/schemas/deck.py",
+        "OpenAI"
+      ],
+      "reqSchemas": [
+        "Slide",
+        "DeckOut",
+        "SlideIn",
+        "DeckUpdate"
+      ]
     },
     "backend/app/routers/email.py": {
       "lane": "api",
@@ -6074,7 +6429,7 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "prospects"
+        "backend/app/models/prospect.py"
       ],
       "reqSchemas": []
     },
@@ -6119,8 +6474,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6148,8 +6503,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6199,8 +6554,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6228,8 +6583,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "slidepatchs",
-        "slideaieditrequests"
+        "backend/app/routers/deck.py",
+        "backend/app/routers/deck.py"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6238,24 +6593,12 @@
   },
   "debug": {
     "data_flow_skipped": [],
-    "extract_errors": []
-  },
-  "suspectRank": [
-    {
-      "path": "backend/app/routers/deck.py",
-      "score": 12,
-      "reason": "High fan-out (8 calls); Critical service/router; Database model"
-    },
-    {
-      "path": "backend/app/services/emailgeneration.py",
-      "score": 5,
-      "reason": "Critical service/router; External service dependency"
-    },
-    {
-      "path": "backend/app/services/ai.py",
-      "score": 5,
-      "reason": "Critical service/router; External service dependency"
+    "extract_errors": [],
+    "missing": {
+      "summaries": "no docstrings or fallback summaries generated"
     }
-  ],
+  },
+  "entryPoints": [],
+  "suspectRank": [],
   "recentChanges": []
 }
