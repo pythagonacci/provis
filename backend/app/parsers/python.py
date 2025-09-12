@@ -884,6 +884,163 @@ def detect_externals(text: str, path: str) -> List[Dict[str, Any]]:
     
     return externals
 
+def build_module_index(repo_root: str) -> Dict[str, str]:
+    """Build bidirectional module ↔ path mapping."""
+    import os
+    from pathlib import Path
+    
+    module_index = {}
+    repo_path = Path(repo_root)
+    
+    # Walk through Python files and build module paths
+    for py_file in repo_path.rglob("*.py"):
+        if "node_modules" in str(py_file) or "__pycache__" in str(py_file):
+            continue
+            
+        # Convert file path to module path
+        rel_path = py_file.relative_to(repo_path)
+        module_parts = list(rel_path.parts)
+        module_parts[-1] = module_parts[-1][:-3]  # Remove .py
+        
+        # Handle __init__.py files
+        if module_parts[-1] == "__init__":
+            module_parts = module_parts[:-1]
+        
+        if module_parts:
+            module_name = ".".join(module_parts)
+            module_index[module_name] = str(rel_path)
+            module_index[str(rel_path)] = module_name
+    
+    return module_index
+
+def example_for_model(fields: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Generate example payload from model fields."""
+    SAMPLE = {
+        'str': 'example',
+        'int': 1,
+        'EmailStr': 'user@example.com',
+        'UUID': '00000000-0000-0000-0000-000000000000',
+        'bool': True,
+        'float': 3.14,
+        'datetime': '2025-01-01T12:00:00Z',
+        'list': ['item1', 'item2'],
+        'dict': {'key': 'value'}
+    }
+    
+    example = {}
+    for field in fields:
+        field_type = field.get('type', 'str').lower()
+        field_name = field.get('name', 'field')
+        
+        # Find best match in SAMPLE
+        sample_value = None
+        for sample_type, sample_val in SAMPLE.items():
+            if sample_type.lower() in field_type:
+                sample_value = sample_val
+                break
+        
+        if sample_value is None:
+            sample_value = SAMPLE.get('str', 'example')
+        
+        example[field_name] = sample_value
+    
+    return example
+
+def find_touches(item_path: str, control_flow: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Find control flow edges that touch this data item."""
+    touches = []
+    for edge in control_flow:
+        if edge.get("from") == item_path or edge.get("to") == item_path:
+            touches.append({
+                "edge": edge,
+                "via": edge.get("kind", "call"),
+                "actor": edge.get("from") if edge.get("to") == item_path else edge.get("to"),
+                "action": "reads/writes" if edge.get("to") == item_path else "provides"
+            })
+    return touches
+
+def build_module_index(repo_root: str) -> Dict[str, str]:
+    """Build bidirectional module ↔ path mapping."""
+    import os
+    from pathlib import Path
+    
+    module_index = {}
+    repo_path = Path(repo_root)
+    
+    # Walk through Python files and build module paths
+    for py_file in repo_path.rglob("*.py"):
+        if "node_modules" in str(py_file) or "__pycache__" in str(py_file):
+            continue
+            
+        # Convert file path to module path
+        rel_path = py_file.relative_to(repo_path)
+        module_parts = list(rel_path.parts)
+        module_parts[-1] = module_parts[-1][:-3]  # Remove .py
+        
+        # Handle __init__.py files
+        if module_parts[-1] == "__init__":
+            module_parts = module_parts[:-1]
+        
+        if module_parts:
+            module_name = ".".join(module_parts)
+            module_index[module_name] = str(rel_path)
+            module_index[str(rel_path)] = module_name
+    
+    return module_index
+
+def build_module_index_v2(repo_root: Path) -> tuple[Dict[str, str], Dict[str, str]]:
+    """Build bidirectional module ↔ path mapping with proper package handling."""
+    file_to_mod, mod_to_file = {}, {}
+    repo_path = Path(repo_root)
+    
+    # Walk through Python files and build module paths
+    for py_file in repo_path.rglob("*.py"):
+        if "node_modules" in str(py_file) or "__pycache__" in str(py_file):
+            continue
+            
+        # Convert file path to module path
+        rel_path = py_file.relative_to(repo_path)
+        
+        # Build package parts by walking up __init__.py parents
+        pkg_parts = []
+        p = py_file.parent
+        while (p / "__init__.py").exists() and p != repo_path:
+            pkg_parts.insert(0, p.name)
+            p = p.parent
+        
+        # Add the file name (without .py)
+        module_name = ".".join(pkg_parts + [py_file.stem])
+        
+        # Skip __init__.py files (they're represented by their package)
+        if py_file.name != "__init__.py":
+            file_to_mod[str(rel_path)] = module_name
+            mod_to_file[module_name] = str(rel_path)
+    
+    return file_to_mod, mod_to_file
+
+def resolve_any(ref: str, file_to_mod: Dict[str, str], mod_to_file: Dict[str, str]) -> str:
+    """Resolve either module name or file path to canonical file path."""
+    # If it's already a module name, convert to file path
+    if ref in mod_to_file:
+        return mod_to_file[ref]
+    
+    # If it's already a file path, return as-is
+    if ref in file_to_mod:
+        return ref
+    
+    # Handle dotted imports (e.g., "models.prospect" -> "backend/app/models/prospect.py")
+    if "." in ref and ":" not in ref:
+        return mod_to_file.get(ref, ref)
+    
+    # Handle imports with line numbers (e.g., "config.py:42")
+    if ":" in ref:
+        base_ref = ref.split(":")[0]
+        if base_ref in mod_to_file:
+            return mod_to_file[base_ref]
+        return base_ref
+    
+    return ref
+
 def extract_file_summary(text: str, path: str) -> str:
     """Extract file summary from docstrings and comments."""
     import ast
@@ -921,6 +1078,308 @@ def extract_file_summary(text: str, path: str) -> str:
             
     except Exception as e:
         return f"Module at {path}"
+
+def iter_py_files(repo_root: Path):
+    """Iterate over Python files, skipping virtualenvs and hidden directories."""
+    for p in repo_root.rglob("*.py"):
+        # skip virtualenvs, hidden, tests, and runs by common patterns
+        if any(seg.startswith((".", "__pycache__", "venv", "env")) for seg in p.parts):
+            continue
+        if "runs/" in str(p.relative_to(repo_root)):
+            continue
+        yield p
+
+def collect_pydantic_models(repo_root: Path):
+    """
+    Returns dict[name] = {
+        "path": str, "kind": "pydantic.Model",
+        "fields": [field_names]
+    }
+    """
+    import ast
+    out = {}
+    for f in iter_py_files(repo_root):
+        try:
+            tree = ast.parse(f.read_text(encoding="utf-8"), filename=str(f))
+            # detect `class X(BaseModel):` and gather annotated Assign targets
+            base_model_names = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ImportFrom) and node.module and "pydantic" in node.module:
+                    for n in node.names:
+                        if n.name == "BaseModel":
+                            base_model_names.add("BaseModel")
+            for node in tree.body:
+                if isinstance(node, ast.ClassDef) and node.bases:
+                    if any(getattr(b, "id", None) == "BaseModel" or getattr(getattr(b, "attr", None), "lower", lambda: "" )() == "basemodel" for b in node.bases):
+                        fields = []
+                        for stmt in node.body:
+                            if isinstance(stmt, ast.AnnAssign) and hasattr(stmt.target, "id"):
+                                fields.append(stmt.target.id)
+                        out[node.name] = {
+                            "path": str(f.relative_to(repo_root)),
+                            "kind": "pydantic.Model",
+                            "fields": fields
+                        }
+        except Exception:
+            continue
+    return out
+
+def collect_sqlalchemy_models(repo_root: Path):
+    """
+    Returns list of {
+      "type": "dbModel", "name": <ModelName>, "path": <file>,
+      "fields": [col_names]
+    }
+    """
+    import ast
+    results = []
+    for f in iter_py_files(repo_root):
+        try:
+            src = f.read_text(encoding="utf-8")
+            if "sqlalchemy" not in src or "Base" not in src:
+                continue
+            tree = ast.parse(src, filename=str(f))
+            for cls in [n for n in tree.body if isinstance(n, ast.ClassDef)]:
+                # Check if class inherits from Base (SQLAlchemy model)
+                is_sqlalchemy = False
+                for base in cls.bases:
+                    if isinstance(base, ast.Name) and base.id == "Base":
+                        is_sqlalchemy = True
+                        break
+                    elif isinstance(base, ast.Attribute) and base.attr == "Base":
+                        is_sqlalchemy = True
+                        break
+                
+                if is_sqlalchemy:
+                    # Extract column names with types
+                    cols = []
+                    for stmt in cls.body:
+                        if isinstance(stmt, ast.Assign):
+                            for target in stmt.targets:
+                                if isinstance(target, ast.Name):
+                                    # Check if the assignment is a Column
+                                    if isinstance(stmt.value, ast.Call):
+                                        if isinstance(stmt.value.func, ast.Name) and stmt.value.func.id == "Column":
+                                            # Extract type from Column arguments
+                                            col_type = "String"
+                                            if stmt.value.args:
+                                                if isinstance(stmt.value.args[0], ast.Name):
+                                                    col_type = stmt.value.args[0].id
+                                                elif isinstance(stmt.value.args[0], ast.Attribute):
+                                                    col_type = stmt.value.args[0].attr
+                                            cols.append({"name": target.id, "type": col_type, "nullable": True, "primary_key": False})
+                                        elif isinstance(stmt.value.func, ast.Attribute) and stmt.value.func.attr == "Column":
+                                            # Extract type from Column arguments
+                                            col_type = "String"
+                                            if stmt.value.args:
+                                                if isinstance(stmt.value.args[0], ast.Name):
+                                                    col_type = stmt.value.args[0].id
+                                                elif isinstance(stmt.value.args[0], ast.Attribute):
+                                                    col_type = stmt.value.args[0].attr
+                                            cols.append({"name": target.id, "type": col_type, "nullable": True, "primary_key": False})
+                    if cols:
+                        results.append({
+                            "type": "dbModel",
+                            "name": cls.name,
+                            "path": str(f.relative_to(repo_root)),
+                            "fields": cols
+                        })
+        except Exception:
+            continue
+    return results
+
+def find_fastapi_routes(repo_root: Path):
+    """
+    Returns list of {
+      "file": <path>,
+      "method": <get|post|put|...>,
+      "route": <string>,
+      "func": <function name>,
+      "params": [{"name": ..., "annotation": "ModelName" or None}],
+      "response_model": "ModelName" or None,
+      "decorator_lineno": int
+    }
+    """
+    import ast
+    routes = []
+    for f in iter_py_files(repo_root):
+        try:
+            src = f.read_text(encoding="utf-8")
+            if "APIRouter(" not in src and ".route(" not in src and ".get(" not in src:
+                continue
+            t = ast.parse(src, filename=str(f))
+            for node in t.body:
+                if isinstance(node, ast.FunctionDef) and node.decorator_list:
+                    for dec in node.decorator_list:
+                        # match @router.post("/path", response_model=Model)
+                        method = None
+                        route = None
+                        response_model = None
+                        if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute):
+                            if dec.func.attr in {"get","post","put","delete","patch"}:
+                                method = dec.func.attr
+                                # first arg is route
+                                if dec.args and isinstance(dec.args[0], (ast.Str, ast.Constant)):
+                                    route = getattr(dec.args[0], "s", None) or getattr(dec.args[0], "value", None)
+                                for kw in dec.keywords or []:
+                                    if kw.arg == "response_model":
+                                        # response_model can be Name or Attribute
+                                        if isinstance(kw.value, ast.Name):
+                                            response_model = kw.value.id
+                                        elif isinstance(kw.value, ast.Attribute):
+                                            response_model = kw.value.attr
+                        if method and route:
+                            params = []
+                            for a in node.args.args:
+                                ann = None
+                                if a.annotation:
+                                    if isinstance(a.annotation, ast.Name):
+                                        ann = a.annotation.id
+                                    elif isinstance(a.annotation, ast.Subscript) and isinstance(a.annotation.value, ast.Name):
+                                        ann = a.annotation.value.id
+                                    elif isinstance(a.annotation, ast.Attribute):
+                                        ann = a.annotation.attr
+                                params.append({"name": a.arg, "annotation": ann})
+                            routes.append({
+                                "file": str(f.relative_to(repo_root)),
+                                "method": method,
+                                "route": route,
+                                "func": node.name,
+                                "params": params,
+                                "response_model": response_model,
+                                "decorator_lineno": getattr(dec, "lineno", node.lineno)
+                            })
+        except Exception:
+            continue
+    return routes
+
+def link_request_models(routes, model_index):
+    """Link FastAPI routes to Pydantic request models."""
+    items = []
+    for r in routes:
+        for p in r["params"]:
+            mname = p["annotation"]
+            if not mname: 
+                continue
+            if mname in model_index:
+                m = model_index[mname]
+                items.append({
+                    "type": "requestSchema",
+                    "name": mname,
+                    "path": m["path"],
+                    "fields": m["fields"],
+                    "referencedAt": f'{r["file"]}:{r["decorator_lineno"]}',
+                    "route": r["route"]
+                })
+    # de-dupe by (name, path, route)
+    seen = set()
+    uniq = []
+    for it in items:
+        key = (it["name"], it["path"], it["route"])
+        if key in seen: 
+            continue
+        seen.add(key)
+        uniq.append(it)
+    return uniq
+
+def detect_response_models(routes, model_index):
+    """Detect FastAPI response models."""
+    out = []
+    for r in routes:
+        rm = r.get("response_model")
+        if rm and rm in model_index:
+            m = model_index[rm]
+            out.append({
+                "type": "responseSchema",
+                "name": rm,
+                "path": m["path"],
+                "fields": m["fields"],
+                "route": r["route"]
+            })
+    return out
+
+def detect_artifact_outputs(repo_root: Path):
+    """Detect artifact outputs (PDFs, slides, emails)."""
+    items = []
+    for f in iter_py_files(repo_root):
+        try:
+            p = f.as_posix().lower()
+            src = f.read_text(encoding="utf-8", errors="ignore").lower()
+            if "pdf" in p or "services/pdf" in p or "render" in src and "pdf" in src:
+                items.append({"type":"artifact","name":"pdf","path": str(f.relative_to(repo_root)), "usedFor":"Generated deck PDF"})
+            if "slides" in p or "pptx" in src:
+                items.append({"type":"artifact","name":"slides","path": str(f.relative_to(repo_root)), "usedFor":"Generated slides"})
+            if "email" in p or "sendgrid" in src or "smtplib" in src:
+                items.append({"type":"email","name":"transactional_email","path": str(f.relative_to(repo_root)), "usedFor":"Sends confirmation email"})
+        except Exception:
+            continue
+    # de-dupe by (type,name,path)
+    seen, uniq = set(), []
+    for it in items:
+        key = (it["type"], it["name"], it["path"])
+        if key in seen: 
+            continue
+        seen.add(key)
+        uniq.append(it)
+    return uniq
+
+def extract_cors_policies(text: str, path: str) -> List[Dict[str, Any]]:
+    """Extract CORS middleware configuration."""
+    policies = []
+    try:
+        if 'CORSMiddleware' in text or 'cors' in text.lower():
+            # Extract CORS configuration
+            origins = []
+            methods = []
+            
+            # Look for allowed_origins
+            origins_match = re.search(r'allowed_origins\s*=\s*\[([^\]]+)\]', text)
+            if origins_match:
+                origins = [o.strip().strip('"\'') for o in origins_match.group(1).split(',')]
+            
+            # Look for allowed_methods
+            methods_match = re.search(r'allowed_methods\s*=\s*\[([^\]]+)\]', text)
+            if methods_match:
+                methods = [m.strip().strip('"\'') for m in methods_match.group(1).split(',')]
+            
+            policies.append({
+                "type": "middleware",
+                "name": "CORSMiddleware",
+                "appliedAt": path,
+                "config": {
+                    "allowed_origins": origins,
+                    "allowed_methods": methods
+                }
+            })
+    except Exception as e:
+        print(f"Error extracting CORS policies from {path}: {e}")
+    
+    return policies
+
+def extract_dependencies(text: str, path: str) -> List[Dict[str, Any]]:
+    """Extract FastAPI dependencies (Depends)."""
+    dependencies = []
+    try:
+        tree = ast.parse(text)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id == 'Depends':
+                    if node.args:
+                        dep_name = "Unknown"
+                        if isinstance(node.args[0], ast.Name):
+                            dep_name = node.args[0].id
+                        elif isinstance(node.args[0], ast.Attribute):
+                            dep_name = f"{node.args[0].value.id}.{node.args[0].attr}"
+                        
+                        dependencies.append({
+                            "type": "dependency",
+                            "name": dep_name,
+                            "appliedAt": path
+                        })
+    except Exception as e:
+        print(f"Error extracting dependencies from {path}: {e}")
+    
+    return dependencies
 
 def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
     """Extract Pydantic models from Python code."""

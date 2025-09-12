@@ -1265,9 +1265,9 @@
         "path": "",
         "handler": "create_prospect",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1276,9 +1276,9 @@
         "path": "",
         "handler": "list_prospects",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1287,9 +1287,9 @@
         "path": "/{prospect_id}",
         "handler": "get_prospect",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1298,9 +1298,9 @@
         "path": "/{prospect_id}",
         "handler": "update_prospect",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1314,6 +1314,10 @@
           }
         ],
         "path": "backend/app/routers/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        },
         "touches": [
           {
             "edge": {
@@ -1395,11 +1399,7 @@
             "actor": "backend/app/config.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "prompt": "sample_value"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -1408,9 +1408,9 @@
         "path": "/{prospect_id}/generate",
         "handler": "generate_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1419,9 +1419,9 @@
         "path": "/{deck_id}",
         "handler": "get_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1430,9 +1430,9 @@
         "path": "/{deck_id}",
         "handler": "update_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1441,9 +1441,9 @@
         "path": "/{deck_id}/render",
         "handler": "render_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1452,9 +1452,9 @@
         "path": "/{deck_id}/slides/{index}",
         "handler": "get_slide",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1463,9 +1463,9 @@
         "path": "/{deck_id}/slides/{index}",
         "handler": "patch_slide",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1474,9 +1474,9 @@
         "path": "/{deck_id}/slides/{index}/ai-edit",
         "handler": "ai_edit_slide",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1485,9 +1485,9 @@
         "path": "/debug/ai-edit-test",
         "handler": "debug_ai_edit_test",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1501,6 +1501,10 @@
           }
         ],
         "path": "backend/app/routers/email.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        },
         "touches": [
           {
             "edge": {
@@ -1522,11 +1526,7 @@
             "actor": "backend/app/models/prospect.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "prompt": "sample_value"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -1535,9 +1535,9 @@
         "path": "/{prospect_id}/generate",
         "handler": "generate_email_sequence",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1546,9 +1546,9 @@
         "path": "/{prospect_id}",
         "handler": "list_emails_for_prospect",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1557,9 +1557,9 @@
         "path": "/item/{email_id}",
         "handler": "get_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1568,9 +1568,9 @@
         "path": "/item/{email_id}",
         "handler": "update_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1579,9 +1579,9 @@
         "path": "/item/{email_id}",
         "handler": "delete_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1590,9 +1590,9 @@
         "path": "/item/{email_id}/ai-edit",
         "handler": "ai_edit_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1660,11 +1660,11 @@
           }
         ],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "company_name": "John Doe"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1732,9 +1732,9 @@
           }
         ],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1754,6 +1754,11 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        },
         "touches": [
           {
             "edge": {
@@ -1765,12 +1770,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -1808,6 +1808,13 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "id": 42,
+          "prospect_id": 42,
+          "title": "sample_value",
+          "slides": "example"
+        },
         "touches": [
           {
             "edge": {
@@ -1819,14 +1826,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "id": 42,
-          "prospect_id": 42,
-          "title": "sample_value",
-          "slides": "example"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -1846,6 +1846,11 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        },
         "touches": [
           {
             "edge": {
@@ -1857,12 +1862,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -1882,6 +1882,10 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "slides": "example"
+        },
         "touches": [
           {
             "edge": {
@@ -1893,11 +1897,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "slides": "example"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -1935,7 +1935,6 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "id": 42,
@@ -1943,7 +1942,8 @@
           "sequence_index": 42,
           "subject": "sample_value",
           "body": "sample_value"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1963,12 +1963,12 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "subject": "sample_value",
           "body": "sample_value"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -1988,9 +1988,9 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -2004,11 +2004,11 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "items": "Field(default_factory=list)"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -2058,15 +2058,15 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       }
     ],
     "stores": [
       {
         "type": "dbModel",
-        "dbModel": "SlidePatch",
+        "name": "SlidePatch",
         "table": "slidepatchs",
         "fields": [],
         "path": "backend/app/routers/deck.py",
@@ -2159,7 +2159,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "SlideAIEditRequest",
+        "name": "SlideAIEditRequest",
         "table": "slideaieditrequests",
         "fields": [],
         "path": "backend/app/routers/deck.py",
@@ -2252,7 +2252,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailAIEditRequest",
+        "name": "EmailAIEditRequest",
         "table": "emailaieditrequests",
         "fields": [],
         "path": "backend/app/routers/email.py",
@@ -2285,7 +2285,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Prospect",
+        "name": "Prospect",
         "table": "prospects",
         "fields": [
           {
@@ -2394,7 +2394,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Deck",
+        "name": "Deck",
         "table": "decks",
         "fields": [
           {
@@ -2463,7 +2463,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Email",
+        "name": "Email",
         "table": "emails",
         "fields": [
           {
@@ -2527,7 +2527,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectCreate",
+        "name": "ProspectCreate",
         "table": "prospectcreates",
         "fields": [],
         "path": "backend/app/schemas/prospect.py",
@@ -2539,7 +2539,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectUpdate",
+        "name": "ProspectUpdate",
         "table": "prospectupdates",
         "fields": [],
         "path": "backend/app/schemas/prospect.py",
@@ -2551,7 +2551,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Slide",
+        "name": "Slide",
         "table": "slides",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -2574,7 +2574,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "DeckOut",
+        "name": "DeckOut",
         "table": "deckouts",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -2597,7 +2597,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "SlideIn",
+        "name": "SlideIn",
         "table": "slideins",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -2620,7 +2620,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "DeckUpdate",
+        "name": "DeckUpdate",
         "table": "deckupdates",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -2643,7 +2643,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailOut",
+        "name": "EmailOut",
         "table": "emailouts",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -2655,7 +2655,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailIn",
+        "name": "EmailIn",
         "table": "emailins",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -2667,7 +2667,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailUpdate",
+        "name": "EmailUpdate",
         "table": "emailupdates",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -2679,7 +2679,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailBatchOut",
+        "name": "EmailBatchOut",
         "table": "emailbatchouts",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -2691,7 +2691,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectContext",
+        "name": "ProspectContext",
         "table": "prospectcontexts",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -2709,6 +2709,8 @@
         "client": "backend/app/services/emailgeneration.py",
         "base_url": null,
         "path": "backend/app/services/emailgeneration.py",
+        "usedFor": "External service/client calls.",
+        "example": {},
         "touches": [
           {
             "edge": {
@@ -2720,9 +2722,7 @@
             "actor": "backend/app/config.py",
             "action": "calls"
           }
-        ],
-        "usedFor": "External service/client calls.",
-        "example": {}
+        ]
       },
       {
         "type": "api",
@@ -2730,6 +2730,8 @@
         "client": "backend/app/services/ai.py",
         "base_url": null,
         "path": "backend/app/services/ai.py",
+        "usedFor": "External service/client calls.",
+        "example": {},
         "touches": [
           {
             "edge": {
@@ -2751,9 +2753,7 @@
             "actor": "backend/app/config.py",
             "action": "calls"
           }
-        ],
-        "usedFor": "External service/client calls.",
-        "example": {}
+        ]
       }
     ],
     "outputs": [
@@ -2767,7 +2767,19 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2779,7 +2791,19 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2791,7 +2815,19 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2803,7 +2839,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2815,7 +2933,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2827,7 +3027,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2839,7 +3121,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2851,7 +3215,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2863,7 +3249,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2875,7 +3283,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2887,7 +3317,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -2899,7 +3351,51 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
+      },
+      {
+        "type": "artifact",
+        "name": "Deck PDF",
+        "producedBy": "backend/app/services/pdf.py",
+        "pathTemplate": "backend/output/decks/{deck_id}.pdf",
+        "usedFor": "Rendered deck PDF file"
+      },
+      {
+        "type": "artifact",
+        "name": "Deck Slides",
+        "producedBy": "backend/app/services/slides.py",
+        "pathTemplate": "backend/output/decks/{deck_id}.pptx",
+        "usedFor": "Rendered deck slide deck"
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailBatchOut",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Generated multi-step email sequence"
       }
     ]
   },
@@ -3650,6 +4146,66 @@
     "typing"
   ],
   "steps": [
+    {
+      "title": "Initialize Application",
+      "description": "Start the FastAPI application by running the main.py file.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Send Request to Create Deck",
+      "description": "Send a POST request to the /deck endpoint with the required data to create a new deck.",
+      "fileId": "backend/app/models/prospect.py"
+    },
+    {
+      "title": "Retrieve Deck Information",
+      "description": "Send a GET request to the /deck/{deck_id} endpoint to retrieve the created deck's information.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Update Deck Information",
+      "description": "Send a PUT request to the /deck/{deck_id} endpoint with updated data for the deck.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Generate PDF for Deck",
+      "description": "Send a POST request to the /deck/{deck_id}/generate-pdf endpoint to generate a PDF for the deck.",
+      "fileId": "backend/app/services/ai.py"
+    },
+    {
+      "title": "Delete Deck",
+      "description": "Send a DELETE request to the /deck/{deck_id} endpoint to delete the deck.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Initialize Application",
+      "description": "Start the FastAPI application by running the main.py file.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Send Request to Create Deck",
+      "description": "Send a POST request to the /deck endpoint with the required data to create a new deck.",
+      "fileId": "backend/app/models/prospect.py"
+    },
+    {
+      "title": "Retrieve Deck Information",
+      "description": "Send a GET request to the /deck/{deck_id} endpoint to retrieve the created deck's information.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Update Deck Information",
+      "description": "Send a PUT request to the /deck/{deck_id} endpoint with updated data for the deck.",
+      "fileId": "backend/app/routers/deck.py"
+    },
+    {
+      "title": "Generate PDF for Deck",
+      "description": "Send a POST request to the /deck/{deck_id}/generate-pdf endpoint to generate a PDF for the deck.",
+      "fileId": "backend/app/services/ai.py"
+    },
+    {
+      "title": "Delete Deck",
+      "description": "Send a DELETE request to the /deck/{deck_id} endpoint to delete the deck.",
+      "fileId": "backend/app/routers/deck.py"
+    },
     {
       "title": "Initialize Application",
       "description": "Start the FastAPI application by running the main.py file.",
@@ -4578,9 +5134,9 @@
         "path": "",
         "handler": "create_prospect",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4589,9 +5145,9 @@
         "path": "",
         "handler": "list_prospects",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4600,9 +5156,9 @@
         "path": "/{prospect_id}",
         "handler": "get_prospect",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4611,9 +5167,9 @@
         "path": "/{prospect_id}",
         "handler": "update_prospect",
         "file_path": "backend/app/routers/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4627,6 +5183,10 @@
           }
         ],
         "path": "backend/app/routers/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        },
         "touches": [
           {
             "edge": {
@@ -4708,11 +5268,7 @@
             "actor": "backend/app/config.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "prompt": "sample_value"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -4721,9 +5277,9 @@
         "path": "/{prospect_id}/generate",
         "handler": "generate_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4732,9 +5288,9 @@
         "path": "/{deck_id}",
         "handler": "get_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4743,9 +5299,9 @@
         "path": "/{deck_id}",
         "handler": "update_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4754,9 +5310,9 @@
         "path": "/{deck_id}/render",
         "handler": "render_deck",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4765,9 +5321,9 @@
         "path": "/{deck_id}/slides/{index}",
         "handler": "get_slide",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4776,9 +5332,9 @@
         "path": "/{deck_id}/slides/{index}",
         "handler": "patch_slide",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4787,9 +5343,9 @@
         "path": "/{deck_id}/slides/{index}/ai-edit",
         "handler": "ai_edit_slide",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4798,9 +5354,9 @@
         "path": "/debug/ai-edit-test",
         "handler": "debug_ai_edit_test",
         "file_path": "backend/app/routers/deck.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4814,6 +5370,10 @@
           }
         ],
         "path": "backend/app/routers/email.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "prompt": "sample_value"
+        },
         "touches": [
           {
             "edge": {
@@ -4835,11 +5395,7 @@
             "actor": "backend/app/models/prospect.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "prompt": "sample_value"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -4848,9 +5404,9 @@
         "path": "/{prospect_id}/generate",
         "handler": "generate_email_sequence",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4859,9 +5415,9 @@
         "path": "/{prospect_id}",
         "handler": "list_emails_for_prospect",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4870,9 +5426,9 @@
         "path": "/item/{email_id}",
         "handler": "get_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4881,9 +5437,9 @@
         "path": "/item/{email_id}",
         "handler": "update_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4892,9 +5448,9 @@
         "path": "/item/{email_id}",
         "handler": "delete_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4903,9 +5459,9 @@
         "path": "/item/{email_id}/ai-edit",
         "handler": "ai_edit_email",
         "file_path": "backend/app/routers/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -4973,11 +5529,11 @@
           }
         ],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "company_name": "John Doe"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -5045,9 +5601,9 @@
           }
         ],
         "path": "backend/app/schemas/prospect.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -5067,6 +5623,11 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        },
         "touches": [
           {
             "edge": {
@@ -5078,12 +5639,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -5121,6 +5677,13 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "id": 42,
+          "prospect_id": 42,
+          "title": "sample_value",
+          "slides": "example"
+        },
         "touches": [
           {
             "edge": {
@@ -5132,14 +5695,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "id": 42,
-          "prospect_id": 42,
-          "title": "sample_value",
-          "slides": "example"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -5159,6 +5715,11 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "title": "sample_value",
+          "bullets": "Field(default_factory=list)"
+        },
         "touches": [
           {
             "edge": {
@@ -5170,12 +5731,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -5195,6 +5751,10 @@
           }
         ],
         "path": "backend/app/schemas/deck.py",
+        "usedFor": "Validates incoming request bodies.",
+        "example": {
+          "slides": "example"
+        },
         "touches": [
           {
             "edge": {
@@ -5206,11 +5766,7 @@
             "actor": "backend/app/routers/deck.py",
             "action": "validates"
           }
-        ],
-        "usedFor": "Validates incoming request bodies.",
-        "example": {
-          "slides": "example"
-        }
+        ]
       },
       {
         "type": "requestSchema",
@@ -5248,7 +5804,6 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "id": 42,
@@ -5256,7 +5811,8 @@
           "sequence_index": 42,
           "subject": "sample_value",
           "body": "sample_value"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -5276,12 +5832,12 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "subject": "sample_value",
           "body": "sample_value"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -5301,9 +5857,9 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -5317,11 +5873,11 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
           "items": "Field(default_factory=list)"
-        }
+        },
+        "touches": []
       },
       {
         "type": "requestSchema",
@@ -5371,15 +5927,15 @@
           }
         ],
         "path": "backend/app/schemas/email.py",
-        "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {},
+        "touches": []
       }
     ],
     "stores": [
       {
         "type": "dbModel",
-        "dbModel": "SlidePatch",
+        "name": "SlidePatch",
         "table": "slidepatchs",
         "fields": [],
         "path": "backend/app/routers/deck.py",
@@ -5472,7 +6028,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "SlideAIEditRequest",
+        "name": "SlideAIEditRequest",
         "table": "slideaieditrequests",
         "fields": [],
         "path": "backend/app/routers/deck.py",
@@ -5565,7 +6121,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailAIEditRequest",
+        "name": "EmailAIEditRequest",
         "table": "emailaieditrequests",
         "fields": [],
         "path": "backend/app/routers/email.py",
@@ -5598,7 +6154,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Prospect",
+        "name": "Prospect",
         "table": "prospects",
         "fields": [
           {
@@ -5707,7 +6263,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Deck",
+        "name": "Deck",
         "table": "decks",
         "fields": [
           {
@@ -5776,7 +6332,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Email",
+        "name": "Email",
         "table": "emails",
         "fields": [
           {
@@ -5840,7 +6396,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectCreate",
+        "name": "ProspectCreate",
         "table": "prospectcreates",
         "fields": [],
         "path": "backend/app/schemas/prospect.py",
@@ -5852,7 +6408,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectUpdate",
+        "name": "ProspectUpdate",
         "table": "prospectupdates",
         "fields": [],
         "path": "backend/app/schemas/prospect.py",
@@ -5864,7 +6420,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "Slide",
+        "name": "Slide",
         "table": "slides",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -5887,7 +6443,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "DeckOut",
+        "name": "DeckOut",
         "table": "deckouts",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -5910,7 +6466,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "SlideIn",
+        "name": "SlideIn",
         "table": "slideins",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -5933,7 +6489,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "DeckUpdate",
+        "name": "DeckUpdate",
         "table": "deckupdates",
         "fields": [],
         "path": "backend/app/schemas/deck.py",
@@ -5956,7 +6512,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailOut",
+        "name": "EmailOut",
         "table": "emailouts",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -5968,7 +6524,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailIn",
+        "name": "EmailIn",
         "table": "emailins",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -5980,7 +6536,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailUpdate",
+        "name": "EmailUpdate",
         "table": "emailupdates",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -5992,7 +6548,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailBatchOut",
+        "name": "EmailBatchOut",
         "table": "emailbatchouts",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -6004,7 +6560,7 @@
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectContext",
+        "name": "ProspectContext",
         "table": "prospectcontexts",
         "fields": [],
         "path": "backend/app/schemas/email.py",
@@ -6022,6 +6578,8 @@
         "client": "backend/app/services/emailgeneration.py",
         "base_url": null,
         "path": "backend/app/services/emailgeneration.py",
+        "usedFor": "External service/client calls.",
+        "example": {},
         "touches": [
           {
             "edge": {
@@ -6033,9 +6591,7 @@
             "actor": "backend/app/config.py",
             "action": "calls"
           }
-        ],
-        "usedFor": "External service/client calls.",
-        "example": {}
+        ]
       },
       {
         "type": "api",
@@ -6043,6 +6599,8 @@
         "client": "backend/app/services/ai.py",
         "base_url": null,
         "path": "backend/app/services/ai.py",
+        "usedFor": "External service/client calls.",
+        "example": {},
         "touches": [
           {
             "edge": {
@@ -6064,9 +6622,7 @@
             "actor": "backend/app/config.py",
             "action": "calls"
           }
-        ],
-        "usedFor": "External service/client calls.",
-        "example": {}
+        ]
       }
     ],
     "outputs": [
@@ -6080,7 +6636,19 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6092,7 +6660,19 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6104,7 +6684,19 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/prospect.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6116,7 +6708,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6128,7 +6802,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6140,7 +6896,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6152,7 +6990,89 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/models/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/schemas/deck.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/schemas/deck.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/ai.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/ai.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/pdf.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/pdf.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/services/slides.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/services/slides.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/deck.py",
+              "to": "backend/app/config.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/config.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6164,7 +7084,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6176,7 +7118,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6188,7 +7152,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6200,7 +7186,29 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
       },
       {
         "type": "responseSchema",
@@ -6212,7 +7220,51 @@
         "usedFor": "Defines response structure.",
         "example": {
           "example": true
-        }
+        },
+        "touches": [
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/database.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/database.py",
+            "action": "provides"
+          },
+          {
+            "edge": {
+              "from": "backend/app/routers/email.py",
+              "to": "backend/app/models/prospect.py",
+              "kind": "call"
+            },
+            "via": "call",
+            "actor": "backend/app/models/prospect.py",
+            "action": "provides"
+          }
+        ]
+      },
+      {
+        "type": "artifact",
+        "name": "Deck PDF",
+        "producedBy": "backend/app/services/pdf.py",
+        "pathTemplate": "backend/output/decks/{deck_id}.pdf",
+        "usedFor": "Rendered deck PDF file"
+      },
+      {
+        "type": "artifact",
+        "name": "Deck Slides",
+        "producedBy": "backend/app/services/slides.py",
+        "pathTemplate": "backend/output/decks/{deck_id}.pptx",
+        "usedFor": "Rendered deck slide deck"
+      },
+      {
+        "type": "responseSchema",
+        "name": "EmailBatchOut",
+        "method": "POST",
+        "path": "/{prospect_id}/generate",
+        "file_path": "backend/app/routers/email.py",
+        "usedFor": "Generated multi-step email sequence"
       }
     ]
   },
@@ -6233,10 +7285,9 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py",
         "OpenAI",
-        "OpenAI"
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6270,12 +7321,12 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py",
-        "backend/app/models/prospect.py",
-        "backend/app/models/deck.py",
-        "backend/app/models/email.py"
+        "Deck",
+        "Email",
+        "EmailAIEditRequest",
+        "Prospect",
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest",
@@ -6330,8 +7381,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6362,9 +7413,9 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py"
+        "EmailAIEditRequest",
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest",
@@ -6372,46 +7423,8 @@
       ]
     },
     "backend/app/routers/deck.py": {
-      "lane": "api",
       "role": "entrypoint",
-      "incoming": [],
-      "outgoing": [
-        "backend/app/database.py",
-        "backend/app/models/prospect.py",
-        "backend/app/models/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/services/ai.py",
-        "backend/app/services/pdf.py",
-        "backend/app/services/slides.py",
-        "backend/app/config.py"
-      ],
-      "policies": [],
-      "envs": [
-        "ALLOWED_ORIGINS",
-        "APP_BASE_URL",
-        "BULLET_MAX_CHARS",
-        "DB_URL",
-        "FILE_STORAGE_DIR",
-        "MAX_BULLETS",
-        "OPENAI_API_KEY",
-        "STUB_MODE",
-        "TITLE_MAX_CHARS"
-      ],
-      "relatedData": [
-        "backend/app/models/prospect.py",
-        "backend/app/models/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/schemas/deck.py",
-        "OpenAI"
-      ],
-      "reqSchemas": [
-        "Slide",
-        "DeckOut",
-        "SlideIn",
-        "DeckUpdate"
-      ]
+      "lane": "api"
     },
     "backend/app/routers/email.py": {
       "lane": "api",
@@ -6424,7 +7437,7 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/models/prospect.py"
+        "Prospect"
       ],
       "reqSchemas": []
     },
@@ -6469,8 +7482,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6498,8 +7511,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6549,8 +7562,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6578,8 +7591,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "SlideAIEditRequest",
+        "SlidePatch"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6594,6 +7607,5 @@
     }
   },
   "entryPoints": [],
-  "suspectRank": [],
   "recentChanges": []
 }

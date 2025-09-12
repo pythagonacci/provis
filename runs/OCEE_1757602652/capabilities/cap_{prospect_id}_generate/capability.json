@@ -24,7 +24,7 @@
       },
       {
         "path": "backend/app/database.py"
-      },
+      }
       {
         "path": "backend/app/main.py"
       },
@@ -452,6 +452,10 @@
       "route": "/{prospect_id}/generate"
     }
   ],
+  "entryPoints": [
+    "backend/app/routers/deck.py",
+    "backend/app/routers/email.py"
+  ],
   "swimlanes": {
     "web": [],
     "api": [
@@ -676,8 +680,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "ALLOWED_ORIGINS",
-          "value": "example_value"
+          "key": "ALLOWED_ORIGINS"
         }
       },
       {
@@ -758,8 +761,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "APP_BASE_URL",
-          "value": "example_value"
+          "key": "APP_BASE_URL"
         }
       },
       {
@@ -840,8 +842,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "BULLET_MAX_CHARS",
-          "value": "example_value"
+          "key": "BULLET_MAX_CHARS"
         }
       },
       {
@@ -922,8 +923,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "DB_URL",
-          "value": "example_value"
+          "key": "DB_URL"
         }
       },
       {
@@ -1004,8 +1004,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "FILE_STORAGE_DIR",
-          "value": "example_value"
+          "key": "FILE_STORAGE_DIR"
         }
       },
       {
@@ -1086,8 +1085,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "MAX_BULLETS",
-          "value": "example_value"
+          "key": "MAX_BULLETS"
         }
       },
       {
@@ -1168,8 +1166,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "OPENAI_API_KEY",
-          "value": "***REDACTED***"
+          "key": "OPENAI_API_KEY"
         }
       },
       {
@@ -1250,8 +1247,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "STUB_MODE",
-          "value": "example_value"
+          "key": "STUB_MODE"
         }
       },
       {
@@ -1332,8 +1328,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "TITLE_MAX_CHARS",
-          "value": "example_value"
+          "key": "TITLE_MAX_CHARS"
         }
       },
       {
@@ -1345,7 +1340,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1356,7 +1353,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1367,7 +1366,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1378,7 +1379,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1476,7 +1479,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "prompt": "sample_value"
+          "example": true
         }
       },
       {
@@ -1488,7 +1491,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1499,7 +1504,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1510,7 +1517,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1521,7 +1530,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1532,7 +1543,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1543,7 +1556,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1554,7 +1569,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1565,7 +1582,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1633,7 +1652,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "prompt": "sample_value"
+          "example": true
         }
       },
       {
@@ -1645,7 +1664,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1656,7 +1677,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1667,7 +1690,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1678,7 +1703,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1689,7 +1716,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1700,7 +1729,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1771,7 +1802,7 @@
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "company_name": "John Doe"
+          "example": true
         }
       },
       {
@@ -1842,7 +1873,9 @@
         "path": "backend/app/schemas/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -1858,7 +1891,7 @@
             "name": "bullets",
             "type": "Any",
             "required": true,
-            "default": "Field(default_factory=list)"
+            "default": "<ast.Call object at 0x1056f8fd0>"
           }
         ],
         "path": "backend/app/schemas/deck.py",
@@ -1876,8 +1909,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
+          "example": true
         }
       },
       {
@@ -1930,10 +1962,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "id": 42,
-          "prospect_id": 42,
-          "title": "sample_value",
-          "slides": "example"
+          "example": true
         }
       },
       {
@@ -1950,7 +1979,7 @@
             "name": "bullets",
             "type": "Any",
             "required": true,
-            "default": "Field(default_factory=list)"
+            "default": "<ast.Call object at 0x1056fa710>"
           }
         ],
         "path": "backend/app/schemas/deck.py",
@@ -1968,8 +1997,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
+          "example": true
         }
       },
       {
@@ -2004,7 +2032,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "slides": "example"
+          "example": true
         }
       },
       {
@@ -2057,11 +2085,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "id": 42,
-          "prospect_id": 42,
-          "sequence_index": 42,
-          "subject": "sample_value",
-          "body": "sample_value"
+          "example": true
         }
       },
       {
@@ -2096,8 +2120,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "subject": "sample_value",
-          "body": "sample_value"
+          "example": true
         }
       },
       {
@@ -2131,7 +2154,9 @@
           }
         ],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -2141,7 +2166,7 @@
             "name": "items",
             "type": "Any",
             "required": true,
-            "default": "Field(default_factory=list)"
+            "default": "<ast.Call object at 0x1056f88e0>"
           }
         ],
         "path": "backend/app/schemas/email.py",
@@ -2159,7 +2184,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "items": "Field(default_factory=list)"
+          "example": true
         }
       },
       {
@@ -2223,20 +2248,17 @@
           }
         ],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       }
     ],
     "stores": [
       {
         "type": "dbModel",
-        "dbModel": "SlidePatch",
-        "table": "slidepatchs",
-        "fields": [],
+        "name": "slidepatchs",
+        "columns": [],
         "path": "backend/app/routers/deck.py",
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        },
         "touches": [
           {
             "edge": {
@@ -2318,18 +2340,17 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "SlideAIEditRequest",
-        "table": "slideaieditrequests",
-        "fields": [],
-        "path": "backend/app/routers/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideaieditrequests",
+        "columns": [],
+        "path": "backend/app/routers/deck.py",
         "touches": [
           {
             "edge": {
@@ -2411,18 +2432,17 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ]
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailAIEditRequest",
-        "table": "emailaieditrequests",
-        "fields": [],
+        "name": "emailaieditrequests",
+        "columns": [],
         "path": "backend/app/routers/email.py",
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        },
         "touches": [
           {
             "edge": {
@@ -2474,84 +2494,17 @@
             "actor": "backend/app/services/emailgeneration.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "Prospect",
-        "table": "prospects",
-        "fields": [
-          {
-            "name": "__tablename__",
-            "type": "str",
-            "nullable": true
-          },
-          {
-            "name": "id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "company_name",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "contact_name",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "email",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "phone_number",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "industry",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "revenue_range",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "location",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "sale_motivation",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "signals",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "notes",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "created_at",
-            "type": "Column",
-            "nullable": true
-          }
         ],
-        "path": "backend/app/models/prospect.py",
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospects",
+        "columns": [],
+        "path": "backend/app/models/prospect.py",
         "touches": [
           {
             "edge": {
@@ -2583,54 +2536,17 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "Deck",
-        "table": "decks",
-        "fields": [
-          {
-            "name": "__tablename__",
-            "type": "str",
-            "nullable": true
-          },
-          {
-            "name": "id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "prospect_id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "title",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "slides_json",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "pdf_path",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "created_at",
-            "type": "Column",
-            "nullable": true
-          }
         ],
-        "path": "backend/app/models/deck.py",
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "decks",
+        "columns": [],
+        "path": "backend/app/models/deck.py",
         "touches": [
           {
             "edge": {
@@ -2652,59 +2568,17 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "Email",
-        "table": "emails",
-        "fields": [
-          {
-            "name": "__tablename__",
-            "type": "str",
-            "nullable": true
-          },
-          {
-            "name": "id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "prospect_id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "sequence_index",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "subject",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "body",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "created_at",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "updated_at",
-            "type": "Column",
-            "nullable": true
-          }
         ],
-        "path": "backend/app/models/email.py",
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emails",
+        "columns": [],
+        "path": "backend/app/models/email.py",
         "touches": [
           {
             "edge": {
@@ -2726,42 +2600,39 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ]
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectCreate",
-        "table": "prospectcreates",
-        "fields": [],
+        "name": "prospectcreates",
+        "columns": [],
         "path": "backend/app/schemas/prospect.py",
+        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
-        "touches": []
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectUpdate",
-        "table": "prospectupdates",
-        "fields": [],
+        "name": "prospectupdates",
+        "columns": [],
         "path": "backend/app/schemas/prospect.py",
+        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
-        "touches": []
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "Slide",
-        "table": "slides",
-        "fields": [],
+        "name": "slides",
+        "columns": [],
         "path": "backend/app/schemas/deck.py",
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        },
         "touches": [
           {
             "edge": {
@@ -2773,18 +2644,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "DeckOut",
-        "table": "deckouts",
-        "fields": [],
-        "path": "backend/app/schemas/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckouts",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
         "touches": [
           {
             "edge": {
@@ -2796,18 +2666,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "SlideIn",
-        "table": "slideins",
-        "fields": [],
-        "path": "backend/app/schemas/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideins",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
         "touches": [
           {
             "edge": {
@@ -2819,18 +2688,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "DeckUpdate",
-        "table": "deckupdates",
-        "fields": [],
-        "path": "backend/app/schemas/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckupdates",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
         "touches": [
           {
             "edge": {
@@ -2842,18 +2710,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailOut",
-        "table": "emailouts",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -2865,18 +2732,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailIn",
-        "table": "emailins",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailins",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -2888,18 +2754,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailUpdate",
-        "table": "emailupdates",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailupdates",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -2911,18 +2776,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailBatchOut",
-        "table": "emailbatchouts",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailbatchouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -2934,18 +2798,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "ProspectContext",
-        "table": "prospectcontexts",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectcontexts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -2957,7 +2820,11 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
       }
     ],
     "externals": [
@@ -3205,708 +3072,144 @@
   ],
   "contracts": [
     {
-      "kind": "request",
-      "name": "Session",
-      "path": "",
-      "fields": []
+      "path": "schemas.deck",
+      "why": "Defines the schema for deck data, ensuring data structure consistency."
     },
     {
-      "kind": "request",
-      "name": "Session",
-      "path": "/{prospect_id}",
-      "fields": []
+      "path": "schemas.email",
+      "why": "Defines the schema for email data, ensuring data structure consistency."
     },
     {
-      "kind": "request",
-      "name": "SlideAIEditRequest",
-      "path": "backend/app/routers/deck.py",
-      "fields": [
-        {
-          "name": "prompt",
-          "type": "str",
-          "required": true,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/{prospect_id}/generate",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/{deck_id}",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/{deck_id}/render",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/{deck_id}/slides/{index}",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/{deck_id}/slides/{index}/ai-edit",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/debug/ai-edit-test",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "EmailAIEditRequest",
-      "path": "backend/app/routers/email.py",
-      "fields": [
-        {
-          "name": "prompt",
-          "type": "str",
-          "required": true,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/item/{email_id}",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "Session",
-      "path": "/item/{email_id}/ai-edit",
-      "fields": []
-    },
-    {
-      "kind": "request",
-      "name": "ProspectCreate",
-      "path": "backend/app/schemas/prospect.py",
-      "fields": [
-        {
-          "name": "company_name",
-          "type": "str",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "contact_name",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "email",
-          "type": "EmailStr",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "phone_number",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "industry",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "revenue_range",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "location",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "sale_motivation",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "signals",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "notes",
-          "type": "str",
-          "required": false,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "ProspectUpdate",
-      "path": "backend/app/schemas/prospect.py",
-      "fields": [
-        {
-          "name": "company_name",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "contact_name",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "email",
-          "type": "EmailStr",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "phone_number",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "industry",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "revenue_range",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "location",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "sale_motivation",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "signals",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "notes",
-          "type": "str",
-          "required": false,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "Slide",
-      "path": "backend/app/schemas/deck.py",
-      "fields": [
-        {
-          "name": "title",
-          "type": "str",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "bullets",
-          "type": "Any",
-          "required": true,
-          "default": "Field(default_factory=list)"
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "DeckOut",
-      "path": "backend/app/schemas/deck.py",
-      "fields": [
-        {
-          "name": "id",
-          "type": "int",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "prospect_id",
-          "type": "int",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "title",
-          "type": "str",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "slides",
-          "type": "Any",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "pdf_url",
-          "type": "str",
-          "required": false,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "SlideIn",
-      "path": "backend/app/schemas/deck.py",
-      "fields": [
-        {
-          "name": "title",
-          "type": "str",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "bullets",
-          "type": "Any",
-          "required": true,
-          "default": "Field(default_factory=list)"
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "DeckUpdate",
-      "path": "backend/app/schemas/deck.py",
-      "fields": [
-        {
-          "name": "title",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "slides",
-          "type": "Any",
-          "required": true,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "EmailOut",
-      "path": "backend/app/schemas/email.py",
-      "fields": [
-        {
-          "name": "id",
-          "type": "int",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "prospect_id",
-          "type": "int",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "sequence_index",
-          "type": "int",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "subject",
-          "type": "str",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "body",
-          "type": "str",
-          "required": true,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "EmailIn",
-      "path": "backend/app/schemas/email.py",
-      "fields": [
-        {
-          "name": "subject",
-          "type": "str",
-          "required": true,
-          "default": null
-        },
-        {
-          "name": "body",
-          "type": "str",
-          "required": true,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "EmailUpdate",
-      "path": "backend/app/schemas/email.py",
-      "fields": [
-        {
-          "name": "subject",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "body",
-          "type": "str",
-          "required": false,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "EmailBatchOut",
-      "path": "backend/app/schemas/email.py",
-      "fields": [
-        {
-          "name": "items",
-          "type": "Any",
-          "required": true,
-          "default": "Field(default_factory=list)"
-        }
-      ]
-    },
-    {
-      "kind": "request",
-      "name": "ProspectContext",
-      "path": "backend/app/schemas/email.py",
-      "fields": [
-        {
-          "name": "company_name",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "contact_name",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "industry",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "revenue_range",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "location",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "sale_motivation",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "signals",
-          "type": "str",
-          "required": false,
-          "default": null
-        }
-      ]
-    },
-    {
-      "kind": "response",
-      "name": "ProspectOut",
-      "path": "backend/app/routers/prospect.py",
-      "fields": []
-    },
-    {
-      "kind": "response",
-      "name": "DeckOut",
-      "path": "backend/app/routers/deck.py",
-      "fields": []
-    },
-    {
-      "kind": "response",
-      "name": "EmailBatchOut",
-      "path": "backend/app/routers/email.py",
-      "fields": []
-    },
-    {
-      "kind": "response",
-      "name": "EmailOut",
-      "path": "backend/app/routers/email.py",
-      "fields": []
-    },
-    {
-      "kind": "pydantic.Model",
-      "name": "Settings",
-      "fields": [
-        {
-          "name": "DB_URL",
-          "type": "str",
-          "required": true,
-          "default": "sqlite:///./bdr.db"
-        },
-        {
-          "name": "APP_BASE_URL",
-          "type": "str",
-          "required": true,
-          "default": "http://localhost:8000"
-        },
-        {
-          "name": "FILE_STORAGE_DIR",
-          "type": "str",
-          "required": true,
-          "default": "./app/generated"
-        },
-        {
-          "name": "OPENAI_API_KEY",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "STUB_MODE",
-          "type": "bool",
-          "required": true,
-          "default": true
-        },
-        {
-          "name": "ALLOWED_ORIGINS",
-          "type": "str",
-          "required": true,
-          "default": "*"
-        },
-        {
-          "name": "TITLE_MAX_CHARS",
-          "type": "int",
-          "required": true,
-          "default": 200
-        },
-        {
-          "name": "BULLET_MAX_CHARS",
-          "type": "int",
-          "required": true,
-          "default": 500
-        },
-        {
-          "name": "MAX_BULLETS",
-          "type": "int",
-          "required": true,
-          "default": 8
-        }
-      ],
-      "path": "backend/app/config.py"
-    },
-    {
-      "kind": "pydantic.Model",
-      "name": "SlidePatch",
-      "fields": [
-        {
-          "name": "title",
-          "type": "str",
-          "required": false,
-          "default": null
-        },
-        {
-          "name": "bullets",
-          "type": "Any",
-          "required": false,
-          "default": null
-        }
-      ],
-      "path": "backend/app/routers/deck.py"
-    },
-    {
-      "kind": "sqlalchemy",
-      "name": "Prospect",
-      "table": "prospects",
-      "columns": [],
-      "path": "backend/app/models/prospect.py"
-    },
-    {
-      "kind": "sqlalchemy",
-      "name": "Deck",
-      "table": "decks",
-      "columns": [],
-      "path": "backend/app/models/deck.py"
-    },
-    {
-      "kind": "sqlalchemy",
-      "name": "Email",
-      "table": "emails",
-      "columns": [],
-      "path": "backend/app/models/email.py"
+      "path": "schemas.prospect",
+      "why": "Defines the schema for prospect data, ensuring data structure consistency."
     }
   ],
   "summaries": {
     "README.md": {
-      "summary": "Module at README.md"
+      "summary": "Supporting module with 0 connections"
     },
     ".gitignore": {
-      "summary": "Module at .gitignore"
+      "summary": "Supporting module with 0 connections"
     },
     "backend/requirements.txt": {
-      "summary": "Supporting module for the application."
+      "summary": "Supporting module with 0 connections"
     },
     "backend/migrate_add_phone.py": {
-      "summary": "Simple migration script to add phone_number column to prospects table"
+      "summary": "Supporting module with 0 connections"
     },
     "backend/app/config.py": {
-      "summary": "Centralized application configuration.\n\n    Loads from environment with sensible local defaults so the app\n    can run end-to-end in stub mode without extra setup."
+      "summary": "Application configuration and settings"
     },
     "backend/app/database.py": {
-      "summary": "Supporting module for the application."
+      "summary": "Database connection and setup"
     },
     "backend/app/__init__.py": {
-      "summary": "Supporting module for the application."
+      "summary": "Supporting module with 0 connections"
     },
     "backend/app/main.py": {
-      "summary": "Supporting module for the application."
+      "summary": "FastAPI application entry point"
     },
     "backend/app/routers/prospect.py": {
-      "summary": "FastAPI router with API endpoints for the application."
+      "summary": "FastAPI router with 1 outgoing calls"
     },
     "backend/app/routers/deck.py": {
-      "summary": "Debug endpoint to test AI editing functionality"
+      "summary": "FastAPI router with 8 outgoing calls"
     },
     "backend/app/routers/__init__.py": {
-      "summary": "FastAPI router with API endpoints for the application."
+      "summary": "FastAPI router with 0 outgoing calls"
     },
     "backend/app/routers/email.py": {
-      "summary": "FastAPI router with API endpoints for the application."
+      "summary": "FastAPI router with 5 outgoing calls"
     },
     "backend/app/models/prospect.py": {
-      "summary": "SQLAlchemy database models defining data structures."
+      "summary": "Data model with 1 tables"
     },
     "backend/app/models/deck.py": {
-      "summary": "SQLAlchemy database models defining data structures."
+      "summary": "Data model with 1 tables"
     },
     "backend/app/models/__init__.py": {
-      "summary": "SQLAlchemy database models defining data structures."
+      "summary": "Data model with 0 tables"
     },
     "backend/app/models/email.py": {
-      "summary": "SQLAlchemy database models defining data structures."
+      "summary": "Data model with 1 tables"
     },
     "backend/app/schemas/prospect.py": {
-      "summary": "Pydantic schemas for request/response validation."
+      "summary": "Pydantic schema definitions"
     },
     "backend/app/schemas/deck.py": {
-      "summary": "Pydantic schemas for request/response validation."
+      "summary": "Pydantic schema definitions"
     },
     "backend/app/schemas/__init__.py": {
-      "summary": "Pydantic schemas for request/response validation."
+      "summary": "Pydantic schema definitions"
     },
     "backend/app/schemas/email.py": {
-      "summary": "Pydantic schemas for request/response validation."
+      "summary": "Pydantic schema definitions"
     },
     "backend/app/templates/deck.html": {
-      "summary": "Module at backend/app/templates/deck.html"
+      "summary": "Supporting module with 0 connections"
     },
     "backend/app/services/emailgeneration.py": {
-      "summary": "Business logic and external service integrations."
+      "summary": "Service module with 1 dependencies"
     },
     "backend/app/services/ai.py": {
-      "summary": "Accept bullets as list[str], str with delimiters, or anything else (-> []).\n    Splits on newlines/semicolon/dot/bullet chars, trims, de-dups empties."
+      "summary": "Service module with 1 dependencies"
     },
     "backend/app/services/__init__.py": {
-      "summary": "Business logic and external service integrations."
+      "summary": "Service module with 0 dependencies"
     },
     "backend/app/services/pdf.py": {
-      "summary": "Renders the provided slides into a PDF and writes it to FILE_STORAGE_DIR (or out_dir).\n    Returns a relative URL path suitable for building a URL, e.g. '/generated/acme_offdeal.pdf'."
+      "summary": "Service module with 1 dependencies"
     },
     "backend/app/services/utils.py": {
-      "summary": "Business logic and external service integrations."
+      "summary": "Service module with 0 dependencies"
     },
     "backend/app/services/slides.py": {
-      "summary": "Ensure each slide has title + list[str] bullets, enforce limits."
+      "summary": "Service module with 1 dependencies"
     },
     "backend/static/init": {
-      "summary": "Supporting module for the application."
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/postcss.config.mjs": {
-      "summary": "Module at offdeal-frontend/postcss.config.mjs"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/next-env.d.ts": {
-      "summary": "Module at offdeal-frontend/next-env.d.ts"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/README.md": {
-      "summary": "Module at offdeal-frontend/README.md"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/.gitignore": {
-      "summary": "Module at offdeal-frontend/.gitignore"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/package-lock.json": {
-      "summary": "Supporting module for the application."
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/package.json": {
-      "summary": "Supporting module for the application."
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/tsconfig.json": {
-      "summary": "Supporting module for the application."
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/eslint.config.mjs": {
-      "summary": "Module at offdeal-frontend/eslint.config.mjs"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/next.config.ts": {
-      "summary": "Module at offdeal-frontend/next.config.ts"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/src/types.ts": {
-      "summary": "Module at offdeal-frontend/src/types.ts"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/src/app/layout.tsx": {
-      "summary": "Module at offdeal-frontend/src/app/layout.tsx"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/src/app/page.tsx": {
-      "summary": "Module at offdeal-frontend/src/app/page.tsx"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/src/app/globals.css": {
-      "summary": "Module at offdeal-frontend/src/app/globals.css"
+      "summary": "Supporting module with 0 connections"
     },
     "offdeal-frontend/src/lib/api.ts": {
-      "summary": "Module at offdeal-frontend/src/lib/api.ts"
+      "summary": "Supporting module with 0 connections"
     }
   },
   "keyFiles": [
@@ -3964,31 +3267,63 @@
     "APP_BASE_URL",
     "BULLET_MAX_CHARS",
     "DB_URL",
-    "DeckOut",
-    "DeckUpdate",
-    "EmailAIEditRequest",
-    "EmailBatchOut",
-    "EmailIn",
-    "EmailOut",
-    "EmailUpdate",
     "FILE_STORAGE_DIR",
     "MAX_BULLETS",
     "OPENAI_API_KEY",
-    "ProspectContext",
+    "STUB_MODE",
+    "TITLE_MAX_CHARS",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "SlideAIEditRequest",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "EmailAIEditRequest",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
+    "Session",
     "ProspectCreate",
     "ProspectUpdate",
-    "STUB_MODE",
-    "Session",
     "Slide",
-    "SlideAIEditRequest",
+    "DeckOut",
     "SlideIn",
-    "TITLE_MAX_CHARS"
+    "DeckUpdate",
+    "EmailOut",
+    "EmailIn",
+    "EmailUpdate",
+    "EmailBatchOut",
+    "ProspectContext"
   ],
   "dataOut": [
-    "DeckOut",
-    "EmailBatchOut",
-    "EmailOut",
-    "ProspectOut"
+    "slidepatchs",
+    "slideaieditrequests",
+    "emailaieditrequests",
+    "prospects",
+    "decks",
+    "emails",
+    "prospectcreates",
+    "prospectupdates",
+    "slides",
+    "deckouts",
+    "slideins",
+    "deckupdates",
+    "emailouts",
+    "emailins",
+    "emailupdates",
+    "emailbatchouts",
+    "prospectcontexts",
+    "OpenAI",
+    "OpenAI"
   ],
   "orchestrators": [
     "backend/app/routers/deck.py",
@@ -3999,11 +3334,7 @@
     "backend/app/routers/deck.py",
     "backend/app/routers/email.py"
   ],
-  "sinks": [
-    "backend/app/config.py",
-    "backend/app/schemas/deck.py",
-    "backend/app/schemas/email.py"
-  ],
+  "sinks": [],
   "controlFlow": [
     {
       "from": "backend/app/database.py",
@@ -4206,8 +3537,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "ALLOWED_ORIGINS",
-          "value": "example_value"
+          "key": "ALLOWED_ORIGINS"
         }
       },
       {
@@ -4288,8 +3618,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "APP_BASE_URL",
-          "value": "example_value"
+          "key": "APP_BASE_URL"
         }
       },
       {
@@ -4370,8 +3699,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "BULLET_MAX_CHARS",
-          "value": "example_value"
+          "key": "BULLET_MAX_CHARS"
         }
       },
       {
@@ -4452,8 +3780,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "DB_URL",
-          "value": "example_value"
+          "key": "DB_URL"
         }
       },
       {
@@ -4534,8 +3861,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "FILE_STORAGE_DIR",
-          "value": "example_value"
+          "key": "FILE_STORAGE_DIR"
         }
       },
       {
@@ -4616,8 +3942,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "MAX_BULLETS",
-          "value": "example_value"
+          "key": "MAX_BULLETS"
         }
       },
       {
@@ -4698,8 +4023,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "OPENAI_API_KEY",
-          "value": "***REDACTED***"
+          "key": "OPENAI_API_KEY"
         }
       },
       {
@@ -4780,8 +4104,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "STUB_MODE",
-          "value": "example_value"
+          "key": "STUB_MODE"
         }
       },
       {
@@ -4862,8 +4185,7 @@
         ],
         "usedFor": "Configuration/secret loaded at runtime.",
         "example": {
-          "key": "TITLE_MAX_CHARS",
-          "value": "example_value"
+          "key": "TITLE_MAX_CHARS"
         }
       },
       {
@@ -4875,7 +4197,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -4886,7 +4210,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -4897,7 +4223,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -4908,7 +4236,9 @@
         "file_path": "backend/app/routers/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5006,7 +4336,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "prompt": "sample_value"
+          "example": true
         }
       },
       {
@@ -5018,7 +4348,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5029,7 +4361,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5040,7 +4374,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5051,7 +4387,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5062,7 +4400,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5073,7 +4413,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5084,7 +4426,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5095,7 +4439,9 @@
         "file_path": "backend/app/routers/deck.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5163,7 +4509,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "prompt": "sample_value"
+          "example": true
         }
       },
       {
@@ -5175,7 +4521,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5186,7 +4534,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5197,7 +4547,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5208,7 +4560,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5219,7 +4573,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5230,7 +4586,9 @@
         "file_path": "backend/app/routers/email.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5301,7 +4659,7 @@
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "company_name": "John Doe"
+          "example": true
         }
       },
       {
@@ -5372,7 +4730,9 @@
         "path": "backend/app/schemas/prospect.py",
         "touches": [],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5388,7 +4748,7 @@
             "name": "bullets",
             "type": "Any",
             "required": true,
-            "default": "Field(default_factory=list)"
+            "default": "<ast.Call object at 0x1056f8fd0>"
           }
         ],
         "path": "backend/app/schemas/deck.py",
@@ -5406,8 +4766,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
+          "example": true
         }
       },
       {
@@ -5460,10 +4819,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "id": 42,
-          "prospect_id": 42,
-          "title": "sample_value",
-          "slides": "example"
+          "example": true
         }
       },
       {
@@ -5480,7 +4836,7 @@
             "name": "bullets",
             "type": "Any",
             "required": true,
-            "default": "Field(default_factory=list)"
+            "default": "<ast.Call object at 0x1056fa710>"
           }
         ],
         "path": "backend/app/schemas/deck.py",
@@ -5498,8 +4854,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "title": "sample_value",
-          "bullets": "Field(default_factory=list)"
+          "example": true
         }
       },
       {
@@ -5534,7 +4889,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "slides": "example"
+          "example": true
         }
       },
       {
@@ -5587,11 +4942,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "id": 42,
-          "prospect_id": 42,
-          "sequence_index": 42,
-          "subject": "sample_value",
-          "body": "sample_value"
+          "example": true
         }
       },
       {
@@ -5626,8 +4977,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "subject": "sample_value",
-          "body": "sample_value"
+          "example": true
         }
       },
       {
@@ -5661,7 +5011,9 @@
           }
         ],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       },
       {
         "type": "requestSchema",
@@ -5671,7 +5023,7 @@
             "name": "items",
             "type": "Any",
             "required": true,
-            "default": "Field(default_factory=list)"
+            "default": "<ast.Call object at 0x1056f88e0>"
           }
         ],
         "path": "backend/app/schemas/email.py",
@@ -5689,7 +5041,7 @@
         ],
         "usedFor": "Validates incoming request bodies.",
         "example": {
-          "items": "Field(default_factory=list)"
+          "example": true
         }
       },
       {
@@ -5753,20 +5105,17 @@
           }
         ],
         "usedFor": "Validates incoming request bodies.",
-        "example": {}
+        "example": {
+          "example": true
+        }
       }
     ],
     "stores": [
       {
         "type": "dbModel",
-        "dbModel": "SlidePatch",
-        "table": "slidepatchs",
-        "fields": [],
+        "name": "slidepatchs",
+        "columns": [],
         "path": "backend/app/routers/deck.py",
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        },
         "touches": [
           {
             "edge": {
@@ -5848,18 +5197,17 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "SlideAIEditRequest",
-        "table": "slideaieditrequests",
-        "fields": [],
-        "path": "backend/app/routers/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideaieditrequests",
+        "columns": [],
+        "path": "backend/app/routers/deck.py",
         "touches": [
           {
             "edge": {
@@ -5941,18 +5289,17 @@
             "actor": "backend/app/config.py",
             "action": "reads/writes rows in"
           }
-        ]
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "EmailAIEditRequest",
-        "table": "emailaieditrequests",
-        "fields": [],
+        "name": "emailaieditrequests",
+        "columns": [],
         "path": "backend/app/routers/email.py",
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        },
         "touches": [
           {
             "edge": {
@@ -6004,84 +5351,17 @@
             "actor": "backend/app/services/emailgeneration.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "Prospect",
-        "table": "prospects",
-        "fields": [
-          {
-            "name": "__tablename__",
-            "type": "str",
-            "nullable": true
-          },
-          {
-            "name": "id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "company_name",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "contact_name",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "email",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "phone_number",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "industry",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "revenue_range",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "location",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "sale_motivation",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "signals",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "notes",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "created_at",
-            "type": "Column",
-            "nullable": true
-          }
         ],
-        "path": "backend/app/models/prospect.py",
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospects",
+        "columns": [],
+        "path": "backend/app/models/prospect.py",
         "touches": [
           {
             "edge": {
@@ -6113,54 +5393,17 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "Deck",
-        "table": "decks",
-        "fields": [
-          {
-            "name": "__tablename__",
-            "type": "str",
-            "nullable": true
-          },
-          {
-            "name": "id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "prospect_id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "title",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "slides_json",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "pdf_path",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "created_at",
-            "type": "Column",
-            "nullable": true
-          }
         ],
-        "path": "backend/app/models/deck.py",
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "decks",
+        "columns": [],
+        "path": "backend/app/models/deck.py",
         "touches": [
           {
             "edge": {
@@ -6182,59 +5425,17 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "Email",
-        "table": "emails",
-        "fields": [
-          {
-            "name": "__tablename__",
-            "type": "str",
-            "nullable": true
-          },
-          {
-            "name": "id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "prospect_id",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "sequence_index",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "subject",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "body",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "created_at",
-            "type": "Column",
-            "nullable": true
-          },
-          {
-            "name": "updated_at",
-            "type": "Column",
-            "nullable": true
-          }
         ],
-        "path": "backend/app/models/email.py",
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emails",
+        "columns": [],
+        "path": "backend/app/models/email.py",
         "touches": [
           {
             "edge": {
@@ -6256,42 +5457,39 @@
             "actor": "backend/app/database.py",
             "action": "reads/writes rows in"
           }
-        ]
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectCreate",
-        "table": "prospectcreates",
-        "fields": [],
+        "name": "prospectcreates",
+        "columns": [],
         "path": "backend/app/schemas/prospect.py",
+        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
-        "touches": []
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "ProspectUpdate",
-        "table": "prospectupdates",
-        "fields": [],
+        "name": "prospectupdates",
+        "columns": [],
         "path": "backend/app/schemas/prospect.py",
+        "touches": [],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
-        "touches": []
+        }
       },
       {
         "type": "dbModel",
-        "dbModel": "Slide",
-        "table": "slides",
-        "fields": [],
+        "name": "slides",
+        "columns": [],
         "path": "backend/app/schemas/deck.py",
-        "usedFor": "System of record persisted via SQLAlchemy.",
-        "example": {
-          "id": 1
-        },
         "touches": [
           {
             "edge": {
@@ -6303,18 +5501,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "DeckOut",
-        "table": "deckouts",
-        "fields": [],
-        "path": "backend/app/schemas/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckouts",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
         "touches": [
           {
             "edge": {
@@ -6326,18 +5523,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "SlideIn",
-        "table": "slideins",
-        "fields": [],
-        "path": "backend/app/schemas/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "slideins",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
         "touches": [
           {
             "edge": {
@@ -6349,18 +5545,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "DeckUpdate",
-        "table": "deckupdates",
-        "fields": [],
-        "path": "backend/app/schemas/deck.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "deckupdates",
+        "columns": [],
+        "path": "backend/app/schemas/deck.py",
         "touches": [
           {
             "edge": {
@@ -6372,18 +5567,17 @@
             "actor": "backend/app/routers/deck.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailOut",
-        "table": "emailouts",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -6395,18 +5589,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailIn",
-        "table": "emailins",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailins",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -6418,18 +5611,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailUpdate",
-        "table": "emailupdates",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailupdates",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -6441,18 +5633,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "EmailBatchOut",
-        "table": "emailbatchouts",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "emailbatchouts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -6464,18 +5655,17 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
-      },
-      {
-        "type": "dbModel",
-        "dbModel": "ProspectContext",
-        "table": "prospectcontexts",
-        "fields": [],
-        "path": "backend/app/schemas/email.py",
+        ],
         "usedFor": "System of record persisted via SQLAlchemy.",
         "example": {
           "id": 1
-        },
+        }
+      },
+      {
+        "type": "dbModel",
+        "name": "prospectcontexts",
+        "columns": [],
+        "path": "backend/app/schemas/email.py",
         "touches": [
           {
             "edge": {
@@ -6487,7 +5677,11 @@
             "actor": "backend/app/routers/email.py",
             "action": "reads/writes rows in"
           }
-        ]
+        ],
+        "usedFor": "System of record persisted via SQLAlchemy.",
+        "example": {
+          "id": 1
+        }
       }
     ],
     "externals": [
@@ -6718,8 +5912,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py",
+        "slidepatchs",
+        "slideaieditrequests",
         "OpenAI",
         "OpenAI"
       ],
@@ -6755,12 +5949,12 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py",
-        "backend/app/models/prospect.py",
-        "backend/app/models/deck.py",
-        "backend/app/models/email.py"
+        "slidepatchs",
+        "slideaieditrequests",
+        "emailaieditrequests",
+        "prospects",
+        "decks",
+        "emails"
       ],
       "reqSchemas": [
         "SlideAIEditRequest",
@@ -6815,8 +6009,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "slidepatchs",
+        "slideaieditrequests"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6834,7 +6028,7 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/email.py"
+        "emailaieditrequests"
       ],
       "reqSchemas": [
         "EmailAIEditRequest"
@@ -6853,9 +6047,9 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py"
+        "slidepatchs",
+        "slideaieditrequests",
+        "emailaieditrequests"
       ],
       "reqSchemas": [
         "SlideAIEditRequest",
@@ -6863,77 +6057,12 @@
       ]
     },
     "backend/app/routers/deck.py": {
-      "lane": "api",
       "role": "entrypoint",
-      "incoming": [],
-      "outgoing": [
-        "backend/app/database.py",
-        "backend/app/models/prospect.py",
-        "backend/app/models/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/services/ai.py",
-        "backend/app/services/pdf.py",
-        "backend/app/services/slides.py",
-        "backend/app/config.py"
-      ],
-      "policies": [],
-      "envs": [
-        "ALLOWED_ORIGINS",
-        "APP_BASE_URL",
-        "BULLET_MAX_CHARS",
-        "DB_URL",
-        "FILE_STORAGE_DIR",
-        "MAX_BULLETS",
-        "OPENAI_API_KEY",
-        "STUB_MODE",
-        "TITLE_MAX_CHARS"
-      ],
-      "relatedData": [
-        "backend/app/models/prospect.py",
-        "backend/app/models/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/schemas/deck.py",
-        "backend/app/schemas/deck.py",
-        "OpenAI"
-      ],
-      "reqSchemas": [
-        "Slide",
-        "DeckOut",
-        "SlideIn",
-        "DeckUpdate"
-      ]
+      "lane": "web"
     },
     "backend/app/routers/email.py": {
-      "lane": "api",
       "role": "entrypoint",
-      "incoming": [],
-      "outgoing": [
-        "backend/app/database.py",
-        "backend/app/models/prospect.py",
-        "backend/app/models/email.py",
-        "backend/app/schemas/email.py",
-        "backend/app/services/emailgeneration.py"
-      ],
-      "policies": [],
-      "envs": [],
-      "relatedData": [
-        "backend/app/models/prospect.py",
-        "backend/app/models/email.py",
-        "backend/app/schemas/email.py",
-        "backend/app/schemas/email.py",
-        "backend/app/schemas/email.py",
-        "backend/app/schemas/email.py",
-        "backend/app/schemas/email.py",
-        "OpenAI"
-      ],
-      "reqSchemas": [
-        "EmailOut",
-        "EmailIn",
-        "EmailUpdate",
-        "EmailBatchOut",
-        "ProspectContext"
-      ]
+      "lane": "web"
     },
     "backend/app/routers/prospect.py": {
       "lane": "api",
@@ -6976,8 +6105,8 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "slidepatchs",
+        "slideaieditrequests"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -6993,7 +6122,7 @@
       "policies": [],
       "envs": [],
       "relatedData": [
-        "backend/app/routers/email.py"
+        "emailaieditrequests"
       ],
       "reqSchemas": [
         "EmailAIEditRequest"
@@ -7021,8 +6150,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "slidepatchs",
+        "slideaieditrequests"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -7050,7 +6179,7 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/email.py"
+        "emailaieditrequests"
       ],
       "reqSchemas": [
         "EmailAIEditRequest"
@@ -7078,8 +6207,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "slidepatchs",
+        "slideaieditrequests"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -7107,8 +6236,8 @@
         "TITLE_MAX_CHARS"
       ],
       "relatedData": [
-        "backend/app/routers/deck.py",
-        "backend/app/routers/deck.py"
+        "slidepatchs",
+        "slideaieditrequests"
       ],
       "reqSchemas": [
         "SlideAIEditRequest"
@@ -7117,12 +6246,24 @@
   },
   "debug": {
     "data_flow_skipped": [],
-    "extract_errors": [],
-    "missing": {
-      "summaries": "no docstrings or fallback summaries generated"
-    }
+    "extract_errors": []
   },
-  "entryPoints": [],
-  "suspectRank": [],
+  "suspectRank": [
+    {
+      "path": "backend/app/routers/deck.py",
+      "score": 12,
+      "reason": "High fan-out (8 calls); Critical service/router; Database model"
+    },
+    {
+      "path": "backend/app/routers/email.py",
+      "score": 9,
+      "reason": "High fan-out (5 calls); Critical service/router; Database model"
+    },
+    {
+      "path": "backend/app/services/emailgeneration.py",
+      "score": 5,
+      "reason": "Critical service/router; External service dependency"
+    }
+  ],
   "recentChanges": []
 }
