@@ -1,3 +1,0 @@
-{
-  "_raw": "The file `emailgeneration.py` contains services related to email generation in the backend application. It imports modules from `__future__` and `config` to enhance functionality and configuration."
-}

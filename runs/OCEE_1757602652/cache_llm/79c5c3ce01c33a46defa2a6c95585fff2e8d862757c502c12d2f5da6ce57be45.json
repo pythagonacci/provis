@@ -1,3 +1,0 @@
-{
-  "_raw": "The file `page.tsx` in the `offdeal-frontend/src/app` directory serves as a React component. It utilizes hooks such as `useState`, `useEffect`, and `useMemo` for state management and side effects."
-}

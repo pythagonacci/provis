@@ -1,3 +1,0 @@
-{
-  "_raw": "The file `deck.py` defines Pydantic schemas for data validation and serialization related to decks and slides in the application. It imports necessary modules and includes models like `Slide`, `DeckOut`, `SlideIn`, and `DeckUpdate`."
-}

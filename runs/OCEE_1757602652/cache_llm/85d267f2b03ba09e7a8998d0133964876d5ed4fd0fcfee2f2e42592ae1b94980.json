@@ -1,3 +1,0 @@
-{
-  "_raw": "The `schemas.email` file defines the structure and validation rules for email-related data. It is utilized by the email router in `backend/app/routers/email.py`."
-}

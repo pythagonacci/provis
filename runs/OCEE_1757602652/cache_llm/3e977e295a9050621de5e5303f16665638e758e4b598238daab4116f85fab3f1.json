@@ -1,3 +1,0 @@
-{
-  "_raw": "The `schemas.deck` file defines data structures used for deck-related operations. It serves as a schema reference for the backend router in `deck.py`."
-}

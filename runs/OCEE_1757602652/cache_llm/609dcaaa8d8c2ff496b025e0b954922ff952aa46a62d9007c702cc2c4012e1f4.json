@@ -1,3 +1,0 @@
-{
-  "_raw": "The `database.py` file manages database connections and interactions within the application. It imports configuration settings from the `config` module."
-}

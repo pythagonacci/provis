@@ -1,3 +1,0 @@
-{
-  "_raw": "The `../types` file defines shared TypeScript types used across the codebase. It serves as a central location for type definitions to ensure consistency and type safety."
-}

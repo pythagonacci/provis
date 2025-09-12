@@ -1,3 +1,0 @@
-{
-  "_raw": "The file `email.py` defines database models related to email operations, including `EmailOut`, `EmailIn`, `EmailUpdate`, `EmailBatchOut`, and `ProspectContext`. It serves as a schema for managing email data in the application."
-}

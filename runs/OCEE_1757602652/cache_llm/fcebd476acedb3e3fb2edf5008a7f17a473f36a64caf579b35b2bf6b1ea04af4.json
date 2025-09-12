@@ -1,3 +1,0 @@
-{
-  "_raw": "The `database.py` file manages database connections and configurations for the application. It utilizes SQLAlchemy for ORM functionality."
-}

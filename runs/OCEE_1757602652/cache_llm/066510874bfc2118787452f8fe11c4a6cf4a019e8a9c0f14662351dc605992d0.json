@@ -1,3 +1,0 @@
-{
-  "_raw": "The `main.py` file serves as the entry point for the FastAPI application, configuring the app and integrating with the database and configuration modules. It does not contain any defined constants, hooks, or middleware."
-}

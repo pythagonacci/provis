@@ -1,3 +1,0 @@
-{
-  "_raw": "The `sqlalchemy.orm` module facilitates the mapping of Python objects to database tables, enabling the use of ORM techniques for data manipulation and retrieval. It serves as a core component in the application's database interactions."
-}

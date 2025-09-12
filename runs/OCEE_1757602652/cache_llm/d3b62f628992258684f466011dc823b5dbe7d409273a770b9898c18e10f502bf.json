@@ -1,3 +1,0 @@
-{
-  "_raw": "The database file serves as a central component for data management within the application. It interacts with various modules in the backend, including models and routers for prospects, decks, and emails."
-}

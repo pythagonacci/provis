@@ -1,3 +1,0 @@
-{
-  "_raw": "The `models.prospect` file defines the data structure for prospects in the application. It interacts with the routers in `deck.py` and `email.py` for backend functionality."
-}

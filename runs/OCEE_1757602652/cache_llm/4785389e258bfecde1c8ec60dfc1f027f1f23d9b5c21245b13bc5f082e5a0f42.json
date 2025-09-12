@@ -1,3 +1,0 @@
-{
-  "_raw": "The file `migrate_add_phone.py` handles database migration related to adding phone numbers. It imports the `os` module for file and directory operations."
-}

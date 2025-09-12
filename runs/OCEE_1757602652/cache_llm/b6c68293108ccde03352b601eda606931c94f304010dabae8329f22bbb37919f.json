@@ -1,3 +1,0 @@
-{
-  "_raw": "The `deck.py` file in the backend application defines routes related to slide management. It imports necessary libraries and models to handle requests and database interactions."
-}

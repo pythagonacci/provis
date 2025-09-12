@@ -1,3 +1,0 @@
-{
-  "_raw": "The `ai.py` file in the backend services handles artificial intelligence functionalities. It imports modules from `__future__` and `typing` for compatibility and type hinting."
-}

@@ -1,3 +1,0 @@
-{
-  "_raw": "The file `email.py` defines the email-related data models for the application. It imports `sqlalchemy.orm` for ORM functionality and `database` for database interactions."
-}

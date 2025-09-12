@@ -1,3 +1,0 @@
-{
-  "_raw": "The `email.py` file defines models related to email functionality within the application. It imports necessary modules such as `__future__`, `sqlalchemy.orm`, and `database` for its operations."
-}
