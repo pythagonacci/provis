@@ -749,7 +749,7 @@ def extract_response_schema(text: str, path: str, route_info: Dict[str, Any]) ->
                 return {
                     "type": "file",
                     "mime": "application/pdf",  # Default for this app
-                    "example": {"filename": "deck.pdf"}
+                    "example": {"filename": "output.pdf"}
                 }
             elif "StreamingResponse" in return_type:
                 return {
@@ -812,7 +812,7 @@ def extract_store_model(text: str, path: str, model_name: str) -> Dict[str, Any]
                         col_name = target.id
                         
                         # Skip relationship attributes
-                        if col_name in ["decks", "emails", "prospect"]:
+                        if col_name in ["items", "records", "data"]:
                             continue
                             
                         # Get column type
@@ -874,7 +874,7 @@ def detect_externals(text: str, path: str) -> List[Dict[str, Any]]:
                     externals.append({
                         "service": "smtp",
                         "actor": path,
-                        "sends": {"to": "email", "subject": "string", "body": "string"},
+                        "sends": {"to": "recipient", "subject": "string", "body": "string"},
                         "returns": {"type": "status", "shape": "bool"},
                         "usedFor": "Email delivery"
                     })
@@ -1306,11 +1306,11 @@ def detect_artifact_outputs(repo_root: Path):
             p = f.as_posix().lower()
             src = f.read_text(encoding="utf-8", errors="ignore").lower()
             if "pdf" in p or "services/pdf" in p or "render" in src and "pdf" in src:
-                items.append({"type":"artifact","name":"pdf","path": str(f.relative_to(repo_root)), "usedFor":"Generated deck PDF"})
+                items.append({"type":"artifact","name":"pdf","path": str(f.relative_to(repo_root)), "usedFor":"Generated PDF document"})
             if "slides" in p or "pptx" in src:
                 items.append({"type":"artifact","name":"slides","path": str(f.relative_to(repo_root)), "usedFor":"Generated slides"})
             if "email" in p or "sendgrid" in src or "smtplib" in src:
-                items.append({"type":"email","name":"transactional_email","path": str(f.relative_to(repo_root)), "usedFor":"Sends confirmation email"})
+                items.append({"type":"email","name":"transactional_email","path": str(f.relative_to(repo_root)), "usedFor":"Sends transactional email"})
         except Exception:
             continue
     # de-dupe by (type,name,path)

@@ -317,7 +317,7 @@ def get_suggestions(repo_id: str, capability: str = None):
         if "templates" in p:
             confidence = "High"
             rationale = "renderer entry point"
-        if "deck/compile" in p:
+        if "compile" in p:
             confidence = "High"
             rationale = "orchestrator"
 

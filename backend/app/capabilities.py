@@ -50,26 +50,56 @@ def lane_for_path(path: str) -> str:
     else:
         return "other"
 
-def compute_orchestrators(cap) -> list[str]:
+def compute_orchestrators(cap, repo_root: Path) -> list[str]:
     """
-    Tests require these orchestrators:
-      - backend/app/routers/deck.py
-      - backend/app/routers/email.py
-      - backend/app/main.py
-    We always include them (legacy compatibility), and also include main_new.py if present in entrypoints.
+    Generate orchestrators based on actual entrypoints and common patterns.
+    Includes main application files and router files found in the repository.
     """
-    required = {
-        "backend/app/routers/deck.py",
-        "backend/app/routers/email.py",
+    orchestrators = set()
+    
+    # Add entrypoint files as orchestrators
+    for entrypoint in cap.get("entrypoints", []):
+        path = entrypoint.get("path")
+        if path:
+            orchestrators.add(path)
+    
+    # Add common main application files if they exist
+    common_mains = [
         "backend/app/main.py",
-    }
-    # Include main_new.py if it shows up as an entrypoint in this capability
+        "app.py", 
+        "main.py",
+        "server.py",
+        "index.js",
+        "app.js"
+    ]
+    
+    # Add router directories if they exist
+    router_patterns = [
+        "backend/app/routers/",
+        "routes/",
+        "api/",
+        "pages/api/",
+        "app/api/"
+    ]
+    
+    # Add common main application files if they exist in the repository
+    for main_file in common_mains:
+        if (repo_root / main_file).exists():
+            orchestrators.add(main_file)
+    
+    # Add router files if they exist in the repository
+    for router_pattern in router_patterns:
+        router_dir = repo_root / router_pattern.rstrip("/")
+        if router_dir.exists() and router_dir.is_dir():
+            for router_file in router_dir.rglob("*.py"):
+                rel_path = str(router_file.relative_to(repo_root))
+                orchestrators.add(rel_path)
+    
+    # Include main_new.py if it shows up as an entrypoint
     if any(e.get("path") == "backend/app/main_new.py" for e in cap.get("entrypoints", [])):
-        required.add("backend/app/main_new.py")
+        orchestrators.add("backend/app/main_new.py")
 
-    # If you prefer to only include files that actually exist on disk, remove this existence filter,
-    # because the test only checks presence in the JSON, not file presence.
-    return sorted(required)
+    return sorted(orchestrators)
 
 def _has_edge_to(control_flow, substr):
     """Check if control flow has an edge to a file containing substr."""
@@ -82,11 +112,11 @@ def _has_output(data_flow, kind_substr):
 
 def build_steps(cap) -> list[dict]:
     """
-    Produce a single, deduped sequence tailored for repo→graph→capabilities→deck/pdf→email flows.
+    Produce a single, deduped sequence for general application workflows.
     Ensures canonical anchors required by tests:
       - Receive Request
       - Fetch Prospect Data
-      - Generate Deck Content
+      - Generate Content
       - Return Success
     """
     entry = cap.get("entrypoints", [])
@@ -103,16 +133,16 @@ def build_steps(cap) -> list[dict]:
     titles.append("Validate Input")
     titles.append("Fetch Prospect Data")  # ← required anchor
 
-    # Deck generation anchors
-    titles.append("Generate Deck Content")  # ← required anchor
+    # Content generation anchors
+    titles.append("Generate Content")  # ← generic content generation
     if "pdf" in artifact_names:
-        titles.append("Render Deck PDF")
+        titles.append("Render PDF")
     if "slides" in artifact_names:
         titles.append("Generate Slides")
 
     # Optional email
     if "email" in output_types:
-        titles.append("Send Confirmation Email")
+        titles.append("Send Email")
 
     # Canonical end anchor (rename from "Return Success Response")
     titles.append("Return Success")
@@ -120,17 +150,17 @@ def build_steps(cap) -> list[dict]:
     # Dedupe preserving order
     seen = set()
     descriptions = {
-        "Receive Request": "The API receives a request (health, repo introspection, or artifact listing).",
+        "Receive Request": "The API receives a request from the client.",
         "Validate Input": "Validate path/query/body fields for required shape and types.",
-        "Fetch Prospect Data": "Load repo/snapshot context and any needed metadata for processing.",
+        "Fetch Prospect Data": "Load and prepare data for processing.",
         "Parse Repository Snapshot": "Load and prepare files for parsing.",
         "Build Graph": "Construct dependency and symbol graphs across the codebase.",
         "Extract Capabilities": "Infer capabilities, swimlanes, nodes, and edges from parsed code.",
-        "Generate Deck Content": "Use the LLM and templates to produce deck sections.",
-        "Render Deck PDF": "Render the generated deck into a PDF artifact.",
+        "Generate Content": "Use AI services and templates to produce content.",
+        "Render PDF": "Render content into a PDF artifact.",
         "Generate Slides": "Generate slide artifacts for web viewing or export.",
-        "Send Confirmation Email": "Send a transactional email with status and artifact links.",
-        "Return Success": "Return a 2xx with payload (overview, capabilities, or artifacts).",
+        "Send Email": "Send a transactional email with status and links.",
+        "Return Success": "Return a 2xx response with the requested data.",
     }
 
     result = []
@@ -349,7 +379,7 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
     steps = build_steps({"entrypoints": entrypoints, "data_flow": data_flow})
     
     # Set orchestrators from entrypoints
-    orchestrators = compute_orchestrators({"entrypoints": entrypoints})
+    orchestrators = compute_orchestrators({"entrypoints": entrypoints}, repo_dir)
     
     # Build swimlanes
     swimlanes = {"web": [], "api": [], "workers": [], "other": []}
@@ -382,10 +412,10 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
     
     # Build final capability
     capability = {
-        "id": "cap_generate_deck_email",
-        "name": "Generate Deck and Email",
-        "purpose": "AI-powered deck generation with email notifications",
-        "title": "Deck Generation Flow",
+        "id": "cap_main_workflow",
+        "name": "Main Application Workflow",
+        "purpose": "Primary application functionality and data processing",
+        "title": "Application Flow",
         "status": "active",
         "entrypoints": entrypoints,
         "swimlanes": swimlanes,
@@ -420,7 +450,8 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
 
 def write_capability(repo_dir: Path, capability: Dict[str, Any]) -> None:
     """Write capability.json to disk."""
-    output_dir = repo_dir / "capabilities" / "cap_generate_deck_email"
+    capability_id = capability.get("id", "cap_main_workflow")
+    output_dir = repo_dir / "capabilities" / capability_id
     output_dir.mkdir(parents=True, exist_ok=True)
     
     output_file = output_dir / "capability.json"
