@@ -337,6 +337,30 @@ def detect_project_context(snapshot: Path) -> Dict[str, Any]:
 
     return ctx
 
+def iter_all_source_files(repo_root: Path):
+    """Iterate over all source files (.py, .js, .ts, .jsx, .tsx), skipping build artifacts."""
+    source_extensions = {".py", ".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs"}
+    
+    for p in repo_root.rglob("*"):
+        if not p.is_file():
+            continue
+            
+        # Skip if not a source file
+        if p.suffix.lower() not in source_extensions:
+            continue
+            
+        # Skip virtualenvs, hidden, tests, and build artifacts
+        if any(seg.startswith((".", "__pycache__", "venv", "env")) for seg in p.parts):
+            continue
+        if any(seg in ("node_modules", "dist", "build", ".next", ".nuxt", "out") for seg in p.parts):
+            continue
+        if "runs/" in str(p.relative_to(repo_root)):
+            continue
+        if any(seg in ("test", "tests", "__tests__", "spec", "specs") for seg in p.parts):
+            continue
+            
+        yield p
+
 def discover_files(snapshot: Path) -> List[Dict[str, Any]]:
     """Enhanced file discovery with better filtering and metadata."""
     files: List[Dict[str, Any]] = []

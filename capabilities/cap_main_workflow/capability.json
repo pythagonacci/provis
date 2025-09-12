@@ -1,0 +1,1902 @@
+{
+  "id": "cap_main_workflow",
+  "name": "Main Application Workflow",
+  "purpose": "Primary application functionality and data processing",
+  "title": "Application Flow",
+  "status": "active",
+  "entrypoints": [
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/health"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/graph"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/v1/repo/{repo_id}"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/v1/repo/{repo_id}/capabilities"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/v1/repo/{repo_id}/file"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/v1/repo/{repo_id}/capabilities/{cap_id}"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/tree"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/metrics"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/suggestions"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/capabilities"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/glossary"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/capabilities/{cap_id}"
+    },
+    {
+      "path": "backend/app/main.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/files"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/health"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/metrics"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/queue/stats"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/status/{job_id}"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/jobs/{job_id}/events"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repos/{repo_id}/snapshots/{snapshot_id}/artifacts"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/graph"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/files"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/capabilities"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/metrics"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/v1/repo/{repo_id}"
+    },
+    {
+      "path": "backend/app/main_new.py",
+      "framework": "unknown",
+      "kind": "api",
+      "route": "/repo/{repo_id}/qa"
+    }
+  ],
+  "swimlanes": {
+    "web": [],
+    "api": [
+      "backend/migrations/versions/001_create_initial_tables.py",
+      "backend/app/queue.py",
+      "backend/app/ingest.py",
+      "backend/app/tasks.py",
+      "backend/app/config.py",
+      "backend/app/models.py",
+      "backend/app/limits.py",
+      "backend/app/events.py",
+      "backend/app/database.py",
+      "backend/app/__init__.py",
+      "backend/app/observability.py",
+      "backend/app/jobs.py",
+      "backend/app/capabilities.py",
+      "backend/app/storage.py",
+      "backend/app/summarizer.py",
+      "backend/app/jobs_new.py",
+      "backend/app/main.py",
+      "backend/app/qa.py",
+      "backend/app/main_new.py",
+      "backend/app/status.py",
+      "backend/app/legacy_models.py",
+      "backend/app/parsers/__init__.py",
+      "backend/app/parsers/python.py",
+      "backend/app/parsers/js_ts.py",
+      "backend/app/parsers/base.py",
+      "backend/app/llm/client.py",
+      "backend/app/llm/__init__.py",
+      "backend/app/llm/prompts.py",
+      "backend/app/utils/id_gen.py",
+      "backend/app/utils/file_safety.py",
+      "backend/app/utils/io.py",
+      "backend/app/utils/zip_safe.py",
+      "backend/workers/worker.py"
+    ],
+    "workers": [],
+    "other": []
+  },
+  "control_flow": [
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/database.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/config.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/models.py",
+      "kind": "import"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/llm/client.py",
+      "kind": "call"
+    },
+    {
+      "from": "backend/app/main.py",
+      "to": "backend/app/parsers/python.py",
+      "kind": "call"
+    }
+  ],
+  "data_flow": {
+    "inputs": [
+      {
+        "type": "requestSchema",
+        "name": "main.get_file_detailsRequest",
+        "path": "backend/app/main.py",
+        "fields": [
+          "path"
+        ],
+        "route": "/v1/repo/{repo_id}/file",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main.get_suggestionsRequest",
+        "path": "backend/app/main.py",
+        "fields": [
+          "capability"
+        ],
+        "route": "/repo/{repo_id}/suggestions",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main.get_files_filteredRequest",
+        "path": "backend/app/main.py",
+        "fields": [
+          "capability"
+        ],
+        "route": "/repo/{repo_id}/files",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.stream_job_eventsRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "last_event_id"
+        ],
+        "route": "/jobs/{job_id}/events",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.list_artifactsRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "presign_urls"
+        ],
+        "route": "/repos/{repo_id}/snapshots/{snapshot_id}/artifacts",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_graphRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/graph",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_filesRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/files",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_capabilitiesRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/capabilities",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_metricsRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/metrics",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.qa_endpointRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "question"
+        ],
+        "route": "/repo/{repo_id}/qa",
+        "synthetic": true
+      },
+      {
+        "type": "env",
+        "key": "OPENAI_API_KEY",
+        "path": "backend/app/config.py",
+        "touches": [
+          "backend/app/config.py"
+        ],
+        "example": {
+          "key": "OPENAI_API_KEY",
+          "value": "***REDACTED***"
+        }
+      },
+      {
+        "type": "env",
+        "key": "S3_ACCESS_KEY_ID",
+        "path": "backend/app/storage.py",
+        "touches": [
+          "backend/app/storage.py"
+        ],
+        "example": {
+          "key": "S3_ACCESS_KEY_ID",
+          "value": "***REDACTED***"
+        }
+      },
+      {
+        "type": "env",
+        "key": "S3_ENDPOINT_URL",
+        "path": "backend/app/storage.py",
+        "touches": [
+          "backend/app/storage.py"
+        ],
+        "example": {
+          "key": "S3_ENDPOINT_URL",
+          "value": "example_value"
+        }
+      },
+      {
+        "type": "env",
+        "key": "S3_SECRET_ACCESS_KEY",
+        "path": "backend/app/storage.py",
+        "touches": [
+          "backend/app/storage.py"
+        ],
+        "example": {
+          "key": "S3_SECRET_ACCESS_KEY",
+          "value": "***REDACTED***"
+        }
+      },
+      {
+        "type": "env",
+        "key": "RQ_WORKER_NAME",
+        "path": "backend/workers/worker.py",
+        "touches": [
+          "backend/workers/worker.py"
+        ],
+        "example": {
+          "key": "RQ_WORKER_NAME",
+          "value": "example_value"
+        }
+      }
+    ],
+    "stores": [
+      {
+        "type": "dbModel",
+        "name": "Repo",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "owner_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "created_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      },
+      {
+        "type": "dbModel",
+        "name": "Snapshot",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "repo_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "commit_hash",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "settings_hash",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "source",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "status",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "created_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      },
+      {
+        "type": "dbModel",
+        "name": "Job",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "repo_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "snapshot_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "phase",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "pct",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "priority",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "error",
+            "type": "Text",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "created_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "updated_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      },
+      {
+        "type": "dbModel",
+        "name": "Task",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "job_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "batch_index",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "state",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "attempt",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "started_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "ended_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "error",
+            "type": "Text",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      },
+      {
+        "type": "dbModel",
+        "name": "Artifact",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "snapshot_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "kind",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "version",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "uri",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "bytes",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "schema_version",
+            "type": "Integer",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "generator_version",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "created_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      },
+      {
+        "type": "dbModel",
+        "name": "Event",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "job_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "type",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "payload",
+            "type": "JSON",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "created_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      },
+      {
+        "type": "dbModel",
+        "name": "Warning",
+        "path": "backend/app/database.py",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "job_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "snapshot_id",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "file_path",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "code",
+            "type": "String",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "message",
+            "type": "Text",
+            "nullable": true,
+            "primary_key": false
+          },
+          {
+            "name": "created_at",
+            "type": "DateTime",
+            "nullable": true,
+            "primary_key": false
+          }
+        ]
+      }
+    ],
+    "externals": [
+      {
+        "type": "api",
+        "name": "OpenAI",
+        "client": "backend/app/llm/client.py",
+        "path": "backend/app/llm/client.py"
+      },
+      {
+        "type": "api",
+        "name": "OpenAI",
+        "client": "backend/app/llm/client.py",
+        "path": "backend/app/llm/client.py"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "responseSchema",
+        "name": "RepoOverviewModel",
+        "path": "backend/app/legacy_models.py",
+        "fields": [
+          "tree",
+          "files",
+          "capabilities",
+          "metrics"
+        ],
+        "route": "/v1/repo/{repo_id}"
+      },
+      {
+        "type": "responseSchema",
+        "name": "CapabilityDetailModel",
+        "path": "backend/app/legacy_models.py",
+        "fields": [
+          "id",
+          "name",
+          "purpose",
+          "entryPoints",
+          "controlFlow",
+          "dataFlow",
+          "swimlanes",
+          "steps",
+          "nodeIndex",
+          "policies",
+          "contracts"
+        ],
+        "route": "/v1/repo/{repo_id}/capabilities/{cap_id}"
+      },
+      {
+        "type": "responseSchema",
+        "name": "StatusPayload",
+        "path": "backend/app/models.py",
+        "fields": [
+          "jobId",
+          "repoId",
+          "phase",
+          "pct",
+          "filesParsed",
+          "imports",
+          "importsTotal",
+          "importsInternal",
+          "importsExternal",
+          "filesSummarized",
+          "capabilitiesBuilt",
+          "warnings",
+          "error"
+        ],
+        "route": "/status/{job_id}"
+      },
+      {
+        "type": "email",
+        "name": "transactional_email",
+        "path": "tests/test_capability_spec.py",
+        "usedFor": "Sends transactional email"
+      },
+      {
+        "type": "artifact",
+        "name": "pdf",
+        "path": "backend/app/capabilities.py",
+        "usedFor": "Generated PDF document"
+      },
+      {
+        "type": "artifact",
+        "name": "pdf",
+        "path": "backend/app/parsers/python.py",
+        "usedFor": "Generated PDF document"
+      },
+      {
+        "type": "artifact",
+        "name": "slides",
+        "path": "backend/app/parsers/python.py",
+        "usedFor": "Generated slides"
+      },
+      {
+        "type": "email",
+        "name": "transactional_email",
+        "path": "backend/app/parsers/python.py",
+        "usedFor": "Sends transactional email"
+      },
+      {
+        "type": "artifact",
+        "name": "slides",
+        "path": "backend/app/parsers/base.py",
+        "usedFor": "Generated slides"
+      }
+    ]
+  },
+  "policies": [
+    {
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "appliedAt": "backend/app/config.py",
+      "config": {
+        "allowed_origins": [],
+        "allowed_methods": []
+      }
+    },
+    {
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "appliedAt": "backend/app/capabilities.py",
+      "config": {
+        "allowed_origins": [],
+        "allowed_methods": []
+      }
+    },
+    {
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "appliedAt": "backend/app/main.py",
+      "config": {
+        "allowed_origins": [],
+        "allowed_methods": []
+      }
+    },
+    {
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "appliedAt": "backend/app/main_new.py",
+      "config": {
+        "allowed_origins": [],
+        "allowed_methods": []
+      }
+    },
+    {
+      "type": "middleware",
+      "name": "CORSMiddleware",
+      "appliedAt": "backend/app/parsers/python.py",
+      "config": {
+        "allowed_origins": [],
+        "allowed_methods": []
+      }
+    }
+  ],
+  "contracts": [
+    {
+      "name": "Repo",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "owner_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "Snapshot",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "repo_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "commit_hash",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "settings_hash",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "source",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "status",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "Job",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "repo_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "phase",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "pct",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "priority",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "error",
+          "type": "Text",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "updated_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "job_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "name",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "batch_index",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "state",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "attempt",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "started_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "ended_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "error",
+          "type": "Text",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "Artifact",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "kind",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "version",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "uri",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "bytes",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "schema_version",
+          "type": "Integer",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "generator_version",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "Event",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "job_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "type",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "payload",
+          "type": "JSON",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "Warning",
+      "kind": "sqlalchemy.Model",
+      "path": "backend/app/database.py",
+      "fields": [
+        {
+          "name": "id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "job_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "snapshot_id",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "file_path",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "code",
+          "type": "String",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "message",
+          "type": "Text",
+          "nullable": true,
+          "primary_key": false
+        },
+        {
+          "name": "created_at",
+          "type": "DateTime",
+          "nullable": true,
+          "primary_key": false
+        }
+      ]
+    },
+    {
+      "name": "test_capability_spec",
+      "kind": "test.Module",
+      "path": "tests/test_capability_spec.py",
+      "fields": []
+    },
+    {
+      "name": "test_generalization_spec",
+      "kind": "test.Module",
+      "path": "tests/test_generalization_spec.py",
+      "fields": []
+    },
+    {
+      "name": "__init__",
+      "kind": "parser.Module",
+      "path": "backend/app/parsers/__init__.py",
+      "fields": []
+    },
+    {
+      "name": "python",
+      "kind": "parser.Module",
+      "path": "backend/app/parsers/python.py",
+      "fields": []
+    },
+    {
+      "name": "js_ts",
+      "kind": "parser.Module",
+      "path": "backend/app/parsers/js_ts.py",
+      "fields": []
+    },
+    {
+      "name": "base",
+      "kind": "parser.Module",
+      "path": "backend/app/parsers/base.py",
+      "fields": []
+    },
+    {
+      "name": "test_api_v1",
+      "kind": "test.Module",
+      "path": "backend/tests/test_api_v1.py",
+      "fields": []
+    },
+    {
+      "name": "test_ingest",
+      "kind": "test.Module",
+      "path": "backend/tests/test_ingest.py",
+      "fields": []
+    },
+    {
+      "name": "test_js_ts_heuristics",
+      "kind": "test.Module",
+      "path": "backend/tests/test_js_ts_heuristics.py",
+      "fields": []
+    },
+    {
+      "name": "capabilities",
+      "kind": "api.Module",
+      "path": "backend/app/capabilities.py",
+      "fields": []
+    },
+    {
+      "name": "legacy_models",
+      "kind": "api.Module",
+      "path": "backend/app/legacy_models.py",
+      "fields": []
+    },
+    {
+      "name": "main",
+      "kind": "api.Module",
+      "path": "backend/app/main.py",
+      "fields": []
+    },
+    {
+      "name": "main_new",
+      "kind": "api.Module",
+      "path": "backend/app/main_new.py",
+      "fields": []
+    },
+    {
+      "name": "models",
+      "kind": "api.Module",
+      "path": "backend/app/models.py",
+      "fields": []
+    }
+  ],
+  "steps": [
+    {
+      "title": "Receive Request",
+      "description": "The API receives a request from the client.",
+      "fileId": null
+    },
+    {
+      "title": "Validate Input",
+      "description": "Validate path/query/body fields for required shape and types.",
+      "fileId": null
+    },
+    {
+      "title": "Fetch Prospect Data",
+      "description": "Load and prepare data for processing.",
+      "fileId": null
+    },
+    {
+      "title": "Generate Content",
+      "description": "Use AI services and templates to produce content.",
+      "fileId": null
+    },
+    {
+      "title": "Render PDF",
+      "description": "Render content into a PDF artifact.",
+      "fileId": null
+    },
+    {
+      "title": "Generate Slides",
+      "description": "Generate slide artifacts for web viewing or export.",
+      "fileId": null
+    },
+    {
+      "title": "Send Email",
+      "description": "Send a transactional email with status and links.",
+      "fileId": null
+    },
+    {
+      "title": "Return Success",
+      "description": "Return a 2xx response with the requested data.",
+      "fileId": null
+    }
+  ],
+  "orchestrators": [
+    "backend/app/main.py",
+    "backend/app/main_new.py"
+  ],
+  "nodeIndex": {
+    "backend/migrations/versions/001_create_initial_tables.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/queue.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/ingest.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/tasks.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/config.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/models.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/limits.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/events.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/database.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/__init__.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/observability.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/jobs.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/capabilities.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/storage.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/summarizer.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/jobs_new.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/main.py": {
+      "lane": "api",
+      "role": "entrypoint",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/qa.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/main_new.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/status.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/legacy_models.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/parsers/__init__.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/parsers/python.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/parsers/js_ts.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/parsers/base.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/llm/client.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/llm/__init__.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/llm/prompts.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/utils/id_gen.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/utils/file_safety.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/utils/io.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/app/utils/zip_safe.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    },
+    "backend/workers/worker.py": {
+      "lane": "api",
+      "role": "service",
+      "policies": [],
+      "relatedData": []
+    }
+  },
+  "dataOut": [
+    "IngestResponse",
+    "StatusPayload",
+    "Database",
+    "SMTP",
+    "RepoOverviewModel",
+    "OpenAI"
+  ],
+  "debug": {
+    "files_processed": 33,
+    "entrypoints_found": 25,
+    "models_found": 7,
+    "externals_found": 2,
+    "control_flow_edges": 65,
+    "policies_found": 5,
+    "contracts_found": 16,
+    "framework_detected": {
+      "nextjs": false,
+      "express": false,
+      "koa": false,
+      "nestjs": false,
+      "fastapi": false,
+      "flask": false,
+      "django": false,
+      "react": false,
+      "vue": false,
+      "angular": false
+    }
+  }
+}

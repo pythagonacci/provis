@@ -40,13 +40,37 @@ except ImportError:
         iter_py_files,
         synthesize_request_schemas
     )
+    from app.parsers.js_ts import (
+        find_all_routes,
+        collect_typescript_interfaces,
+        collect_javascript_schemas
+    )
+    from app.parsers.base import (
+        iter_all_source_files,
+        detect_project_context
+    )
 
 def lane_for_path(path: str) -> str:
     """Determine lane based on file path."""
-    if path.startswith("backend/app/") and path.endswith(".py"):
+    # API routes and backend files
+    if any(api_indicator in path for api_indicator in [
+        "api/", "routes/", "routers/", "backend/", "server/", "app/api/"
+    ]):
         return "api"
-    elif path.startswith("offdeal-frontend/"):
+    
+    # Frontend files
+    elif any(web_indicator in path for web_indicator in [
+        "frontend/", "client/", "src/app/", "pages/", "components/", "public/"
+    ]):
         return "web"
+    
+    # Worker files
+    elif any(worker_indicator in path for worker_indicator in [
+        "workers/", "jobs/", "tasks/", "queue/"
+    ]):
+        return "workers"
+    
+    # Default to other
     else:
         return "other"
 
@@ -201,8 +225,25 @@ def ensure_contract_coverage(cap):
         })
 
 def extract_data_flow(repo_root: Path):
-    """Extract comprehensive data flow using robust extractors."""
-    models = collect_pydantic_models(repo_root)
+    """Extract comprehensive data flow using multi-language extractors."""
+    # Detect project context
+    project_context = detect_project_context(repo_root)
+    
+    # Collect models from all supported languages
+    models = {}
+    if project_context.get("fastapi") or project_context.get("flask") or project_context.get("django"):
+        models.update(collect_pydantic_models(repo_root))
+    
+    if project_context.get("nextjs") or project_context.get("express") or project_context.get("koa"):
+        models.update(collect_typescript_interfaces(repo_root))
+        models.update(collect_javascript_schemas(repo_root))
+    
+    # If no models found, try all extractors
+    if not models:
+        models.update(collect_pydantic_models(repo_root))
+        models.update(collect_typescript_interfaces(repo_root))
+        models.update(collect_javascript_schemas(repo_root))
+    
     sa_models = collect_sqlalchemy_models(repo_root)
     routes = find_fastapi_routes(repo_root)
 
@@ -299,7 +340,7 @@ def build_policies(repo_root: Path) -> List[Dict]:
     """Build policies from CORS middleware and dependencies."""
     policies = []
     
-    for f in iter_py_files(repo_root):
+    for f in iter_all_source_files(repo_root):
         try:
             text = f.read_text(encoding="utf-8")
             rel_path = str(f.relative_to(repo_root))
@@ -355,11 +396,39 @@ def build_contracts(models: Dict, data_flow: Dict, repo_root: Path) -> List[Dict
     return contracts
 
 def build_capability(repo_dir: Path) -> Dict[str, Any]:
-    """Build comprehensive capability.json for FastAPI + SQLAlchemy backend."""
+    """Build comprehensive capability.json for any supported framework."""
     
-    # Extract data using robust extractors
-    models = collect_pydantic_models(repo_dir)
-    routes = find_fastapi_routes(repo_dir)
+    # Detect project context to determine framework
+    project_context = detect_project_context(repo_dir)
+    
+    # Extract data using multi-language extractors
+    models = {}
+    routes = []
+    
+    # Python-specific extraction
+    if project_context.get("fastapi") or project_context.get("flask") or project_context.get("django"):
+        models.update(collect_pydantic_models(repo_dir))
+        routes.extend(find_fastapi_routes(repo_dir))
+    
+    # JavaScript/TypeScript-specific extraction
+    if project_context.get("nextjs") or project_context.get("express") or project_context.get("koa"):
+        routes.extend(find_all_routes(repo_dir))
+        models.update(collect_typescript_interfaces(repo_dir))
+        models.update(collect_javascript_schemas(repo_dir))
+    
+    # If no routes found, try to find any routes regardless of framework detection
+    if not routes:
+        routes.extend(find_all_routes(repo_dir))
+        if not routes:
+            routes.extend(find_fastapi_routes(repo_dir))
+    
+    # Ensure FastAPI routes have the correct framework
+    for route in routes:
+        if "file" not in route:
+            route["file"] = route.get("path", "")
+        if "framework" not in route:
+            route["framework"] = "fastapi"  # Default for compatibility
+    
     data_flow = extract_data_flow(repo_dir)
     control_flow = build_control_flow(repo_dir, routes)
     policies = build_policies(repo_dir)
@@ -370,7 +439,7 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
     for route in routes:
         entrypoints.append({
             "path": route["file"],
-            "framework": "fastapi",
+            "framework": route.get("framework", "unknown"),
             "kind": "api",
             "route": route["route"]
         })
@@ -383,24 +452,28 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
     
     # Build swimlanes
     swimlanes = {"web": [], "api": [], "workers": [], "other": []}
-    for f in iter_py_files(repo_dir):
+    for f in iter_all_source_files(repo_dir):
         rel_path = str(f.relative_to(repo_dir))
         lane = lane_for_path(rel_path)
         swimlanes[lane].append(rel_path)
     
     # Build nodeIndex
     node_index = {}
-    for f in iter_py_files(repo_dir):
+    for f in iter_all_source_files(repo_dir):
         rel_path = str(f.relative_to(repo_dir))
         lane = lane_for_path(rel_path)
         
-        # Force routers to api lane
-        if rel_path.startswith("backend/app/routers/"):
+        # Determine role based on file type and location
+        role = "service"
+        if any(main in rel_path for main in ["main.py", "app.py", "index.js", "server.js"]):
+            role = "entrypoint"
+        elif any(router in rel_path for router in ["routers/", "routes/", "api/", "pages/api/", "app/api/"]):
+            role = "entrypoint"
             lane = "api"
             
         node_index[rel_path] = {
             "lane": lane,
-            "role": "entrypoint" if "main.py" in rel_path else "service",
+            "role": role,
             "policies": [],
             "relatedData": []
         }
@@ -428,13 +501,14 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
         "nodeIndex": node_index,
         "dataOut": data_out,
         "debug": {
-            "files_processed": len(list(iter_py_files(repo_dir))),
+            "files_processed": len(list(iter_all_source_files(repo_dir))),
             "entrypoints_found": len(entrypoints),
             "models_found": len(data_flow["stores"]),
             "externals_found": len(data_flow["externals"]),
             "control_flow_edges": len(control_flow),
             "policies_found": len(policies),
-            "contracts_found": len(contracts)
+            "contracts_found": len(contracts),
+            "framework_detected": project_context
         }
     }
     

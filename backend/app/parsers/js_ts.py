@@ -98,6 +98,54 @@ def _extract_nextjs_route_methods(text: str) -> List[str]:
     return list(set(methods))  # Remove duplicates
 
 
+def find_all_routes(repo_root: Path) -> List[Dict[str, str]]:
+    """Find all routes across different JavaScript/TypeScript frameworks."""
+    routes = []
+    
+    for file_path in repo_root.rglob("*"):
+        if not file_path.is_file():
+            continue
+            
+        # Skip non-source files
+        if file_path.suffix.lower() not in {".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs"}:
+            continue
+            
+        # Skip build artifacts and dependencies
+        if any(seg in ("node_modules", "dist", "build", ".next", ".nuxt", "out") for seg in file_path.parts):
+            continue
+        if any(seg.startswith(".") for seg in file_path.parts):
+            continue
+            
+        try:
+            text = _read_text(file_path)
+            rel_path = str(file_path.relative_to(repo_root))
+            
+            # Detect Next.js routes
+            nextjs_routes = _detect_nextjs_routes(rel_path, file_path.name, text)
+            for route in nextjs_routes:
+                route["file"] = rel_path
+                route["framework"] = "nextjs"
+                routes.append(route)
+            
+            # Detect Express routes
+            express_routes = _detect_express_routes(text)
+            for route in express_routes:
+                route["file"] = rel_path
+                route["framework"] = "express"
+                routes.append(route)
+                
+            # Detect Koa routes
+            koa_routes = _detect_koa_routes(text)
+            for route in koa_routes:
+                route["file"] = rel_path
+                route["framework"] = "koa"
+                routes.append(route)
+                
+        except Exception:
+            continue
+    
+    return routes
+
 def _detect_express_routes(text: str) -> List[Dict[str, str]]:
     """Detect Express.js routes from app.get/post/put/delete calls with hardened patterns."""
     routes = []
@@ -147,6 +195,126 @@ def _detect_express_routes(text: str) -> List[Dict[str, str]]:
     
     return routes
 
+def _detect_koa_routes(text: str) -> List[Dict[str, str]]:
+    """Detect Koa.js routes from router.get/post/put/delete calls."""
+    routes = []
+    
+    # Koa router patterns: router.get('/path', handler)
+    koa_pattern = r'router\.(get|post|put|delete|patch|options|head)\s*\(\s*[\'"]([^\'"]+)[\'"]\s*,\s*(?:async\s+)?(?:function\s*\(|\([^)]*\)\s*=>|[\w_]+)'
+    matches = re.findall(koa_pattern, text, re.MULTILINE)
+    
+    for method, path in matches:
+        if path and not path.startswith('config'):
+            routes.append({
+                "method": method.upper(),
+                "path": path,
+                "handler": "anonymous"
+            })
+    
+    return routes
+
+def collect_typescript_interfaces(repo_root: Path) -> Dict[str, Dict[str, Any]]:
+    """Extract TypeScript interfaces and type definitions."""
+    interfaces = {}
+    
+    for file_path in repo_root.rglob("*.ts"):
+        if not file_path.is_file():
+            continue
+            
+        # Skip build artifacts
+        if any(seg in ("node_modules", "dist", "build", ".next") for seg in file_path.parts):
+            continue
+        if any(seg.startswith(".") for seg in file_path.parts):
+            continue
+            
+        try:
+            text = _read_text(file_path)
+            rel_path = str(file_path.relative_to(repo_root))
+            
+            # Extract interfaces
+            interface_pattern = r'interface\s+(\w+)\s*\{([^}]+)\}'
+            matches = re.findall(interface_pattern, text, re.DOTALL)
+            
+            for name, body in matches:
+                # Extract field names from interface body
+                field_pattern = r'(\w+)(?:\?)?\s*:'
+                fields = re.findall(field_pattern, body)
+                
+                interfaces[name] = {
+                    "path": rel_path,
+                    "kind": "typescript.Interface",
+                    "fields": fields
+                }
+            
+            # Extract type aliases
+            type_pattern = r'type\s+(\w+)\s*=\s*\{([^}]+)\}'
+            type_matches = re.findall(type_pattern, text, re.DOTALL)
+            
+            for name, body in type_matches:
+                field_pattern = r'(\w+)(?:\?)?\s*:'
+                fields = re.findall(field_pattern, body)
+                
+                interfaces[name] = {
+                    "path": rel_path,
+                    "kind": "typescript.Type",
+                    "fields": fields
+                }
+                
+        except Exception:
+            continue
+    
+    return interfaces
+
+def collect_javascript_schemas(repo_root: Path) -> Dict[str, Dict[str, Any]]:
+    """Extract JavaScript object schemas and validation patterns."""
+    schemas = {}
+    
+    for file_path in repo_root.rglob("*.js"):
+        if not file_path.is_file():
+            continue
+            
+        # Skip build artifacts
+        if any(seg in ("node_modules", "dist", "build", ".next") for seg in file_path.parts):
+            continue
+        if any(seg.startswith(".") for seg in file_path.parts):
+            continue
+            
+        try:
+            text = _read_text(file_path)
+            rel_path = str(file_path.relative_to(repo_root))
+            
+            # Extract Joi schemas
+            joi_pattern = r'const\s+(\w+)\s*=\s*Joi\.object\(\)\.keys\(\s*\{([^}]+)\}'
+            joi_matches = re.findall(joi_pattern, text, re.DOTALL)
+            
+            for name, body in joi_matches:
+                field_pattern = r'(\w+)\s*:'
+                fields = re.findall(field_pattern, body)
+                
+                schemas[name] = {
+                    "path": rel_path,
+                    "kind": "javascript.JoiSchema",
+                    "fields": fields
+                }
+            
+            # Extract Zod schemas
+            zod_pattern = r'const\s+(\w+)\s*=\s*z\.object\(\s*\{([^}]+)\}'
+            zod_matches = re.findall(zod_pattern, text, re.DOTALL)
+            
+            for name, body in zod_matches:
+                field_pattern = r'(\w+)\s*:'
+                fields = re.findall(field_pattern, body)
+                
+                schemas[name] = {
+                    "path": rel_path,
+                    "kind": "javascript.ZodSchema",
+                    "fields": fields
+                }
+                
+        except Exception:
+            continue
+    
+    return schemas
 
 def _detect_framework_hints(path: str, text: str, ext: str) -> Dict[str, Any]:
     hints = {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False}
