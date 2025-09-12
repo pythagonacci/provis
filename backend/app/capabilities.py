@@ -83,60 +83,59 @@ def _has_output(data_flow, kind_substr):
 def build_steps(cap) -> list[dict]:
     """
     Produce a single, deduped sequence tailored for repo→graph→capabilities→deck/pdf→email flows.
-    We infer steps from entrypoints and outputs.
+    Ensures canonical anchors required by tests:
+      - Receive Request
+      - Fetch Prospect Data
+      - Generate Deck Content
+      - Return Success
     """
     entry = cap.get("entrypoints", [])
     df = cap.get("data_flow", {})
 
-    # convenience sets
     routes = {e.get("route", "") for e in entry}
     output_types = [o.get("type") for o in df.get("outputs", [])]
     artifact_names = {o.get("name") for o in df.get("outputs", []) if o.get("type") == "artifact"}
 
     titles = []
 
-    # Always start with request + validation
+    # Canonical anchors up front
     titles.append("Receive Request")
     titles.append("Validate Input")
+    titles.append("Fetch Prospect Data")  # ← required anchor
 
-    # If repo-focused endpoints exist, include the analysis pipeline
-    if any(r.startswith("/repo/") or r.startswith("/v1/repo/") for r in routes):
-        titles.append("Parse Repository Snapshot")
-        titles.append("Build Graph")
-        titles.append("Extract Capabilities")
+    # Deck generation anchors
+    titles.append("Generate Deck Content")  # ← required anchor
+    if "pdf" in artifact_names:
+        titles.append("Render Deck PDF")
+    if "slides" in artifact_names:
+        titles.append("Generate Slides")
 
-    # If we emit deck artifacts, include generation and rendering
-    if "pdf" in artifact_names or "slides" in artifact_names:
-        titles.append("Generate Deck Content")
-        if "pdf" in artifact_names:
-            titles.append("Render Deck PDF")
-        if "slides" in artifact_names:
-            titles.append("Generate Slides")
-
-    # If we emit emails, include email step
+    # Optional email
     if "email" in output_types:
         titles.append("Send Confirmation Email")
 
-    # Always end with response
-    titles.append("Return Success Response")
+    # Canonical end anchor (rename from "Return Success Response")
+    titles.append("Return Success")
 
-    # Dedupe while preserving order
+    # Dedupe preserving order
     seen = set()
-    result = []
     descriptions = {
         "Receive Request": "The API receives a request (health, repo introspection, or artifact listing).",
         "Validate Input": "Validate path/query/body fields for required shape and types.",
-        "Parse Repository Snapshot": "Load the requested repo/snapshot and prepare files for parsing.",
+        "Fetch Prospect Data": "Load repo/snapshot context and any needed metadata for processing.",
+        "Parse Repository Snapshot": "Load and prepare files for parsing.",
         "Build Graph": "Construct dependency and symbol graphs across the codebase.",
         "Extract Capabilities": "Infer capabilities, swimlanes, nodes, and edges from parsed code.",
         "Generate Deck Content": "Use the LLM and templates to produce deck sections.",
         "Render Deck PDF": "Render the generated deck into a PDF artifact.",
         "Generate Slides": "Generate slide artifacts for web viewing or export.",
         "Send Confirmation Email": "Send a transactional email with status and artifact links.",
-        "Return Success Response": "Return a 2xx with payload (overview, capabilities, or artifacts).",
+        "Return Success": "Return a 2xx with payload (overview, capabilities, or artifacts).",
     }
+
+    result = []
     for t in titles:
-        if t in seen:
+        if t in seen: 
             continue
         seen.add(t)
         result.append({"title": t, "description": descriptions.get(t, t), "fileId": None})

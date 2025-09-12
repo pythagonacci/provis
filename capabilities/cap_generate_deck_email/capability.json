@@ -1708,18 +1708,8 @@
       "fileId": null
     },
     {
-      "title": "Parse Repository Snapshot",
-      "description": "Load the requested repo/snapshot and prepare files for parsing.",
-      "fileId": null
-    },
-    {
-      "title": "Build Graph",
-      "description": "Construct dependency and symbol graphs across the codebase.",
-      "fileId": null
-    },
-    {
-      "title": "Extract Capabilities",
-      "description": "Infer capabilities, swimlanes, nodes, and edges from parsed code.",
+      "title": "Fetch Prospect Data",
+      "description": "Load repo/snapshot context and any needed metadata for processing.",
       "fileId": null
     },
     {
@@ -1743,7 +1733,7 @@
       "fileId": null
     },
     {
-      "title": "Return Success Response",
+      "title": "Return Success",
       "description": "Return a 2xx with payload (overview, capabilities, or artifacts).",
       "fileId": null
     }
@@ -2015,12 +2005,12 @@
     }
   },
   "dataOut": [
-    "OpenAI",
-    "IngestResponse",
+    "StatusPayload",
     "RepoOverviewModel",
     "Database",
+    "OpenAI",
     "SMTP",
-    "StatusPayload"
+    "IngestResponse"
   ],
   "debug": {
     "files_processed": 43,
