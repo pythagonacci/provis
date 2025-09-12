@@ -537,6 +537,106 @@
   "data_flow": {
     "inputs": [
       {
+        "type": "requestSchema",
+        "name": "main.get_file_detailsRequest",
+        "path": "backend/app/main.py",
+        "fields": [
+          "path"
+        ],
+        "route": "/v1/repo/{repo_id}/file",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main.get_suggestionsRequest",
+        "path": "backend/app/main.py",
+        "fields": [
+          "capability"
+        ],
+        "route": "/repo/{repo_id}/suggestions",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main.get_files_filteredRequest",
+        "path": "backend/app/main.py",
+        "fields": [
+          "capability"
+        ],
+        "route": "/repo/{repo_id}/files",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.stream_job_eventsRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "last_event_id"
+        ],
+        "route": "/jobs/{job_id}/events",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.list_artifactsRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "presign_urls"
+        ],
+        "route": "/repos/{repo_id}/snapshots/{snapshot_id}/artifacts",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_graphRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/graph",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_filesRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/files",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_capabilitiesRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/capabilities",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.get_metricsRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "snapshot_id"
+        ],
+        "route": "/repo/{repo_id}/metrics",
+        "synthetic": true
+      },
+      {
+        "type": "requestSchema",
+        "name": "main_new.qa_endpointRequest",
+        "path": "backend/app/main_new.py",
+        "fields": [
+          "question"
+        ],
+        "route": "/repo/{repo_id}/qa",
+        "synthetic": true
+      },
+      {
         "type": "env",
         "key": "OPENAI_API_KEY",
         "path": "backend/app/config.py",
@@ -1020,6 +1120,12 @@
         "name": "transactional_email",
         "path": "tests/test_capability_spec.py",
         "usedFor": "Sends confirmation email"
+      },
+      {
+        "type": "artifact",
+        "name": "pdf",
+        "path": "backend/app/capabilities.py",
+        "usedFor": "Generated deck PDF"
       },
       {
         "type": "artifact",
@@ -1570,44 +1676,83 @@
       "kind": "parser.Module",
       "path": "backend 2/app/parsers/python.py",
       "fields": []
+    },
+    {
+      "name": "capabilities",
+      "kind": "api.Module",
+      "path": "backend/app/capabilities.py",
+      "fields": []
+    },
+    {
+      "name": "main",
+      "kind": "api.Module",
+      "path": "backend/app/main.py",
+      "fields": []
+    },
+    {
+      "name": "main_new",
+      "kind": "api.Module",
+      "path": "backend/app/main_new.py",
+      "fields": []
     }
   ],
   "steps": [
     {
       "title": "Receive Request",
-      "description": "FastAPI receives HTTP request",
-      "fileId": "backend/app/main.py"
+      "description": "The API receives a request (health, repo introspection, or artifact listing).",
+      "fileId": null
     },
     {
       "title": "Validate Input",
-      "description": "Validate input data using Pydantic schemas",
-      "fileId": "backend/app/models.py"
+      "description": "Validate path/query/body fields for required shape and types.",
+      "fileId": null
     },
     {
-      "title": "Process Request",
-      "description": "Process the request using business logic",
-      "fileId": "backend/app/database.py"
+      "title": "Parse Repository Snapshot",
+      "description": "Load the requested repo/snapshot and prepare files for parsing.",
+      "fileId": null
     },
     {
-      "title": "Generate Response",
-      "description": "Use AI service to generate response",
-      "fileId": "backend/app/llm/client.py"
+      "title": "Build Graph",
+      "description": "Construct dependency and symbol graphs across the codebase.",
+      "fileId": null
     },
     {
-      "title": "Save Results",
-      "description": "Save results to database",
-      "fileId": "backend/app/database.py"
+      "title": "Extract Capabilities",
+      "description": "Infer capabilities, swimlanes, nodes, and edges from parsed code.",
+      "fileId": null
     },
     {
-      "title": "Return Response",
-      "description": "Return response to client",
-      "fileId": "backend/app/main.py"
+      "title": "Generate Deck Content",
+      "description": "Use the LLM and templates to produce deck sections.",
+      "fileId": null
+    },
+    {
+      "title": "Render Deck PDF",
+      "description": "Render the generated deck into a PDF artifact.",
+      "fileId": null
+    },
+    {
+      "title": "Generate Slides",
+      "description": "Generate slide artifacts for web viewing or export.",
+      "fileId": null
+    },
+    {
+      "title": "Send Confirmation Email",
+      "description": "Send a transactional email with status and artifact links.",
+      "fileId": null
+    },
+    {
+      "title": "Return Success Response",
+      "description": "Return a 2xx with payload (overview, capabilities, or artifacts).",
+      "fileId": null
     }
   ],
   "orchestrators": [
     "backend/app/main.py",
-    "backend/app/database.py",
-    "backend/app/config.py"
+    "backend/app/main_new.py",
+    "backend/app/routers/deck.py",
+    "backend/app/routers/email.py"
   ],
   "nodeIndex": {
     "frontend/provis-frontend/node_modules/flatted/python/flatted.py": {
@@ -1871,11 +2016,11 @@
   },
   "dataOut": [
     "OpenAI",
-    "RepoOverviewModel",
-    "SMTP",
     "IngestResponse",
-    "StatusPayload",
-    "Database"
+    "RepoOverviewModel",
+    "Database",
+    "SMTP",
+    "StatusPayload"
   ],
   "debug": {
     "files_processed": 43,

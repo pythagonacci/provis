@@ -1381,6 +1381,33 @@ def extract_dependencies(text: str, path: str) -> List[Dict[str, Any]]:
     
     return dependencies
 
+def synthesize_request_schemas(routes):
+    """
+    Create synthetic requestSchema entries when a route has no Pydantic model.
+    Uses non-path parameters as the 'fields' list.
+    """
+    items = []
+    for r in routes:
+        # collect path params from the route template
+        path_params = {seg.strip("{}") for seg in r["route"].split("/") if seg.startswith("{") and seg.endswith("}")}
+        fields = []
+        for p in r["params"]:
+            # exclude path params
+            if p["name"] in path_params:
+                continue
+            # include any non-path param as part of the body/query
+            fields.append(p["name"])
+        if fields:
+            items.append({
+                "type": "requestSchema",
+                "name": f"{Path(r['file']).stem}.{r['func']}Request",
+                "path": r["file"],
+                "fields": fields,
+                "route": r["route"],
+                "synthetic": True
+            })
+    return items
+
 def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
     """Extract Pydantic models from Python code."""
     models = []
