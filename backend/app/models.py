@@ -72,4 +72,43 @@ class StatusPayload(BaseModel):
     error: Optional[str] = None
 
 
+# API Response Models
+class RepoOverviewModel(BaseModel):
+    tree: Dict[str, Any]
+    files: Dict[str, Any] 
+    capabilities: List[Dict[str, Any]]
+    metrics: Dict[str, Any]
+
+class CapabilitySummaryModel(BaseModel):
+    id: str
+    name: str
+    purpose: str
+    entryPoints: List[str] = Field(default_factory=list)
+    keyFiles: List[str] = Field(default_factory=list)
+    dataIn: List[str] = Field(default_factory=list)
+    dataOut: List[str] = Field(default_factory=list)
+    sources: List[str] = Field(default_factory=list)
+    sinks: List[str] = Field(default_factory=list)
+
+class CapabilityDetailModel(BaseModel):
+    id: str
+    name: str
+    purpose: str
+    entryPoints: List[str] = Field(default_factory=list)
+    orchestrators: List[str] = Field(default_factory=list)
+    keyFiles: List[str] = Field(default_factory=list)
+    dataIn: List[str] = Field(default_factory=list)
+    dataOut: List[str] = Field(default_factory=list)
+    sources: List[str] = Field(default_factory=list)
+    sinks: List[str] = Field(default_factory=list)
+    steps: List[Dict[str, Any]] = Field(default_factory=list)
+    controlFlow: List[Dict[str, Any]] = Field(default_factory=list)
+    dataFlow: Dict[str, Any] = Field(default_factory=dict)
+    swimlanes: Dict[str, Any] = Field(default_factory=dict)
+    nodeIndex: Dict[str, Any] = Field(default_factory=dict)
+    policies: List[Dict[str, Any]] = Field(default_factory=list)
+    contracts: List[Dict[str, Any]] = Field(default_factory=list)
+    suspectRank: List[str] = Field(default_factory=list)
+    recentChanges: List[Dict[str, Any]] = Field(default_factory=list)
+
 # Legacy models moved to legacy_models.py for backward compatibility

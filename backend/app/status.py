@@ -192,3 +192,53 @@ def get_status(job_id: str) -> Dict[str, Any]:
     """Convenience function for getting job status."""
     status_manager = get_status_manager()
     return status_manager.get_status(job_id)
+
+# Legacy StatusStore class for file-based status management
+class StatusStore:
+    """Legacy file-based status store for backward compatibility."""
+    
+    def __init__(self, repo_dir):
+        self.repo_dir = repo_dir
+        self.status_file = repo_dir / "status.json"
+    
+    def read(self):
+        """Read status from file."""
+        if self.status_file.exists():
+            data = json.loads(self.status_file.read_text())
+            # Convert to a simple object-like structure
+            class Status:
+                def __init__(self, data):
+                    for key, value in data.items():
+                        setattr(self, key, value)
+                def model_dump(self):
+                    return {k: v for k, v in self.__dict__.items()}
+            return Status(data)
+        else:
+            # Return default status
+            class Status:
+                def __init__(self):
+                    self.jobId = None
+                    self.repoId = None
+                    self.phase = "pending"
+                    self.pct = 0
+                    self.filesParsed = 0
+                    self.imports = 0
+                    self.warnings = []
+                def model_dump(self):
+                    return {
+                        "jobId": self.jobId,
+                        "repoId": self.repoId,
+                        "phase": self.phase,
+                        "pct": self.pct,
+                        "filesParsed": self.filesParsed,
+                        "imports": self.imports,
+                        "warnings": self.warnings
+                    }
+            return Status()
+    
+    def update(self, **kwargs):
+        """Update status in file."""
+        status_data = self.read().model_dump()
+        status_data.update(kwargs)
+        self.status_file.parent.mkdir(parents=True, exist_ok=True)
+        self.status_file.write_text(json.dumps(status_data, indent=2))

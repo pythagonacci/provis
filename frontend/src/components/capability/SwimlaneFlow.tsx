@@ -1,99 +1,77 @@
-import React, { useMemo } from 'react';
-import { GitBranch } from 'lucide-react';
-import { GraphNode, GraphEdge } from '@/types/capability';
+'use client';
 
-type SwimlaneFlowProps = {
-  focus: string | null;
-  highlighted?: string[];
-  onSelect?: (id: string) => void;
-  // This will be populated with real data from the backend
-  nodes?: GraphNode[];
-  edges?: GraphEdge[];
-};
-
-// Placeholder graph layout - will be replaced with real data
-function buildPlaceholderGraph(focus: string | null) {
-  const layout: GraphNode[] = [
-    { id: "app/page.tsx", label: "page.tsx", x: 80, y: 170 },
-    { id: "pages/api/compileDeck.ts", label: "compileDeck.ts", x: 250, y: 170 },
-    { id: "deck/compile.ts", label: "compile.ts", x: 430, y: 170 },
-    { id: "slides/buildOutline.ts", label: "buildOutline.ts", x: 620, y: 120 },
-    { id: "templates/mdToHtml.ts", label: "mdToHtml.ts", x: 620, y: 220 },
-    { id: "content/sections.ts", label: "sections.ts", x: 800, y: 120 },
-    { id: "styles/print.css", label: "print.css", x: 800, y: 240 },
-  ];
-  const edges: GraphEdge[] = [
-    { from: "app/page.tsx", to: "pages/api/compileDeck.ts" },
-    { from: "pages/api/compileDeck.ts", to: "deck/compile.ts" },
-    { from: "deck/compile.ts", to: "slides/buildOutline.ts" },
-    { from: "deck/compile.ts", to: "templates/mdToHtml.ts" },
-    { from: "slides/buildOutline.ts", to: "content/sections.ts" },
-    { from: "deck/compile.ts", to: "styles/print.css" },
-  ];
-  return { nodes: layout, edges, focus };
+interface SwimlaneFlowProps {
+  swimlanes: Record<string, string[]>;
+  nodeIndex: Record<string, any>;
+  controlFlow: Array<{ from: string; to: string; type: string }>;
+  steps: Array<{ title: string; description: string; fileId?: string }>;
 }
 
-export function SwimlaneFlow({ focus, highlighted = [], onSelect, nodes, edges }: SwimlaneFlowProps) {
-  // Use real data if available, otherwise fall back to placeholder
-  const graph = useMemo(() => {
-    if (nodes && edges) {
-      return { nodes, edges, focus };
-    }
-    return buildPlaceholderGraph(focus);
-  }, [focus, nodes, edges]);
+export default function SwimlaneFlow({ swimlanes, nodeIndex, controlFlow, steps }: SwimlaneFlowProps) {
+  const laneColors = {
+    api: 'bg-blue-100 border-blue-300 text-blue-800',
+    web: 'bg-green-100 border-green-300 text-green-800',
+    workers: 'bg-purple-100 border-purple-300 text-purple-800',
+    other: 'bg-gray-100 border-gray-300 text-gray-800'
+  };
 
   return (
-    <div className="relative h-[360px] w-full rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-white/0 p-3 backdrop-blur">
-      <svg className="h-full w-full">
-        {graph.edges.map((e, i) => {
-          const a = graph.nodes.find((n) => n.id === e.from)!;
-          const b = graph.nodes.find((n) => n.id === e.to)!;
-          const edgeHot = [focus, ...highlighted].includes(e.from) || [focus, ...highlighted].includes(e.to);
-          return (
-            <line 
-              key={i} 
-              x1={a.x} 
-              y1={a.y} 
-              x2={b.x} 
-              y2={b.y} 
-              stroke="currentColor" 
-              className={edgeHot ? "text-emerald-300" : "text-white/30"} 
-              strokeWidth={edgeHot ? 2 : 1.5} 
-              markerEnd="url(#arrow)" 
-            />
-          );
-        })}
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" className="text-white/30" />
-          </marker>
-        </defs>
-        {graph.nodes.map((n) => {
-          const isFocus = focus === n.id;
-          const isHi = highlighted.includes(n.id);
-          return (
-            <g 
-              key={n.id} 
-              transform={`translate(${n.x - 36}, ${n.y - 18})`} 
-              onClick={() => onSelect?.(n.id)} 
-              style={{ cursor: 'pointer' }}
-            >
-              <rect 
-                width="120" 
-                height="32" 
-                rx="8" 
-                stroke="currentColor" 
-                strokeWidth={isFocus || isHi ? 2 : 1} 
-                className={`fill-white/10 ${isFocus || isHi ? 'text-emerald-300' : 'text-white/20'}`} 
-              />
-              <text x="10" y="20" className="fill-white text-xs">{n.label}</text>
-            </g>
-          );
-        })}
-      </svg>
-      <div className="absolute left-3 top-3 flex items-center gap-2 text-xs text-white/70">
-        <GitBranch size={14} /> 
-        {nodes && edges ? 'Repository flow' : 'Placeholder flow - waiting for real data'}
+    <div className="space-y-6">
+      {/* Steps Flow */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Processing Steps</h3>
+        <div className="flex flex-wrap gap-2">
+          {steps.map((step, index) => (
+            <div key={index} className="flex items-center">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                <div className="flex items-center">
+                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium mr-2">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">{step.title}</p>
+                    <p className="text-xs text-blue-700">{step.description}</p>
+                  </div>
+                </div>
+              </div>
+              {index < steps.length - 1 && (
+                <div className="mx-2 text-gray-400">→</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Swimlanes */}
+      <div>
+        <h3 className="text-sm font-medium text-gray-900 mb-3">File Organization</h3>
+        <div className="space-y-4">
+          {Object.entries(swimlanes).map(([lane, files]) => (
+            <div key={lane} className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className={`px-4 py-2 ${laneColors[lane as keyof typeof laneColors] || laneColors.other}`}>
+                <h4 className="font-medium capitalize">{lane} ({files.length})</h4>
+              </div>
+              <div className="p-4">
+                {files.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {files.slice(0, 12).map((file, index) => (
+                      <div key={index} className="text-sm text-gray-700 bg-gray-50 rounded px-2 py-1 truncate">
+                        {file}
+                      </div>
+                    ))}
+                    {files.length > 12 && (
+                      <div className="text-sm text-gray-500 italic">
+                        +{files.length - 12} more files
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">No files in this lane</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
