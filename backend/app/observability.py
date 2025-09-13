@@ -1,373 +1,163 @@
 """
-Observability system with structured logging and Prometheus metrics.
+Observability and metrics collection for Provis.
+Tracks parsing performance, LLM usage, and degradation patterns.
 """
-import os
-import json
-import logging
 import time
+import logging
 from typing import Dict, Any, Optional
-from datetime import datetime
-from contextlib import contextmanager
-from functools import wraps
-
-try:
-    from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
-    PROMETHEUS_AVAILABLE = True
-except ImportError:
-    PROMETHEUS_AVAILABLE = False
-    # Create dummy classes for when prometheus_client is not available
-    class Counter:
-        def __init__(self, *args, **kwargs): pass
-        def inc(self, *args, **kwargs): pass
-        def labels(self, *args, **kwargs): return self
-    
-    class Histogram:
-        def __init__(self, *args, **kwargs): pass
-        def observe(self, *args, **kwargs): pass
-        def time(self): return self
-        def __enter__(self): return self
-        def __exit__(self, *args): pass
-    
-    class Gauge:
-        def __init__(self, *args, **kwargs): pass
-        def set(self, *args, **kwargs): pass
-        def labels(self, *args, **kwargs): return self
+from dataclasses import dataclass, field
+from collections import defaultdict, Counter
+from threading import Lock
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class MetricsCollector:
-    """Collects and exposes Prometheus metrics."""
+    """Thread-safe metrics collector for Provis operations."""
     
-    def __init__(self):
-        if not PROMETHEUS_AVAILABLE:
-            logger.warning("prometheus_client not available, metrics will be disabled")
-            return
-        
-        # Job metrics
-        self.jobs_total = Counter(
-            'provis_jobs_total',
-            'Total number of jobs',
-            ['phase', 'status']
-        )
-        
-        self.job_duration_ms = Histogram(
-            'provis_job_duration_ms',
-            'Job duration in milliseconds',
-            ['phase'],
-            buckets=[100, 500, 1000, 5000, 10000, 30000, 60000, 300000, 600000, 1800000]
-        )
-        
-        # Task metrics
-        self.tasks_total = Counter(
-            'provis_tasks_total',
-            'Total number of tasks',
-            ['name', 'state']
-        )
-        
-        self.task_duration_ms = Histogram(
-            'provis_task_duration_ms',
-            'Task duration in milliseconds',
-            ['name'],
-            buckets=[10, 50, 100, 500, 1000, 5000, 10000, 30000, 60000, 300000]
-        )
-        
-        # File parsing metrics
-        self.files_parsed_total = Counter(
-            'provis_files_parsed_total',
-            'Total number of files parsed',
-            ['language', 'status']
-        )
-        
-        self.node_parse_ms = Histogram(
-            'provis_node_parse_ms',
-            'Node.js subprocess parse duration in milliseconds',
-            buckets=[100, 500, 1000, 5000, 10000, 20000, 30000]
-        )
-        
-        # Import metrics
-        self.imports_total = Counter(
-            'provis_imports_total',
-            'Total number of imports processed',
-            ['type']  # internal, external
-        )
-        
-        # Artifact metrics
-        self.artifacts_created_total = Counter(
-            'provis_artifacts_created_total',
-            'Total number of artifacts created',
-            ['kind']
-        )
-        
-        self.artifact_bytes = Histogram(
-            'provis_artifact_bytes',
-            'Artifact size in bytes',
-            ['kind'],
-            buckets=[1024, 10240, 102400, 1048576, 10485760, 104857600, 1073741824]
-        )
-        
-        # Queue metrics
-        self.queue_size = Gauge(
-            'provis_queue_size',
-            'Current queue size',
-            ['queue_name']
-        )
-        
-        # Error metrics
-        self.errors_total = Counter(
-            'provis_errors_total',
-            'Total number of errors',
-            ['component', 'error_type']
-        )
-        
-        # LLM metrics
-        self.llm_calls_total = Counter(
-            'provis_llm_calls_total',
-            'Total number of LLM API calls',
-            ['operation', 'model', 'status']
-        )
-        
-        self.llm_tokens_total = Counter(
-            'provis_llm_tokens_total',
-            'Total number of LLM tokens processed',
-            ['operation', 'model', 'type']  # type: input, output
-        )
-        
-        self.llm_duration_ms = Histogram(
-            'provis_llm_duration_ms',
-            'LLM API call duration in milliseconds',
-            ['operation', 'model'],
-            buckets=[100, 500, 1000, 2000, 5000, 10000, 30000, 60000]
-        )
-        
-        self.llm_cache_hits_total = Counter(
-            'provis_llm_cache_hits_total',
-            'Total number of LLM cache hits',
-            ['operation']
-        )
-        
-        self.llm_timeouts_total = Counter(
-            'provis_llm_timeouts_total',
-            'Total number of LLM timeouts',
-            ['operation', 'model']
-        )
-        
-        logger.info("Initialized Prometheus metrics collector")
+    # Counters
+    files_parsed: int = 0
+    files_skipped: int = 0
+    imports_resolved: int = 0
+    imports_unresolved: int = 0
+    routes_detected: int = 0
+    jobs_detected: int = 0
+    stores_detected: int = 0
+    externals_detected: int = 0
     
-    def record_job_start(self, job_id: str, phase: str):
-        """Record job start."""
-        if PROMETHEUS_AVAILABLE:
-            self.jobs_total.labels(phase=phase, status='started').inc()
+    # LLM metrics
+    llm_calls_total: int = 0
+    llm_tokens_in: int = 0
+    llm_tokens_out: int = 0
+    llm_cache_hits: int = 0
+    llm_timeouts: int = 0
     
-    def record_job_completion(self, job_id: str, phase: str, duration_ms: float, success: bool):
-        """Record job completion."""
-        if PROMETHEUS_AVAILABLE:
-            status = 'completed' if success else 'failed'
-            self.jobs_total.labels(phase=phase, status=status).inc()
-            self.job_duration_ms.labels(phase=phase).observe(duration_ms)
+    # Detector hit rates
+    detector_hits: Dict[str, int] = field(default_factory=dict)
     
-    def record_task_start(self, task_name: str):
-        """Record task start."""
-        if PROMETHEUS_AVAILABLE:
-            self.tasks_total.labels(name=task_name, state='started').inc()
+    # Fallback tracking
+    fallback_counts: Dict[str, int] = field(default_factory=dict)
+    fallback_samples: Dict[str, list] = field(default_factory=dict)
     
-    def record_task_completion(self, task_name: str, duration_ms: float, success: bool):
-        """Record task completion."""
-        if PROMETHEUS_AVAILABLE:
-            state = 'completed' if success else 'failed'
-            self.tasks_total.labels(name=task_name, state=state).inc()
-            self.task_duration_ms.labels(name=task_name).observe(duration_ms)
+    # Timing
+    phase_timings: Dict[str, float] = field(default_factory=dict)
+    file_parse_times: list = field(default_factory=list)
     
-    def record_file_parsed(self, language: str, success: bool):
-        """Record file parsing."""
-        if PROMETHEUS_AVAILABLE:
-            status = 'success' if success else 'failed'
-            self.files_parsed_total.labels(language=language, status=status).inc()
+    # Thread safety
+    _lock: Lock = field(default_factory=Lock)
     
-    def record_node_parse(self, duration_ms: float):
-        """Record Node.js subprocess parse duration."""
-        if PROMETHEUS_AVAILABLE:
-            self.node_parse_ms.observe(duration_ms)
+    def record_file_parsed(self, parse_time: float, skipped: bool = False):
+        """Record a file parsing event."""
+        with self._lock:
+            if skipped:
+                self.files_skipped += 1
+            else:
+                self.files_parsed += 1
+            self.file_parse_times.append(parse_time)
     
-    def record_imports(self, internal_count: int, external_count: int):
-        """Record import processing."""
-        if PROMETHEUS_AVAILABLE:
-            self.imports_total.labels(type='internal').inc(internal_count)
-            self.imports_total.labels(type='external').inc(external_count)
+    def record_import_resolved(self, resolved: bool):
+        """Record an import resolution event."""
+        with self._lock:
+            if resolved:
+                self.imports_resolved += 1
+            else:
+                self.imports_unresolved += 1
     
-    def record_artifact_created(self, kind: str, bytes_size: int):
-        """Record artifact creation."""
-        if PROMETHEUS_AVAILABLE:
-            self.artifacts_created_total.labels(kind=kind).inc()
-            self.artifact_bytes.labels(kind=kind).observe(bytes_size)
+    def record_detector_hit(self, detector_name: str):
+        """Record a detector hit."""
+        with self._lock:
+            self.detector_hits[detector_name] = self.detector_hits.get(detector_name, 0) + 1
     
-    def update_queue_size(self, queue_name: str, size: int):
-        """Update queue size."""
-        if PROMETHEUS_AVAILABLE:
-            self.queue_size.labels(queue_name=queue_name).set(size)
+    def record_llm_call(self, tokens_in: int, tokens_out: int, model: str, 
+                       cache_hit: bool = False, timeout: bool = False):
+        """Record an LLM call."""
+        with self._lock:
+            self.llm_calls_total += 1
+            self.llm_tokens_in += tokens_in
+            self.llm_tokens_out += tokens_out
+            if cache_hit:
+                self.llm_cache_hits += 1
+            if timeout:
+                self.llm_timeouts += 1
     
-    def record_error(self, component: str, error_type: str):
-        """Record error occurrence."""
-        if PROMETHEUS_AVAILABLE:
-            self.errors_total.labels(component=component, error_type=error_type).inc()
+    def record_fallback(self, reason_code: str, file_path: str, sample_limit: int = 10):
+        """Record a fallback event with sample."""
+        with self._lock:
+            self.fallback_counts[reason_code] = self.fallback_counts.get(reason_code, 0) + 1
+            if reason_code not in self.fallback_samples:
+                self.fallback_samples[reason_code] = []
+            if len(self.fallback_samples[reason_code]) < sample_limit:
+                self.fallback_samples[reason_code].append(file_path)
     
-    def record_llm_call(self, operation: str, model: str, status: str, duration_ms: float = None):
-        """Record LLM API call."""
-        if PROMETHEUS_AVAILABLE:
-            self.llm_calls_total.labels(operation=operation, model=model, status=status).inc()
-            if duration_ms is not None:
-                self.llm_duration_ms.labels(operation=operation, model=model).observe(duration_ms)
+    def record_phase_timing(self, phase: str, duration: float):
+        """Record phase timing."""
+        with self._lock:
+            self.phase_timings[phase] = duration
     
-    def record_llm_tokens(self, operation: str, model: str, token_type: str, count: int):
-        """Record LLM token usage."""
-        if PROMETHEUS_AVAILABLE:
-            self.llm_tokens_total.labels(operation=operation, model=model, type=token_type).inc(count)
-    
-    def record_llm_cache_hit(self, operation: str):
-        """Record LLM cache hit."""
-        if PROMETHEUS_AVAILABLE:
-            self.llm_cache_hits_total.labels(operation=operation).inc()
-    
-    def record_llm_timeout(self, operation: str, model: str):
-        """Record LLM timeout."""
-        if PROMETHEUS_AVAILABLE:
-            self.llm_timeouts_total.labels(operation=operation, model=model).inc()
+    def get_metrics_summary(self) -> Dict[str, Any]:
+        """Get a summary of all metrics."""
+        with self._lock:
+            total_files = self.files_parsed + self.files_skipped
+            total_imports = self.imports_resolved + self.imports_unresolved
+            
+            return {
+                "files": {
+                    "parsed": self.files_parsed,
+                    "skipped": self.files_skipped,
+                    "total": total_files,
+                    "big_file_ratio": self.files_skipped / max(total_files, 1)
+                },
+                "imports": {
+                    "resolved": self.imports_resolved,
+                    "unresolved": self.imports_unresolved,
+                    "total": total_imports,
+                    "unresolved_ratio": self.imports_unresolved / max(total_imports, 1)
+                },
+                "detectors": {
+                    "routes": self.routes_detected,
+                    "jobs": self.jobs_detected,
+                    "stores": self.stores_detected,
+                    "externals": self.externals_detected,
+                    "hit_rates": dict(self.detector_hits)
+                },
+                "llm": {
+                    "calls_total": self.llm_calls_total,
+                    "tokens_in": self.llm_tokens_in,
+                    "tokens_out": self.llm_tokens_out,
+                    "cache_hits": self.llm_cache_hits,
+                    "timeouts": self.llm_timeouts,
+                    "cache_hit_rate": self.llm_cache_hits / max(self.llm_calls_total, 1)
+                },
+                "fallbacks": {
+                    "counts": dict(self.fallback_counts),
+                    "samples": dict(self.fallback_samples)
+                },
+                "timing": {
+                    "phase_timings": dict(self.phase_timings),
+                    "avg_file_parse_time": sum(self.file_parse_times) / max(len(self.file_parse_times), 1)
+                }
+            }
 
-# Global metrics collector
-_metrics_collector: Optional[MetricsCollector] = None
+# Global metrics collector instance
+_metrics_collector = MetricsCollector()
 
 def get_metrics_collector() -> MetricsCollector:
     """Get the global metrics collector instance."""
-    global _metrics_collector
-    if _metrics_collector is None:
-        _metrics_collector = MetricsCollector()
     return _metrics_collector
 
-class StructuredLogger:
-    """Provides structured logging with consistent format."""
-    
-    def __init__(self, name: str):
-        self.logger = logging.getLogger(name)
-        self._setup_logging()
-    
-    def _setup_logging(self):
-        """Set up structured logging configuration."""
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.INFO)
-    
-    def _log_structured(self, level: str, message: str, **kwargs):
-        """Log with structured data."""
-        log_data = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'level': level,
-            'message': message,
-            **kwargs
-        }
-        
-        if level == 'INFO':
-            self.logger.info(json.dumps(log_data))
-        elif level == 'WARNING':
-            self.logger.warning(json.dumps(log_data))
-        elif level == 'ERROR':
-            self.logger.error(json.dumps(log_data))
-        elif level == 'DEBUG':
-            self.logger.debug(json.dumps(log_data))
-    
-    def info(self, message: str, **kwargs):
-        """Log info message with structured data."""
-        self._log_structured('INFO', message, **kwargs)
-    
-    def warning(self, message: str, **kwargs):
-        """Log warning message with structured data."""
-        self._log_structured('WARNING', message, **kwargs)
-    
-    def error(self, message: str, **kwargs):
-        """Log error message with structured data."""
-        self._log_structured('ERROR', message, **kwargs)
-    
-    def debug(self, message: str, **kwargs):
-        """Log debug message with structured data."""
-        self._log_structured('DEBUG', message, **kwargs)
+def record_fallback(reason_code: str, file_path: str):
+    """Convenience function to record a fallback."""
+    _metrics_collector.record_fallback(reason_code, file_path)
 
-def get_structured_logger(name: str) -> StructuredLogger:
-    """Get a structured logger instance."""
-    return StructuredLogger(name)
+def record_llm_call(tokens_in: int, tokens_out: int, model: str, 
+                   cache_hit: bool = False, timeout: bool = False):
+    """Convenience function to record an LLM call."""
+    _metrics_collector.record_llm_call(tokens_in, tokens_out, model, cache_hit, timeout)
 
-# Decorators for automatic metrics collection
-def track_job_metrics(phase: str):
-    """Decorator to track job metrics."""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            metrics = get_metrics_collector()
-            start_time = time.time()
-            
-            # Extract job_id from kwargs if available
-            job_id = kwargs.get('job_id', 'unknown')
-            
-            try:
-                metrics.record_job_start(job_id, phase)
-                result = func(*args, **kwargs)
-                duration_ms = (time.time() - start_time) * 1000
-                metrics.record_job_completion(job_id, phase, duration_ms, True)
-                return result
-            except Exception as e:
-                duration_ms = (time.time() - start_time) * 1000
-                metrics.record_job_completion(job_id, phase, duration_ms, False)
-                metrics.record_error('job', type(e).__name__)
-                raise
-        return wrapper
-    return decorator
+def record_detector_hit(detector_name: str):
+    """Convenience function to record a detector hit."""
+    _metrics_collector.record_detector_hit(detector_name)
 
-def track_task_metrics(task_name: str):
-    """Decorator to track task metrics."""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            metrics = get_metrics_collector()
-            start_time = time.time()
-            
-            try:
-                metrics.record_task_start(task_name)
-                result = func(*args, **kwargs)
-                duration_ms = (time.time() - start_time) * 1000
-                metrics.record_task_completion(task_name, duration_ms, True)
-                return result
-            except Exception as e:
-                duration_ms = (time.time() - start_time) * 1000
-                metrics.record_task_completion(task_name, duration_ms, False)
-                metrics.record_error('task', type(e).__name__)
-                raise
-        return wrapper
-    return decorator
-
-@contextmanager
-def track_node_parse():
-    """Context manager to track Node.js subprocess parse duration."""
-    metrics = get_metrics_collector()
-    start_time = time.time()
-    
-    try:
-        yield
-    finally:
-        duration_ms = (time.time() - start_time) * 1000
-        metrics.record_node_parse(duration_ms)
-
-def get_metrics_endpoint():
-    """Get Prometheus metrics endpoint handler."""
-    if not PROMETHEUS_AVAILABLE:
-        return lambda: "prometheus_client not available"
-    
-    def metrics_handler():
-        return generate_latest()
-    
-    return metrics_handler
-
-def get_metrics_content_type():
-    """Get Prometheus metrics content type."""
-    return CONTENT_TYPE_LATEST if PROMETHEUS_AVAILABLE else "text/plain"
+def record_phase_timing(phase: str, duration: float):
+    """Convenience function to record phase timing."""
+    _metrics_collector.record_phase_timing(phase, duration)
