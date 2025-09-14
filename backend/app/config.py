@@ -33,13 +33,13 @@ class Settings:
     
     # Parsing settings
     PARSE_PER_FILE_TIMEOUT: int = int(os.getenv("PARSE_PER_FILE_TIMEOUT", "10"))
-    BIG_FILE_SIZE_THRESHOLD: int = int(os.getenv("BIG_FILE_SIZE_THRESHOLD", "100000"))  # 100KB
-    BIG_FILE_LINES_THRESHOLD: int = int(os.getenv("BIG_FILE_LINES_THRESHOLD", "2000"))
-    PARSE_BATCH_SIZE: int = int(os.getenv("PARSE_BATCH_SIZE", "50"))
+    BIG_FILE_SIZE_THRESHOLD: int = int(os.getenv("BIG_FILE_SIZE_THRESHOLD", "1000000"))  # 1MB
+    BIG_FILE_LINES_THRESHOLD: int = int(os.getenv("BIG_FILE_LINES_THRESHOLD", "5000"))
+    PARSE_BATCH_SIZE: int = int(os.getenv("PARSE_BATCH_SIZE", "250"))
     PARSE_SHARD_SIZE: int = int(os.getenv("PARSE_SHARD_SIZE", "100"))
     
     # Concurrency and limits
-    NODE_PARSE_CONCURRENCY: int = int(os.getenv("NODE_PARSE_CONCURRENCY", "8"))
+    NODE_PARSE_CONCURRENCY: int = int(os.getenv("NODE_PARSE_CONCURRENCY", "4"))
     LLM_CONCURRENCY: int = int(os.getenv("LLM_CONCURRENCY", "4"))
     
     # Degradation toggles

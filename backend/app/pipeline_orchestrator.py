@@ -24,6 +24,8 @@ from .graph_builder import GraphBuilder, StaticLayer, LLMLayer
 from .capabilities_v2 import CapabilityAnalyzer, CapabilityContext
 from .llm_client import LLMClient
 from .llm_graph_completion import LLMGraphCompleter
+from .storage import ArtifactStorage
+from .models import GraphModel, CapabilityModel, ArtifactMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +97,7 @@ class PipelineOrchestrator:
         self.llm_client = LLMClient()
         self.detector_registry = DetectorRegistry()
         self.python_detector_registry = PythonDetectorRegistry()
+        self.storage = ArtifactStorage()
         
         # Shutdown handling
         self.shutdown_requested = False
@@ -469,28 +472,103 @@ class PipelineOrchestrator:
             
             merged_data = json.loads(merged_path.read_text())
             
-            # Build graphs
-            graph_data = await self._build_graphs(task.repo_path, merged_data)
+            # Build graphs using GraphBuilder
+            graph_builder = GraphBuilder()
+            static_layer = StaticLayer(merged_data)
+            llm_layer = LLMLayer(self.llm_client, merged_data)
             
-            # Build capabilities
-            capabilities_data = await self._build_capabilities(task.repo_path, graph_data)
+            graph_model = await graph_builder.build_graph(static_layer, llm_layer)
             
-            # Store mapped data
-            mapped_path = task.repo_path / "mapped.json"
-            mapped_data = {
-                "graphs": graph_data,
-                "capabilities": capabilities_data
-            }
-            mapped_path.write_text(json.dumps(mapped_data, indent=2))
+            # Build capabilities using CapabilityAnalyzer
+            capability_analyzer = CapabilityAnalyzer()
+            capability_context = CapabilityContext(graph_model, merged_data)
+            
+            capabilities = await capability_analyzer.analyze_capabilities(capability_context)
+            
+            # Store artifacts using storage system
+            repo_id = task.repo_id
+            snapshot_id = task.metadata.get("snapshot_id", "unknown")
+            
+            # Write graph artifact
+            graph_artifact_id = await self.storage.save_artifact(
+                repo_id=repo_id,
+                snapshot_id=snapshot_id,
+                artifact_type="graph",
+                content=graph_model.dict(),
+                metadata=ArtifactMetadata(
+                    schema_version="2.0",
+                    content_hash="",  # Will be calculated by storage
+                    repo_id=repo_id
+                )
+            )
+            
+            # Write capabilities artifact
+            capabilities_artifact_id = await self.storage.save_artifact(
+                repo_id=repo_id,
+                snapshot_id=snapshot_id,
+                artifact_type="capabilities",
+                content=[cap.dict() for cap in capabilities],
+                metadata=ArtifactMetadata(
+                    schema_version="2.0",
+                    content_hash="",  # Will be calculated by storage
+                    repo_id=repo_id
+                )
+            )
+            
+            # Also write warnings if any
+            warnings = self._collect_warnings_from_graph(graph_model)
+            if warnings:
+                warnings_artifact_id = await self.storage.save_artifact(
+                    repo_id=repo_id,
+                    snapshot_id=snapshot_id,
+                    artifact_type="warnings",
+                    content=[w.dict() for w in warnings],
+                    metadata=ArtifactMetadata(
+                        schema_version="2.0",
+                        content_hash="",  # Will be calculated by storage
+                        repo_id=repo_id
+                    )
+                )
             
             return {
-                "mapped_data": mapped_data,
-                "artifacts": ["mapped.json"]
+                "graph_artifact_id": graph_artifact_id,
+                "capabilities_artifact_id": capabilities_artifact_id,
+                "warnings_artifact_id": warnings_artifact_id if warnings else None,
+                "artifacts": ["graphs.json", "capabilities.json", "warnings.json"]
             }
             
         except Exception as e:
             logger.error(f"Map task failed for {task.repo_id}: {e}")
             raise
+    
+    def _collect_warnings_from_graph(self, graph_model: GraphModel) -> List[WarningItem]:
+        """Collect warnings from graph model."""
+        warnings = []
+        
+        # Collect warnings from low-confidence edges
+        for edge in graph_model.edges:
+            if edge.confidence < 0.7:
+                warnings.append(WarningItem(
+                    phase="mapping",
+                    file=edge.evidence[0].file if edge.evidence else None,
+                    reason_code=edge.reason_code or "low_confidence",
+                    evidence=edge.evidence[0] if edge.evidence else None,
+                    message=f"Low confidence edge: {edge.from_} -> {edge.to}",
+                    count=1
+                ))
+        
+        # Collect warnings from hypothesis edges
+        for edge in graph_model.suggested_edges:
+            warnings.append(WarningItem(
+                phase="mapping",
+                file=edge.evidence[0].file if edge.evidence else None,
+                reason_code=edge.reason_code or "hypothesis",
+                evidence=edge.evidence[0] if edge.evidence else None,
+                message=f"Hypothesis edge: {edge.from_} -> {edge.to}",
+                count=1
+            ))
+        
+        return warnings
     
     async def _build_graphs(self, repo_path: Path, merged_data: Dict[str, Any]) -> Dict[str, Any]:
         """Build graphs from merged data."""

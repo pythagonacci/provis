@@ -96,17 +96,22 @@ class FileNodeModel(BaseModel):
 
 # Graph models
 class GraphEdge(BaseModel):
-    from_: str = Field(..., alias="from", description="Source node")
-    to: str = Field(..., description="Target node")
-    kind: Literal["import", "route", "job", "call"] = Field(..., description="Edge type")
+    src: str = Field(..., description="Source node")
+    dst: str = Field(..., description="Target node") 
+    kind: Literal["import", "route", "job", "call", "store", "external"] = Field(..., description="Edge type")
     evidence: List[EvidenceSpan] = Field(default_factory=list, description="Evidence spans")
     confidence: float = Field(1.0, description="Confidence score (0-1)")
     hypothesis: bool = Field(False, description="Whether this is a hypothesis")
     reason_code: Optional[str] = Field(None, description="Reason code if degraded")
 
 class GraphModel(BaseModel):
-    edges: List[GraphEdge] = Field(default_factory=list, description="Graph edges")
-    suggested_edges: List[GraphEdge] = Field(default_factory=list, description="Hypothesis edges")
+    imports: List[GraphEdge] = Field(default_factory=list, description="Import edges")
+    routes: List[GraphEdge] = Field(default_factory=list, description="Route edges")
+    jobs: List[GraphEdge] = Field(default_factory=list, description="Job edges")
+    calls: List[GraphEdge] = Field(default_factory=list, description="Call edges")
+    stores: List[GraphEdge] = Field(default_factory=list, description="Store edges")
+    externals: List[GraphEdge] = Field(default_factory=list, description="External edges")
+    stats: Dict[str, Any] = Field(default_factory=dict, description="Graph statistics")
     metadata: ArtifactMetadata = Field(..., description="Artifact metadata")
 
 # Capability models

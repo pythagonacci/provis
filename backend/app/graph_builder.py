@@ -457,8 +457,8 @@ class GraphBuilder:
             return None
         
         return GraphEdge(
-            from_node=from_node,
-            to_node=to_node,
+            src=from_node,
+            dst=to_node,
             kind=kind,
             evidence=evidence,
             confidence=confidence,

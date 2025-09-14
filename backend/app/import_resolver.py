@@ -23,6 +23,15 @@ class ResolutionResult:
     hypothesis: bool
     reason_code: Optional[str]
     evidence: List[EvidenceSpan]
+    
+    def __init__(self, resolved_path: Optional[str], confidence: float,
+                 hypothesis: bool, reason_code: Optional[str],
+                 evidence: List[EvidenceSpan]):
+        self.resolved_path = resolved_path
+        self.confidence = confidence
+        self.hypothesis = hypothesis
+        self.reason_code = reason_code
+        self.evidence = evidence
 
 class TypeScriptResolver:
     """TypeScript/JavaScript import resolver with path mapping support."""

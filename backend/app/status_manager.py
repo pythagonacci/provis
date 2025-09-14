@@ -4,6 +4,7 @@ Provides comprehensive status tracking and event streaming.
 """
 import json
 import time
+import asyncio
 from pathlib import Path
 from typing import Dict, Any, List, Optional, AsyncGenerator
 from dataclasses import dataclass, field
@@ -389,6 +390,9 @@ class StatusManager:
             self.events[job_id] = []
         
         self.events[job_id].append(event)
+        
+        # Publish to event manager for real-time streaming
+        asyncio.create_task(event_manager.publish(job_id, event_type, data))
         
         # Limit events per job to prevent memory issues
         max_events = 1000

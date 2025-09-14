@@ -24,6 +24,15 @@ class DetectorResult:
     hypothesis: bool
     reason_code: Optional[str]
     evidence: List[EvidenceSpan]
+    
+    def __init__(self, items: List[Dict[str, Any]], confidence: float, 
+                 hypothesis: bool, reason_code: Optional[str], 
+                 evidence: List[EvidenceSpan]):
+        self.items = items
+        self.confidence = confidence
+        self.hypothesis = hypothesis
+        self.reason_code = reason_code
+        self.evidence = evidence
 
 class NextJSDetector:
     """Detects Next.js routes and API endpoints."""
