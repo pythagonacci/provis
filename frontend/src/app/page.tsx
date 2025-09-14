@@ -381,11 +381,38 @@ function FileDetails({
           </div>
         ) : fileContent ? (
           <div className="space-y-3">
-            {fileContent.summary && (
+            {(fileContent.dev_summary || fileContent.blurb || fileContent.summary) && (
               <div>
                 <div className="text-xs font-medium text-white/80 mb-1">Purpose</div>
                 <div className="text-xs text-white/70 bg-black/20 p-2 rounded">
-                  {fileContent.summary}
+                  {fileContent.dev_summary || fileContent.blurb || fileContent.summary}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.vibecoder_summary && fileContent.vibecoder_summary !== "This file is part of the application." && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">In Plain English</div>
+                <div className="text-xs text-white/70 bg-emerald-500/10 border border-emerald-500/20 p-2 rounded">
+                  {fileContent.vibecoder_summary}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.how_to_modify && fileContent.how_to_modify !== "Edit this file to modify its functionality." && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">How to Modify</div>
+                <div className="text-xs text-white/70 bg-blue-500/10 border border-blue-500/20 p-2 rounded">
+                  {fileContent.how_to_modify}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.risks && fileContent.risks !== "Be careful when modifying this file." && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">Risks & Warnings</div>
+                <div className="text-xs text-white/70 bg-red-500/10 border border-red-500/20 p-2 rounded">
+                  {fileContent.risks}
                 </div>
               </div>
             )}
@@ -825,8 +852,13 @@ export default function RepoOverviewMockup() {
     };
     setFocus(file);
     
+    // Map nodeIndex path to actual file path
+    // NodeIndex paths are like "backend/app/routers/deck.py"
+    // But files.json paths are like "OCEE-bdr copy/backend/app/routers/deck.py"
+    const fullPath = `OCEE-bdr copy/${fileId}`;
+    
     // Load file content and summary
-    await loadFileContent(fileId);
+    await loadFileContent(fullPath);
   };
 
   const handleRunQuery = async (query: string) => {

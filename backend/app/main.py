@@ -189,26 +189,124 @@ def get_file_details(repo_id: str, path: str):
                 "lang": entry.get("lang", ""),
             }
             
-            # Try to load LLM summary from cache
+            # Always try to load from cache first to get rich LLM summaries
+            cache_match = None
             try:
-                content_hash = entry.get("contentHash")
-                if content_hash:
-                    cache_file = base / "cache_llm" / f"{content_hash}.json"
-                    if cache_file.exists():
-                        llm_data = json.loads(cache_file.read_text())
-                        result.update({
-                            "summary": llm_data.get("purpose") or llm_data.get("dev_summary") or result["purpose"],
-                            "title": llm_data.get("title", ""),
-                            "key_functions": llm_data.get("key_functions", []),
-                            "how_to_modify": llm_data.get("how_to_modify", ""),
-                            "risks": llm_data.get("risks", ""),
-                            "blurb": llm_data.get("blurb", ""),
-                            "vibecoder_summary": llm_data.get("vibecoder_summary", ""),
-                            "edit_points": llm_data.get("edit_points", ""),
-                        })
-            except Exception as e:
-                # If LLM cache loading fails, just use the basic data
+                cache_dir = base / "cache_llm"
+                if cache_dir.exists():
+                    filename = entry["path"].split("/")[-1]
+                    file_base = filename.split(".")[0]
+                    file_type = entry.get("language", "")
+                    
+                    # Look through ALL cache files for file summaries
+                    best_match = None
+                    best_score = 0
+                    
+                    for cache_file in cache_dir.glob("*.json"):
+                        try:
+                            llm_data = json.loads(cache_file.read_text())
+                            
+                            # Skip if this doesn't look like a file summary
+                            if not llm_data.get("title") or not llm_data.get("purpose"):
+                                continue
+                                
+                            # Skip QA responses and glossaries
+                            if "answer" in llm_data or "glossary" in llm_data:
+                                continue
+                            
+                            title = llm_data.get("title", "").lower()
+                            purpose = llm_data.get("purpose", "").lower()
+                            dev_summary = llm_data.get("dev_summary", "").lower()
+                            blurb = llm_data.get("blurb", "").lower()
+                            
+                            score = 0
+                            
+                            # Exact filename match in title
+                            if filename.lower() in title:
+                                score += 20
+                                
+                            # Base filename match in title
+                            if file_base.lower() in title:
+                                score += 15
+                                
+                            # Exact filename match anywhere
+                            if filename.lower() in (purpose + dev_summary + blurb):
+                                score += 10
+                                
+                            # File type keywords matching
+                            if "router" in entry["path"].lower():
+                                if any(word in (title + purpose) for word in ["router", "route", "endpoint", "api"]):
+                                    score += 15
+                            elif "model" in entry["path"].lower():
+                                if any(word in (title + purpose) for word in ["model", "database", "schema", "data"]):
+                                    score += 15
+                            elif "service" in entry["path"].lower():
+                                if any(word in (title + purpose) for word in ["service", "business", "logic"]):
+                                    score += 15
+                            elif "main" in entry["path"].lower():
+                                if any(word in (title + purpose) for word in ["main", "entry", "application", "app"]):
+                                    score += 15
+                                    
+                            # Technology match
+                            if file_type == "py" and any(tech in purpose for tech in ["fastapi", "python", "django"]):
+                                score += 8
+                            elif file_type in ["ts", "js"] and any(tech in purpose for tech in ["next", "react", "typescript", "javascript"]):
+                                score += 8
+                                
+                            # Quality content bonus
+                            if len(purpose) > 100 and "configures" in purpose:
+                                score += 5
+                            if len(dev_summary) > 50:
+                                score += 5
+                            if len(blurb) > 50 and ("think of" in blurb or "imagine" in blurb):
+                                score += 5
+                                
+                            if score > best_score and score >= 5:  # Lower threshold
+                                best_score = score
+                                best_match = llm_data
+                                
+                        except Exception:
+                            continue
+                    
+                    # Use the best match if found
+                    if best_match:
+                        cache_match = best_match
+                        
+            except Exception:
                 pass
+            
+            # Apply cache data if found, otherwise use embedded summary
+            if cache_match:
+                result.update({
+                    "summary": cache_match.get("dev_summary") or cache_match.get("purpose") or result["purpose"],
+                    "title": cache_match.get("title", result.get("title", "")),
+                    "key_functions": cache_match.get("key_functions", []),
+                    "how_to_modify": cache_match.get("how_to_modify", ""),
+                    "risks": cache_match.get("risks", ""),
+                    "blurb": cache_match.get("blurb", result.get("blurb", "")),
+                    "vibecoder_summary": cache_match.get("vibecoder_summary", ""),
+                    "edit_points": cache_match.get("edit_points", ""),
+                    "dev_summary": cache_match.get("dev_summary", ""),
+                    "external_dependencies": cache_match.get("external_dependencies", []),
+                    "internal_dependencies": cache_match.get("internal_dependencies", []),
+                })
+            else:
+                # Fallback to embedded summary if available
+                summary_data = entry.get("summary", {})
+                if summary_data:
+                    result.update({
+                        "summary": summary_data.get("dev_summary") or summary_data.get("blurb") or summary_data.get("purpose") or result["purpose"],
+                        "title": summary_data.get("title", ""),
+                        "key_functions": summary_data.get("key_functions", []),
+                        "how_to_modify": summary_data.get("how_to_modify", ""),
+                        "risks": summary_data.get("risks", ""),
+                        "blurb": summary_data.get("blurb", entry.get("blurb", "")),
+                        "vibecoder_summary": summary_data.get("vibecoder_summary", ""),
+                        "edit_points": summary_data.get("edit_points", ""),
+                        "external_dependencies": summary_data.get("external_dependencies", []),
+                        "internal_dependencies": summary_data.get("internal_dependencies", []),
+                        "dev_summary": summary_data.get("dev_summary", ""),
+                    })
             
             return result
     

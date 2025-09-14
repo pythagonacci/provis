@@ -1,3 +1,4 @@
+
 """
 Robust detectors for routes, jobs, stores, and externals with messy fallbacks.
 Handles dynamic patterns, factory decorators, and string literal scanning.
