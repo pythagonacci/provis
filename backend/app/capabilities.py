@@ -477,7 +477,7 @@ def write_capability(repo_dir: Path, capability: Dict[str, Any]) -> None:
     print(f"✅ Capability written to {output_file}")
 
 # Functions required by main.py
-async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
+async def build_all_capabilities(repo_dir: Path) -> List[str]:
     """Build multiple heuristic capabilities and persist an index."""
     capabilities: List[Dict[str, Any]] = []
 
@@ -553,6 +553,172 @@ async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
         
         write_capability(repo_dir, cap)
         capabilities.append(cap)
+
+    # Domain-specific capabilities for domain management applications
+    if "domain" in str(source_root).lower() or "domain" in str(repo_dir).lower():
+        # Domain Management Capabilities
+        domain_capabilities = [
+            {
+                "id": "cap_domain_registration",
+                "name": "Domain Registration Management",
+                "purpose": "Complete domain registration workflow including domain search, registration, and configuration",
+                "entrypoints": ["src/app/pages/domains", "src/app/components/domain-things/domain-info"],
+                "keyFiles": ["src/app/services/db-query-services", "src/app/services/domain-utils.service.ts"],
+                "dataIn": ["domain name", "registrar info", "contact details"],
+                "dataOut": ["registration confirmation", "domain status", "DNS records"]
+            },
+            {
+                "id": "cap_domain_monitoring",
+                "name": "Domain Monitoring & Status Tracking", 
+                "purpose": "Monitor domain health, uptime, expiration dates, and SSL certificate status",
+                "entrypoints": ["src/app/pages/monitor", "src/app/components/monitor"],
+                "keyFiles": ["src/app/components/charts/domain-expiration-bar", "src/app/services/db-query-services/sb/db-statuses.service.ts"],
+                "dataIn": ["domain list", "monitoring intervals", "alert thresholds"],
+                "dataOut": ["uptime reports", "expiration alerts", "SSL status", "health metrics"]
+            },
+            {
+                "id": "cap_domain_analytics",
+                "name": "Domain Analytics & Reporting",
+                "purpose": "Generate comprehensive analytics and reports on domain portfolio performance",
+                "entrypoints": ["src/app/pages/stats", "src/app/components/charts"],
+                "keyFiles": ["src/app/components/charts/domain-valuation", "src/app/components/charts/domain-pie"],
+                "dataIn": ["domain data", "historical records", "market data"],
+                "dataOut": ["valuation reports", "portfolio analytics", "trend analysis", "performance metrics"]
+            },
+            {
+                "id": "cap_domain_updates",
+                "name": "Domain Updates & Maintenance",
+                "purpose": "Handle domain updates, DNS changes, and automated maintenance tasks",
+                "entrypoints": ["src/server/routes/domain-updater", "src/app/components/domain-things/domain-updates"],
+                "keyFiles": ["src/server/routes/domain-updater", "src/app/services/db-query-services/sb/db-subdomains.service.ts"],
+                "dataIn": ["update requests", "DNS changes", "maintenance schedules"],
+                "dataOut": ["update confirmations", "change logs", "status updates"]
+            },
+            {
+                "id": "cap_subdomain_management",
+                "name": "Subdomain Management",
+                "purpose": "Manage subdomains, DNS records, and subdomain-specific configurations",
+                "entrypoints": ["src/app/pages/assets/subdomains", "src/app/components/domain-things/domain-collection"],
+                "keyFiles": ["src/app/services/db-query-services/sb/db-subdomains.service.ts", "src/app/pages/assets/subdomains"],
+                "dataIn": ["subdomain requests", "DNS configurations", "parent domain info"],
+                "dataOut": ["subdomain records", "DNS updates", "routing configurations"]
+            },
+            {
+                "id": "cap_notification_system",
+                "name": "Notification & Alert System",
+                "purpose": "Send notifications for domain events, expiration warnings, and system alerts",
+                "entrypoints": ["src/app/pages/notifications", "src/app/components/notifications-list"],
+                "keyFiles": ["src/app/services/messaging.service.ts", "src/app/components/notifications-list"],
+                "dataIn": ["event triggers", "user preferences", "alert rules"],
+                "dataOut": ["email notifications", "in-app alerts", "SMS alerts", "webhook calls"]
+            }
+        ]
+        
+        for cap_spec in domain_capabilities:
+            cap = build_capability(repo_dir)
+            cap["id"] = cap_spec["id"]
+            cap["name"] = cap_spec["name"] 
+            cap["purpose"] = cap_spec["purpose"]
+            
+            # Find actual entry point files
+            entrypoints = []
+            for ep in cap_spec["entrypoints"]:
+                ep_path = source_root / ep
+                if ep_path.exists():
+                    if ep_path.is_dir():
+                        # Find page files in directory
+                        for page_file in ep_path.rglob("*.page.ts"):
+                            rel_path = str(page_file.relative_to(source_root))
+                            entrypoints.append({
+                                "path": rel_path,
+                                "route": f"/{rel_path.replace('.page.ts', '')}",
+                                "method": "GET",
+                                "framework": "angular",
+                            })
+                    else:
+                        # Single file
+                        rel_path = str(ep_path.relative_to(source_root))
+                        entrypoints.append({
+                            "path": rel_path,
+                            "route": f"/{rel_path.replace('.ts', '')}",
+                            "method": "GET", 
+                            "framework": "angular",
+                        })
+            
+            cap["entrypoints"] = entrypoints
+            cap["keyFiles"] = cap_spec["keyFiles"]
+            cap["dataIn"] = cap_spec["dataIn"]
+            cap["dataOut"] = cap_spec["dataOut"]
+            
+            # Build capability-specific steps
+            cap["steps"] = build_steps({
+                "name": cap_spec["name"],
+                "purpose": cap_spec["purpose"],
+                "entrypoints": cap["entrypoints"],
+                "data_flow": cap.get("data_flow", {})
+            })
+            
+            write_capability(repo_dir, cap)
+            capabilities.append(cap)
+
+    # Angular capabilities: one capability per major page/section (fallback for non-domain apps)
+    try:
+        pages_dir = source_root / "src/app/pages"
+        if pages_dir.exists():
+            # Group Angular pages by functional area
+            page_groups = {}
+            for page_file in pages_dir.rglob("*.page.ts"):
+                rel_path = str(page_file.relative_to(source_root))
+                # Extract functional area from path (e.g., domains, monitor, settings)
+                path_parts = page_file.relative_to(pages_dir).parts
+                if len(path_parts) > 0:
+                    functional_area = path_parts[0]
+                    if functional_area not in page_groups:
+                        page_groups[functional_area] = []
+                    page_groups[functional_area].append(rel_path)
+            
+            # Create capabilities for each functional area
+            for area, page_files in page_groups.items():
+                if area in ['(home)', '(auth)']:  # Skip special Angular routing folders
+                    continue
+                
+                # Skip if we already created domain-specific capabilities
+                if "domain" in str(source_root).lower() and area in ['domains', 'monitor', 'stats', 'notifications']:
+                    continue
+                
+                # Clean up area name for capability ID
+                clean_area = area.replace('[', '').replace(']', '').replace('...', '').replace('.page.ts', '').replace('.', '_')
+                if not clean_area or clean_area in ['not-found']:
+                    continue
+                    
+                cap_id = f"cap_{clean_area}"
+                if any(c.get("id") == cap_id for c in capabilities):
+                    continue
+                    
+                cap = build_capability(repo_dir)
+                cap["id"] = cap_id
+                cap["name"] = f"{area.title()} Management"
+                cap["purpose"] = f"Manages {area} related functionality and user interactions"
+                cap["entrypoints"] = [{
+                    "path": page_files[0],  # Use first page as primary entry point
+                    "route": f"/{area}",
+                    "method": "GET",
+                    "framework": "angular"
+                }]
+                cap["keyFiles"] = page_files[:10]  # Include up to 10 key files
+                
+                # Rebuild steps with proper capability context
+                cap["steps"] = build_steps({
+                    "name": f"{area.title()} Management",
+                    "purpose": f"Manages {area} related functionality and user interactions", 
+                    "entrypoints": cap["entrypoints"],
+                    "data_flow": cap.get("data_flow", {})
+                })
+                
+                write_capability(repo_dir, cap)
+                capabilities.append(cap)
+    except Exception as e:
+        print(f"Warning: Could not process Angular pages: {e}")
 
     # Generic: one capability per FastAPI router and per Next.js route
     try:
@@ -657,23 +823,21 @@ async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
         cap["sources"] = sources
         cap["sinks"] = sinks
 
-    index = [{
-        "id": c.get("id", "cap"),
-        "name": c.get("name", "Capability"),
-        "purpose": c.get("purpose", ""),
-        "entryPoints": [ep.get("path") if isinstance(ep, dict) else ep for ep in c.get("entrypoints", [])],
-        "keyFiles": c.get("keyFiles", []),
-        "dataIn": c.get("dataIn", []),
-        "dataOut": c.get("dataOut", []),
-        "sources": c.get("sources", []),
-        "sinks": c.get("sinks", []),
-    } for c in capabilities]
+    # Write individual capability files
+    for cap in capabilities:
+        cap_id = cap.get("id", "cap")
+        cap_dir = repo_dir / "capabilities" / cap_id
+        cap_dir.mkdir(parents=True, exist_ok=True)
+        cap_file = cap_dir / "capability.json"
+        write_json_atomic(cap_file, cap)
 
+    # Write index with just the IDs
+    index_ids = [c.get("id", "cap") for c in capabilities]
     index_path = repo_dir / "capabilities" / "index.json"
     index_path.parent.mkdir(parents=True, exist_ok=True)
-    write_json_atomic(index_path, {"index": index})
+    write_json_atomic(index_path, {"index": index_ids})
 
-    return {"index": index}
+    return index_ids
 
 def list_capabilities_index(repo_dir: Path) -> List[Dict[str, Any]]:
     """List capabilities index."""

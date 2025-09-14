@@ -98,7 +98,7 @@ async def _summ_file(llm: LLMClient, f: Dict[str, Any], graph: Dict[str, Any]) -
         duration_ms = (time.time() - start_time) * 1000
         
         # Record successful LLM call
-        metrics.record_llm_call("file_summary", llm.model, "success", duration_ms)
+        metrics.record_llm_call(0, 0, llm.model)  # tokens_in, tokens_out, model
         
         # Validate required fields
         if not result.get("title"):
@@ -115,7 +115,7 @@ async def _summ_file(llm: LLMClient, f: Dict[str, Any], graph: Dict[str, Any]) -
         logger.warning(f"LLM summary failed for {f['path']}: {e}")
         
         # Record failed LLM call
-        metrics.record_llm_call("file_summary", llm.model, "error", duration_ms)
+        metrics.record_llm_call(0, 0, llm.model)  # tokens_in, tokens_out, model
         
         # Minimal fallback if LLM fails
         return {
@@ -220,7 +220,7 @@ async def _build_glossary(llm: LLMClient, files_payload: Dict[str, Any]) -> Dict
         duration_ms = (time.time() - start_time) * 1000
         
         # Record successful LLM call
-        metrics.record_llm_call("glossary", llm.model, "success", duration_ms)
+        metrics.record_llm_call(0, 0, llm.model)  # tokens_in, tokens_out, model
         
         # Ensure we have at least some terms
         if not result.get("terms"):
@@ -231,7 +231,7 @@ async def _build_glossary(llm: LLMClient, files_payload: Dict[str, Any]) -> Dict
         logger.warning(f"LLM glossary generation failed: {e}")
         
         # Record failed LLM call
-        metrics.record_llm_call("glossary", llm.model, "error", duration_ms)
+        metrics.record_llm_call(0, 0, llm.model)  # tokens_in, tokens_out, model
         
         # Fallback to minimal glossary
         return {
@@ -346,7 +346,13 @@ async def run_summarization(repo_dir: Path) -> Tuple[Dict[str, Any], Dict[str, A
     logger.info("Generating capabilities")
     try:
         from app.capabilities import build_all_capabilities
-        capabilities_payload = await build_all_capabilities(files_payload, graph_payload, repo_dir)
+        capability_ids = await build_all_capabilities(repo_dir)
+        capabilities_payload = {
+            "repoId": files_payload.get("repoId", "unknown"),
+            "generatedAt": _now(),
+            "capabilities": capability_ids if isinstance(capability_ids, list) else [],
+            "warnings": []
+        }
     except Exception as e:
         logger.error(f"Capability generation failed: {e}")
         capabilities_payload = {

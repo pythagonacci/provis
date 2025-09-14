@@ -13,9 +13,9 @@ def _bool(env: str, default: bool = False) -> bool:
 class Settings:
     # Core data settings
     DATA_DIR: str = os.getenv("DATA_DIR", "data")
-    MAX_FILE_MB: int = int(os.getenv("MAX_FILE_MB", "2"))
-    MAX_ZIP_MB: int = int(os.getenv("MAX_ZIP_MB", "40"))
-    MAX_FILES: int = int(os.getenv("MAX_FILES", "1000"))
+    MAX_FILE_MB: int = int(os.getenv("MAX_FILE_MB", "10"))
+    MAX_ZIP_MB: int = int(os.getenv("MAX_ZIP_MB", "200"))
+    MAX_FILES: int = int(os.getenv("MAX_FILES", "10000"))
     IGNORED_DIRS: Tuple[str, ...] = tuple(os.getenv("IGNORED_DIRS", ".git,node_modules,.next,dist,build,.venv,__pycache__").split(","))
     IGNORED_EXTS: Tuple[str, ...] = tuple(os.getenv("IGNORED_EXTS", ".png,.jpg,.jpeg,.gif,.bmp,.ico,.lock,.pdf,.mp4,.mp3,.mov").split(","))
 

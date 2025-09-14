@@ -148,25 +148,50 @@ def get_repo_overview(repo_id: str):
 def list_caps_v1(repo_id: str):
     require_done(repo_id)
     base = repo_dir(repo_id)
-    # Use the capabilities index which has the summary format
-    index_path = base / "capabilities" / "index.json"
+    cap_dir = base / "capabilities"
+    index_path = cap_dir / "index.json"
     if not index_path.exists():
         raise HTTPException(404, detail="capabilities index not found")
-    
+
     index_data = json.loads(index_path.read_text())
-    caps = index_data.get("index", [])
-    
-    # Ensure all required fields have defaults
-    for cap in caps:
-        cap.setdefault("purpose", "")
-        cap.setdefault("entryPoints", [e.get("path") if isinstance(e, dict) else e for e in cap.get("anchors", [])])
-        cap.setdefault("keyFiles", [])
-        cap.setdefault("dataIn", [])
-        cap.setdefault("dataOut", [])
-        cap.setdefault("sources", [])
-        cap.setdefault("sinks", [])
-    
+    cap_ids = index_data.get("index", [])
+
+    caps = []
+    for cap_id in cap_ids:
+        # Handle both string IDs and dict objects (legacy compatibility)
+        if isinstance(cap_id, dict):
+            cap_id = cap_id.get("id", "unknown")
+        elif not isinstance(cap_id, str):
+            continue  # Skip invalid entries
+            
+        cap_file = cap_dir / cap_id / "capability.json"
+        if cap_file.exists():
+            try:
+                cap_data = json.loads(cap_file.read_text())
+                cap_data.setdefault("purpose", "")
+                cap_data.setdefault("entryPoints", [e.get("path") if isinstance(e, dict) else e for e in cap_data.get("entrypoints", [])])
+                cap_data.setdefault("keyFiles", [])
+                cap_data.setdefault("dataIn", [])
+                cap_data.setdefault("dataOut", [])
+                cap_data.setdefault("sources", [])
+                cap_data.setdefault("sinks", [])
+                caps.append(cap_data)
+            except Exception as e:
+                print(f"Warning: Could not load capability {cap_id}: {e}")
+                continue
+
     return caps
+
+@app.post("/v1/repo/{repo_id}/capabilities/rebuild", tags=["v1"])
+async def rebuild_caps_v1(repo_id: str):
+    base = repo_dir(repo_id)
+    from .capabilities import build_all_capabilities
+    caps = await build_all_capabilities(base)
+    cap_dir = base / "capabilities"
+    # build_all_capabilities now returns a list of capability IDs
+    idx = {"index": caps if isinstance(caps, list) else []}
+    (cap_dir / "index.json").write_text(json.dumps(idx, indent=2))
+    return {"ok": True, "count": len(idx["index"])}
 
 @app.get("/v1/repo/{repo_id}/file", tags=["v1"])
 def get_file_details(repo_id: str, path: str):
@@ -507,7 +532,7 @@ async def post_capabilities_auto(repo_id: str):
     require_done(repo_id)
     try:
         results = await build_all_capabilities(repo_dir(repo_id))
-        return {"ok": True, "capabilities": results.get("index", [])}
+        return {"ok": True, "capabilities": results if isinstance(results, list) else []}
     except Exception as e:
         raise HTTPException(500, detail=f"Failed to build capabilities: {e}")
 

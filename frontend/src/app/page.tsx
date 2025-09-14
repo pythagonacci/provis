@@ -926,8 +926,25 @@ export default function RepoOverviewMockup() {
             <div className="rounded-2xl bg-white/10 px-3 py-1.5 font-semibold tracking-wide backdrop-blur">Provis</div>
             <div className="hidden text-sm text-white/60 md:block">Drop a repo. Understand. Fix. Add. Remove.</div>
           </div>
-          <div className="text-xs text-white/50">
-            Repository {repoId} • {Object.keys(currentCapability?.nodeIndex || {}).length} files • {capabilities.length} capabilities
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setRepoId(null);
+                setCapabilities([]);
+                setCurrentCapability(null);
+                setSelectedCapability(null);
+                setFocus(null);
+                setFileContent(null);
+                setQaResponse(null);
+              }}
+              className="flex items-center gap-2 rounded-lg bg-emerald-600/20 px-3 py-1.5 text-xs text-emerald-400 transition-colors hover:bg-emerald-600/30"
+            >
+              <Upload size={14} />
+              New Repository
+            </button>
+            <div className="text-xs text-white/50">
+              Repository {repoId} • {Object.keys(currentCapability?.nodeIndex || {}).length} files • {capabilities.length} capabilities
+            </div>
           </div>
         </div>
 
