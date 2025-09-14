@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Folder, File, GitBranch, Globe, Package, ListTree, ChevronRight, Upload, RefreshCw, AlertCircle, CheckCircle, Search, PanelsTopLeft } from "lucide-react";
+import { Folder, File, GitBranch, Globe, Package, ListTree, ChevronRight, Upload, RefreshCw, AlertCircle, CheckCircle, Search, PanelsTopLeft, ExternalLink } from "lucide-react";
 import { apiClient, CapabilitySummary, CapabilityDetail } from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -638,6 +639,8 @@ function CapabilitySteps({
 
 // ---------- Main Overview ----------
 export default function RepoOverviewMockup() {
+  const router = useRouter();
+  
   // Real data states
   const [repoId, setRepoId] = useState<string | null>(null);
   const [capabilities, setCapabilities] = useState<CapabilitySummary[]>([]);
@@ -818,6 +821,10 @@ export default function RepoOverviewMockup() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCapabilityDashboard = (capabilityId: string) => {
+    router.push(`/capability/${capabilityId}`);
   };
 
   const loadFileContent = async (filePath: string) => {
@@ -1149,23 +1156,36 @@ export default function RepoOverviewMockup() {
               {uiCapabilities.map((cap) => (
                 <div
                   key={cap.id}
-                  className={`cursor-pointer rounded-lg border p-3 transition-all ${
+                  className={`rounded-lg border p-3 transition-all ${
                     selectedCapability?.id === cap.id
                       ? 'border-emerald-500/50 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
                       : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
                   }`}
-                  onClick={() => handleCapabilitySelect(cap)}
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="font-medium text-white/90 text-sm">{cap.name}</div>
-                    {selectedCapability?.id === cap.id && (
-                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
-                    )}
+                  <div 
+                    className="cursor-pointer"
+                    onClick={() => handleCapabilitySelect(cap)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="font-medium text-white/90 text-sm">{cap.name}</div>
+                      {selectedCapability?.id === cap.id && (
+                        <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                      )}
+                    </div>
+                    <div className="mt-1 text-xs text-white/70">{cap.desc}</div>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <Badge>entry: {cap.entryPoints.length}</Badge>
+                      <Badge>files: {cap.keyFiles.length}</Badge>
+                    </div>
                   </div>
-                  <div className="mt-1 text-xs text-white/70">{cap.desc}</div>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <Badge>entry: {cap.entryPoints.length}</Badge>
-                    <Badge>files: {cap.keyFiles.length}</Badge>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => handleCapabilityDashboard(cap.id)}
+                      className="flex items-center gap-1 px-2 py-1 bg-emerald-600/20 text-emerald-200 rounded text-xs hover:bg-emerald-600/30 transition-colors"
+                    >
+                      <ExternalLink size={12} />
+                      Dashboard
+                    </button>
                   </div>
                 </div>
               ))}
