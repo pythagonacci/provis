@@ -1,7 +1,9 @@
 from __future__ import annotations
 import asyncio
 import json
+import hashlib
 from pathlib import Path
+from typing import List
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -56,6 +58,7 @@ async def ingest_repo(file: UploadFile = File(...), bg: BackgroundTasks = None):
 
     repo_id = short_id("repo")
     job_id = short_id("job")
+    snapshot_id = short_id("snap")
     rdir = repo_dir(repo_id)
     snapshot = rdir / "snapshot"
     snapshot.mkdir(parents=True, exist_ok=True)
@@ -82,7 +85,20 @@ async def ingest_repo(file: UploadFile = File(...), bg: BackgroundTasks = None):
     else:
         asyncio.create_task(job_queue._run_job(job_id, rdir))
 
-    return IngestResponse(repoId=repo_id, jobId=job_id)
+    # Compute a deterministic hash of key settings to help with idempotency/debugging
+    try:
+        settings_payload = {
+            "MAX_ZIP_MB": settings.MAX_ZIP_MB,
+            "MAX_FILES": settings.MAX_FILES,
+            "MAX_FILE_MB": settings.MAX_FILE_MB,
+            "IGNORED_DIRS": list(settings.IGNORED_DIRS),
+            "IGNORED_EXTS": list(settings.IGNORED_EXTS),
+        }
+        settings_hash = hashlib.sha256(json.dumps(settings_payload, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    except Exception:
+        settings_hash = "default"
+
+    return IngestResponse(repoId=repo_id, jobId=job_id, snapshotId=snapshot_id, settingsHash=settings_hash)
 
 @app.get("/status/{job_id}", response_model=StatusPayload)
 async def get_status(job_id: str):

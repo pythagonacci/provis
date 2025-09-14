@@ -30,7 +30,7 @@ class JobQueue:
         store = StatusStore(repo_dir)
         cur = store.read()
         cur.jobId = jobId
-        store.write(cur)
+        store.update(jobId=jobId)
 
         t0 = perf_counter()
         metrics: Dict[str, Any] = {

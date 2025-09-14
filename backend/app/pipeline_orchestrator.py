@@ -17,7 +17,7 @@ from .models import Phase, StatusPayload, WarningItem, EvidenceSpan
 from .observability import get_metrics_collector, record_fallback
 from .events import get_event_stream
 from .preflight import run_preflight_scan
-from .language_services import get_ts_program_service, get_python_cst_service
+# from .language_services import get_ts_program_service, get_python_cst_service
 from .detectors import DetectorRegistry
 from .python_detectors import PythonDetectorRegistry
 from .graph_builder import GraphBuilder, StaticLayer, LLMLayer

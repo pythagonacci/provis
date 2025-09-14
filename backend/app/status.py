@@ -205,13 +205,26 @@ class StatusStore:
         """Read status from file."""
         if self.status_file.exists():
             data = json.loads(self.status_file.read_text())
+            # Ensure required fields exist for API response compatibility
+            data.setdefault("importsTotal", data.get("imports", 0))
+            data.setdefault("importsInternal", 0)
+            data.setdefault("importsExternal", 0)
+            data.setdefault("filesSummarized", 0)
+            data.setdefault("capabilitiesBuilt", 0)
             # Convert to a simple object-like structure
             class Status:
                 def __init__(self, data):
                     for key, value in data.items():
                         setattr(self, key, value)
                 def model_dump(self):
-                    return {k: v for k, v in self.__dict__.items()}
+                    # Guarantee presence of required fields at dump time
+                    base = {k: v for k, v in self.__dict__.items()}
+                    base.setdefault("importsTotal", base.get("imports", 0))
+                    base.setdefault("importsInternal", 0)
+                    base.setdefault("importsExternal", 0)
+                    base.setdefault("filesSummarized", 0)
+                    base.setdefault("capabilitiesBuilt", 0)
+                    return base
             return Status(data)
         else:
             # Return default status
@@ -223,6 +236,11 @@ class StatusStore:
                     self.pct = 0
                     self.filesParsed = 0
                     self.imports = 0
+                    self.importsTotal = 0
+                    self.importsInternal = 0
+                    self.importsExternal = 0
+                    self.filesSummarized = 0
+                    self.capabilitiesBuilt = 0
                     self.warnings = []
                 def model_dump(self):
                     return {
@@ -232,6 +250,11 @@ class StatusStore:
                         "pct": self.pct,
                         "filesParsed": self.filesParsed,
                         "imports": self.imports,
+                        "importsTotal": self.importsTotal,
+                        "importsInternal": self.importsInternal,
+                        "importsExternal": self.importsExternal,
+                        "filesSummarized": self.filesSummarized,
+                        "capabilitiesBuilt": self.capabilitiesBuilt,
                         "warnings": self.warnings
                     }
             return Status()

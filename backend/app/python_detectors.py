@@ -166,7 +166,7 @@ class FastAPIDetector:
         routes = []
         
         # Pattern: @app.METHOD("/path")
-        pattern = r'@\w+\.(get|post|put|delete|patch|options|head)\s*\(\s*[\'"]([^\'"]+)[\'"]'
+        pattern = r'@\w+\.(get|post|put|delete|patch|options|head)\s*\(\s*[\'\"]([^\'\"]+)[\'\"]
         for match in re.finditer(pattern, content, re.IGNORECASE):
             method = match.group(1).upper()
             path = match.group(2)
@@ -403,7 +403,7 @@ class DjangoDetector:
         routes = []
         
         # Pattern: path('url/', view, name='name')
-        pattern = r"path\s*\(\s*[\'"]([^\'"]+)[\'"],\s*(\w+)"
+        pattern = r"path\s*\(\s*[\'\"]([^\'\"]+)[\'\"],\s*(\w+)"
         for match in re.finditer(pattern, content):
             path = match.group(1)
             view_name = match.group(2)

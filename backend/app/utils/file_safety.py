@@ -35,14 +35,17 @@ def safe_extract_zip(zip_path: Path, dest: Path, *,
         for info in infos:
             if info.is_dir():
                 continue
-            if info.file_size > max_file_bytes:
-                raise FileTooLargeError(f"Entry {info.filename} exceeds per-file cap")
 
+            # Skip ignored directories and extensions BEFORE size checks
             parts = Path(info.filename).parts
             if any(p in ignored_dirs for p in parts):
                 continue
             if Path(info.filename).suffix.lower() in set(ignored_exts):
                 continue
+
+            # Enforce per-file size after we know it's worth extracting
+            if info.file_size > max_file_bytes:
+                raise FileTooLargeError(f"Entry {info.filename} exceeds per-file cap")
 
             target_path = dest / info.filename
             if not _is_within_directory(dest, target_path.parent):

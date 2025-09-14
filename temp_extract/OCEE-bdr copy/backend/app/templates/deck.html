@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>{{ deck_title }}</title>
+  <style>
+    /* Full-bleed page: no margins; page background is beige with a black border */
+    @page {
+      size: 9in 5.5in;           /* adjust as desired */
+      margin: 0;                 /* remove printer-style margins */
+      background: #F5F1E9;       /* OffDeal beige as the PAGE background */
+      border: 2px solid #111111; /* Black border around the entire page */
+    }
+
+    :root {
+      --off-beige: #F5F1E9;
+      --off-white: #FFFFFF;
+      --off-black: #111111;
+      --muted: #666666;
+      --dashboard-beige: #fcfbfa;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--off-beige);
+      color: var(--off-black);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .slide {
+      page-break-after: always;
+      position: relative;
+      box-sizing: border-box;
+
+      width: 100%;
+      height: 5.5in; /* Match the @page height to fill the full slide */
+      padding: 16mm 18mm 20mm 18mm; /* Extra bottom padding to accommodate footer */
+
+      background: transparent;
+      border-radius: 0;
+    }
+
+    header { 
+      font-size: 12px; 
+      color: var(--muted); 
+      margin-bottom: 6px; 
+    }
+    
+    h1 { 
+      font-size: 32px; 
+      margin: 0 0 10px 0; 
+      letter-spacing: 0.2px; 
+      color: var(--off-black); 
+    }
+    
+    /* Separator line between header and content */
+    .separator {
+      height: 1px;
+      background: var(--muted);
+      margin: 8px 0 16px 0;
+      opacity: 0.3;
+    }
+    
+    /* Content container with rounded rectangle */
+    .content-container {
+      background: var(--dashboard-beige);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 8px auto 0 auto;
+      max-width: 92%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    ul { 
+      margin: 8px 0 0 20px; 
+      padding: 0; 
+    }
+    
+    li { 
+      font-size: 14px; 
+      line-height: 1.5; 
+      margin: 6px 0; 
+      color: var(--off-black); 
+    }
+
+    /* Footer anchored to very bottom, left + right */
+    .footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between; /* left and right alignment */
+      padding: 4mm 8mm;
+      box-sizing: border-box;
+    }
+
+    .logo-cover {
+      position: absolute;
+      right: 18mm; top: 10mm;
+      width: 44mm;
+    }
+    .logo-small {
+      position: absolute;
+      right: 18mm; top: 10mm;
+      width: 22mm;
+      opacity: 0.95;
+    }
+
+    .cover h1 { margin-top: 14mm; font-size: 36px; }
+  </style>
+</head>
+<body>
+
+  {% for s in slides %}
+    <div class="slide {% if loop.index0 == 0 %}cover{% endif %}">
+      {% if loop.index0 == 0 %}
+        <img class="logo-cover" src="static/images/offdeal_logo.png" alt="OffDeal Logo"/>
+      {% else %}
+        <img class="logo-small" src="static/images/offdeal_logo.png" alt="OffDeal Logo"/>
+      {% endif %}
+
+      <h1>{{ s.title }}</h1>
+      
+      <!-- Separator line -->
+      <div class="separator"></div>
+
+      {% if s.bullets and s.bullets|length > 0 %}
+        <div class="content-container">
+          <ul>
+            {% for b in s.bullets %}
+              <li>{{ b }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        {% if loop.index0 != 0 %}
+          <div class="content-container">
+            <div style="color: var(--muted); font-size: 12px;">Content unavailable.</div>
+          </div>
+        {% endif %}
+      {% endif %}
+
+      <div class="footer">
+        <span>OffDeal — Confidential</span>
+        <span>Slide {{ loop.index }} of {{ slides|length }}</span>
+      </div>
+    </div>
+  {% endfor %}
+
+</body>
+</html>

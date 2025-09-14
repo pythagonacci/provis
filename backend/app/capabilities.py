@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List
 from .parsers.base import iter_all_source_files, detect_project_context
+from .utils.io import write_json_atomic
 from .parsers.python import collect_pydantic_models, find_fastapi_routes, synthesize_request_schemas
 from .parsers.js_ts import find_all_routes, collect_typescript_interfaces, collect_javascript_schemas
 
@@ -304,14 +305,28 @@ def build_contracts(models: Dict, data_flow: Dict, repo_root: Path) -> List[Dict
     
     return contracts
 
+def _get_source_root(repo_dir: Path) -> Path:
+    """Return the real source root inside snapshot (first top-level folder if present)."""
+    snap = repo_dir / "snapshot"
+    if not snap.exists():
+        return repo_dir
+    try:
+        subdirs = [p for p in snap.iterdir() if p.is_dir()]
+        if len(subdirs) == 1:
+            return subdirs[0]
+    except Exception:
+        pass
+    return snap
+
 def build_capability(repo_dir: Path) -> Dict[str, Any]:
     """Build a complete capability from repository analysis."""
-    project_context = detect_project_context(repo_dir)
+    source_root = _get_source_root(repo_dir)
+    project_context = detect_project_context(source_root)
     
     # Get entrypoints based on detected frameworks
     entrypoints = []
     if project_context.get("python"):
-        routes = find_fastapi_routes(repo_dir)
+        routes = find_fastapi_routes(source_root)
         for route in routes:
             entrypoints.append({
                 "path": route.get("file", ""),
@@ -331,16 +346,16 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
         ]
     
     # Build data flow
-    data_flow = extract_data_flow(repo_dir)
+    data_flow = extract_data_flow(source_root)
     
     # Build control flow
-    routes = find_fastapi_routes(repo_dir) if project_context.get("python") else []
-    control_flow = build_control_flow(repo_dir, routes)
+    routes = find_fastapi_routes(source_root) if project_context.get("python") else []
+    control_flow = build_control_flow(source_root, routes)
     
     # Build swimlanes
     swimlanes = {"web": [], "api": [], "workers": [], "other": []}
-    for f in iter_all_source_files(repo_dir):
-        rel_path = str(f.relative_to(repo_dir))
+    for f in iter_all_source_files(source_root):
+        rel_path = str(f.relative_to(source_root))
         lane = lane_for_path(rel_path)
         swimlanes[lane].append(rel_path)
     
@@ -360,8 +375,8 @@ def build_capability(repo_dir: Path) -> Dict[str, Any]:
     
     # Build node index
     node_index = {}
-    for f in iter_all_source_files(repo_dir):
-        rel_path = str(f.relative_to(repo_dir))
+    for f in iter_all_source_files(source_root):
+        rel_path = str(f.relative_to(source_root))
         lane = lane_for_path(rel_path)
         
         # Determine role based on file type and location
@@ -430,31 +445,169 @@ def write_capability(repo_dir: Path, capability: Dict[str, Any]) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     
     output_file = output_dir / "capability.json"
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(capability, f, indent=2, ensure_ascii=False)
+    write_json_atomic(output_file, capability)
     
     print(f"✅ Capability written to {output_file}")
 
 # Functions required by main.py
 async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
-    """Build all capabilities for a repository."""
-    capability = build_capability(repo_dir)
-    write_capability(repo_dir, capability)
-    
-    # Return index format
-    return {
-        "index": [{
-            "id": capability.get("id", "cap_main_workflow"),
-            "name": capability.get("name", "Main Workflow"),
-            "purpose": capability.get("purpose", "Primary application functionality"),
-            "entryPoints": [ep.get("path") if isinstance(ep, dict) else ep for ep in capability.get("entrypoints", [])],
-            "keyFiles": capability.get("keyFiles", []),
-            "dataIn": capability.get("dataIn", []),
-            "dataOut": capability.get("dataOut", []),
-            "sources": capability.get("sources", []),
-            "sinks": capability.get("sinks", [])
+    """Build multiple heuristic capabilities and persist an index."""
+    capabilities: List[Dict[str, Any]] = []
+
+    # Baseline capability
+    main_cap = build_capability(repo_dir)
+    write_capability(repo_dir, main_cap)
+    capabilities.append(main_cap)
+
+    # Router-based capabilities (if files exist)
+    source_root = _get_source_root(repo_dir)
+    router_specs = [
+        ("cap_deck_flow", "Deck Generation Flow", "backend/app/routers/deck.py", "fastapi"),
+        ("cap_email_flow", "Email Generation Flow", "backend/app/routers/email.py", "fastapi"),
+        ("cap_prospect_flow", "Prospect API Flow", "backend/app/routers/prospect.py", "fastapi"),
+    ]
+    for cap_id, cap_name, entry_path, fw in router_specs:
+        if (source_root / entry_path).exists():
+            cap = build_capability(repo_dir)
+            cap["id"] = cap_id
+            cap["name"] = cap_name
+            cap["purpose"] = cap_name
+            cap["entrypoints"] = [{
+                "path": entry_path,
+                "route": "/",
+                "method": "GET",
+                "framework": fw,
+            }]
+            cap["orchestrators"] = compute_orchestrators({"entrypoints": cap["entrypoints"]}, repo_dir)
+            write_capability(repo_dir, cap)
+            capabilities.append(cap)
+
+    # Frontend capability (Next.js)
+    if (source_root / "offdeal-frontend/src/app/page.tsx").exists():
+        cap = build_capability(repo_dir)
+        cap["id"] = "cap_web_app"
+        cap["name"] = "Web Application"
+        cap["purpose"] = "Next.js frontend application"
+        cap["entrypoints"] = [{
+            "path": "offdeal-frontend/src/app/page.tsx",
+            "route": "/",
+            "method": "GET",
+            "framework": "nextjs",
         }]
-    }
+        write_capability(repo_dir, cap)
+        capabilities.append(cap)
+
+    # Generic: one capability per FastAPI router and per Next.js route
+    try:
+        routers_dir = source_root / "backend/app/routers"
+        if routers_dir.exists():
+            for py in routers_dir.glob("*.py"):
+                if py.name == "__init__.py":
+                    continue
+                rel_path = str(py.relative_to(source_root))
+                cap_id = f"cap_router_{py.stem}"
+                if any(c.get("id") == cap_id for c in capabilities):
+                    continue
+                cap = build_capability(repo_dir)
+                cap["id"] = cap_id
+                cap["name"] = f"Router: {py.stem}"
+                cap["purpose"] = f"API flow for {py.stem}"
+                cap["entrypoints"] = [{
+                    "path": rel_path,
+                    "route": "/",
+                    "method": "GET",
+                    "framework": "fastapi",
+                }]
+                cap["orchestrators"] = compute_orchestrators({"entrypoints": cap["entrypoints"]}, repo_dir)
+                write_capability(repo_dir, cap)
+                capabilities.append(cap)
+    except Exception:
+        pass
+
+    try:
+        app_dir = source_root / "offdeal-frontend/src/app"
+        if app_dir.exists():
+            for route_file in app_dir.rglob("route.*"):
+                rel = str(route_file.relative_to(source_root))
+                seg = route_file.parent.name
+                cap_id = f"cap_web_route_{seg}"
+                if any(c.get("id") == cap_id for c in capabilities):
+                    continue
+                cap = build_capability(repo_dir)
+                cap["id"] = cap_id
+                cap["name"] = f"Web Route: {seg}"
+                cap["purpose"] = f"Next.js route at /{seg}"
+                cap["entrypoints"] = [{
+                    "path": rel,
+                    "route": f"/{seg}",
+                    "method": "GET",
+                    "framework": "nextjs",
+                }]
+                write_capability(repo_dir, cap)
+                capabilities.append(cap)
+    except Exception:
+        pass
+
+    # Persist index.json
+    # Enrich dataIn/sources/sinks heuristically (e.g., email/deck depend on prospect data)
+    for cap in capabilities:
+        eps = [ep.get("path") if isinstance(ep, dict) else ep for ep in cap.get("entrypoints", [])]
+        data_in = cap.get("dataIn", []) or []
+        sources = cap.get("sources", []) or []
+        sinks = cap.get("sinks", []) or []
+        if any("routers/email.py" in p for p in eps):
+            if "Prospect" not in data_in:
+                data_in.append("Prospect")
+            if "backend/app/models/prospect.py" not in sources:
+                sources.append("backend/app/models/prospect.py")
+            if "SMTP" not in sinks:
+                sinks.append("SMTP")
+        if any("routers/deck.py" in p for p in eps):
+            if "Prospect" not in data_in:
+                data_in.append("Prospect")
+            if "backend/app/models/prospect.py" not in sources:
+                sources.append("backend/app/models/prospect.py")
+            # Deck generation outputs artifacts via PDF/Slides services
+            for svc in ("backend/app/services/pdf.py", "backend/app/services/slides.py"):
+                if svc not in sinks:
+                    sinks.append(svc)
+            # Make dataOut more descriptive
+            dout = set(cap.get("dataOut", []) or [])
+            dout.update({"PDF", "Slides"})
+            cap["dataOut"] = list(dout)
+        if any("routers/prospect.py" in p for p in eps):
+            if "Request: Prospect" not in data_in:
+                data_in.append("Request: Prospect")
+            if "backend/app/models/prospect.py" not in sources:
+                sources.append("backend/app/models/prospect.py")
+            if "Database" not in sinks:
+                sinks.append("Database")
+        if any(p.startswith("offdeal-frontend/") for p in eps):
+            # Frontend tends to source from its API lib
+            api_lib = "offdeal-frontend/src/lib/api.ts"
+            if (source_root / api_lib).exists() and api_lib not in sources:
+                sources.append(api_lib)
+        cap["dataIn"] = data_in
+        cap["sources"] = sources
+        cap["sinks"] = sinks
+
+    index = [{
+        "id": c.get("id", "cap"),
+        "name": c.get("name", "Capability"),
+        "purpose": c.get("purpose", ""),
+        "entryPoints": [ep.get("path") if isinstance(ep, dict) else ep for ep in c.get("entrypoints", [])],
+        "keyFiles": c.get("keyFiles", []),
+        "dataIn": c.get("dataIn", []),
+        "dataOut": c.get("dataOut", []),
+        "sources": c.get("sources", []),
+        "sinks": c.get("sinks", []),
+    } for c in capabilities]
+
+    index_path = repo_dir / "capabilities" / "index.json"
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+    write_json_atomic(index_path, {"index": index})
+
+    return {"index": index}
 
 def list_capabilities_index(repo_dir: Path) -> List[Dict[str, Any]]:
     """List capabilities index."""
