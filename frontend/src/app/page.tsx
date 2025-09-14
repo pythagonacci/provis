@@ -1,233 +1,12 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Folder as FolderIcon,
-  File as FileIcon,
-  Search,
-  GitBranch,
-  PanelsTopLeft,
-  ListTree,
-  Wand2,
-  ChevronDown,
-  Upload,
-  RefreshCw,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Folder, File, GitBranch, Globe, Package, ListTree, ChevronRight, Upload, RefreshCw, AlertCircle, CheckCircle, Search, PanelsTopLeft } from "lucide-react";
 import { apiClient, CapabilitySummary, CapabilityDetail } from "@/lib/api";
-
-/**
- * Provis — Visual Frontend Demo (v2)
- * Upgrades: clickable graph, hover highlights, folder scope chips, starter chips,
- * novice mode, capability data-flow bar, role badges, and interactive steps/suggestions.
- */
-
-/** -----------------------------
- * Mock repo data (JS/TS example)
- * ------------------------------*/
-
-type Func = {
-  id: string;
-  name: string;
-  summary: string;
-  sideEffects: ("io" | "net" | "db" | "dom" | "render")[];
-  callers?: string[]; // function ids
-  callees?: string[]; // function ids
-};
-
-type FileNode = {
-  id: string;
-  path: string;
-  purpose: string;
-  exports: string[];
-  imports: string[]; // file ids
-  functions: Func[];
-};
-
-type FolderNode = {
-  id: string;
-  path: string;
-  purpose: string;
-  children: (FolderNode | FileNode)[];
-};
-
-// High-level capability = end-to-end functionality (e.g., "Compile slide deck")
-type Capability = {
-  id: string;
-  name: string;
-  purpose: string;
-  entryPoints: string[]; // files/routes that start the flow
-  orchestrators: string[]; // main symbols controlling the flow
-  sources: string[]; // data sources (files/schemas)
-  sinks: string[]; // outputs (responses/files/db)
-  dataIn: string[]; // params, schemas, request bodies (names only)
-  dataOut: string[]; // returns, side effects (names only)
-  keyFiles: string[]; // important files for editing
-  steps: { title: string; description: string; fileId?: string }[];
-};
-
-const MOCK_FILES: Record<string, FileNode> = {
-  "app/page.tsx": {
-    id: "app/page.tsx",
-    path: "app/page.tsx",
-    purpose: "Route entry (UI) — allows compiling a deck and viewing output",
-    exports: ["Page"],
-    imports: ["pages/api/compileDeck.ts"],
-    functions: [
-      {
-        id: "app/page.tsx#Page",
-        name: "Page",
-        summary: "Renders UI and triggers deck compilation via API",
-        sideEffects: ["render", "net"],
-      },
-    ],
-  },
-  "pages/api/compileDeck.ts": {
-    id: "pages/api/compileDeck.ts",
-    path: "pages/api/compileDeck.ts",
-    purpose: "API route that calls the orchestrator and returns HTML",
-    exports: ["handler"],
-    imports: ["deck/compile.ts"],
-    functions: [
-      {
-        id: "pages/api/compileDeck.ts#handler",
-        name: "handler",
-        summary: "Receives request, calls compile, returns deck HTML",
-        sideEffects: ["net", "io"],
-        callees: ["deck/compile.ts#compile"],
-      },
-    ],
-  },
-  "deck/compile.ts": {
-    id: "deck/compile.ts",
-    path: "deck/compile.ts",
-    purpose: "Orchestrates deck creation: outline -> markdown -> HTML -> output",
-    exports: ["compile"],
-    imports: ["slides/buildOutline.ts", "templates/mdToHtml.ts", "styles/print.css"],
-    functions: [
-      {
-        id: "deck/compile.ts#compile",
-        name: "compile",
-        summary: "Coordinates outline building and slide rendering, writes final HTML",
-        sideEffects: ["io"],
-        callees: [
-          "slides/buildOutline.ts#buildOutline",
-          "templates/mdToHtml.ts#mdToHtml",
-        ],
-      },
-    ],
-  },
-  "slides/buildOutline.ts": {
-    id: "slides/buildOutline.ts",
-    path: "slides/buildOutline.ts",
-    purpose: "Aggregates sections with metadata into a slide outline",
-    exports: ["buildOutline"],
-    imports: ["content/sections.ts"],
-    functions: [
-      {
-        id: "slides/buildOutline.ts#buildOutline",
-        name: "buildOutline",
-        summary: "Reads section definitions and forms the slide structure",
-        sideEffects: [],
-        callees: ["content/sections.ts#getSections"],
-      },
-    ],
-  },
-  "templates/mdToHtml.ts": {
-    id: "templates/mdToHtml.ts",
-    path: "templates/mdToHtml.ts",
-    purpose: "Converts markdown into slide HTML using markdown-it",
-    exports: ["mdToHtml"],
-    imports: ["pkg:markdown-it"],
-    functions: [
-      {
-        id: "templates/mdToHtml.ts#mdToHtml",
-        name: "mdToHtml",
-        summary: "Transforms markdown to HTML and injects classes",
-        sideEffects: ["render"],
-      },
-    ],
-  },
-  "content/sections.ts": {
-    id: "content/sections.ts",
-    path: "content/sections.ts",
-    purpose: "Static section descriptors feeding the outline",
-    exports: ["getSections"],
-    imports: [],
-    functions: [
-      {
-        id: "content/sections.ts#getSections",
-        name: "getSections",
-        summary: "Returns ordered sections with titles and markdown",
-        sideEffects: [],
-      },
-    ],
-  },
-  "styles/print.css": {
-    id: "styles/print.css",
-    path: "styles/print.css",
-    purpose: "Print/export layout for slides (A4/Letter, margins, overflow)",
-    exports: [],
-    imports: [],
-    functions: [],
-  },
-  "pkg:markdown-it": {
-    id: "pkg:markdown-it",
-    path: "pkg:markdown-it",
-    purpose: "External dependency for markdown rendering",
-    exports: [],
-    imports: [],
-    functions: [],
-  },
-};
-
-const MOCK_TREE: FolderNode = {
-  id: "root",
-  path: "/",
-  purpose: "App + API + deck feature",
-  children: [
-    { id: "app", path: "app", purpose: "UI routes (Next.js)", children: [MOCK_FILES["app/page.tsx"]] },
-    { id: "pages", path: "pages", purpose: "Next.js legacy pages + API routes", children: [MOCK_FILES["pages/api/compileDeck.ts"]] },
-    { id: "deck", path: "deck", purpose: "Orchestrators and deck assembly", children: [MOCK_FILES["deck/compile.ts"]] },
-    { id: "slides", path: "slides", purpose: "Slide builders", children: [MOCK_FILES["slides/buildOutline.ts"]] },
-    { id: "templates", path: "templates", purpose: "Rendering templates", children: [MOCK_FILES["templates/mdToHtml.ts"]] },
-    { id: "content", path: "content", purpose: "Static content", children: [MOCK_FILES["content/sections.ts"]] },
-    { id: "styles", path: "styles", purpose: "Styling", children: [MOCK_FILES["styles/print.css"]] },
-  ],
-};
-
-// Mock capabilities (end-to-end functions of the code)
-const MOCK_CAPABILITIES: Capability[] = [
-  {
-    id: "cap:compile-deck",
-    name: "Compile Slide Deck",
-    purpose: "Generate an HTML slide deck from content sections and return it via API.",
-    entryPoints: ["pages/api/compileDeck.ts"],
-    orchestrators: ["deck/compile.ts#compile"],
-    sources: ["content/sections.ts"],
-    sinks: ["styles/print.css", "API response"],
-    dataIn: ["request.query.variant", "sections markdown"],
-    dataOut: ["htmlString: deck"],
-    keyFiles: ["templates/mdToHtml.ts", "deck/compile.ts", "styles/print.css", "slides/buildOutline.ts"],
-    steps: [
-      { title: "Serve via API", description: "API route receives request and invokes compile()", fileId: "pages/api/compileDeck.ts" },
-      { title: "Orchestrate", description: "compile() coordinates outline and rendering", fileId: "deck/compile.ts" },
-      { title: "Build outline", description: "Read section descriptors and create slide structure", fileId: "slides/buildOutline.ts" },
-      { title: "Render", description: "Convert markdown to HTML via template renderer", fileId: "templates/mdToHtml.ts" },
-      { title: "Output", description: "Apply print styles and return HTML", fileId: "styles/print.css" },
-    ],
-  },
-];
-
-/** -----------------------------
- * Helper components & widgets
- * -----------------------------*/
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-xs text-white/80 backdrop-blur">
+    <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[10px] text-white/80">
       {children}
     </span>
   );
@@ -250,48 +29,60 @@ function SectionTitle({ icon: Icon, title }: { icon: any; title: string }) {
   );
 }
 
-/** -----------------------------
- * Legend (badges & roles)
- * -----------------------------*/
+// Legend component
 function Legend() {
   return (
-    <div className="mb-4 rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
+    <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-white/90">
       <SectionTitle icon={PanelsTopLeft} title="Legend" />
-      <div className="mt-2 grid grid-cols-1 gap-3 text-xs md:grid-cols-2">
+      <div className="mt-3 grid grid-cols-1 gap-4 text-xs md:grid-cols-2">
         <div>
-          <div className="mb-1 font-medium text-white/80">Side-effects badges</div>
-          <div className="flex flex-wrap gap-2">
-            <Badge>io</Badge> <span className="text-white/60">filesystem / streams</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>net</Badge> <span className="text-white/60">HTTP / fetch / sockets</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>db</Badge> <span className="text-white/60">database queries</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>dom</Badge> <span className="text-white/60">DOM mutations</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>render</Badge> <span className="text-white/60">HTML/JSX/SSR output</span>
+          <div className="mb-2 font-medium text-white/80">Side-effects badges</div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Badge>io</Badge>
+              <span className="text-white/60">filesystem / streams</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>net</Badge>
+              <span className="text-white/60">HTTP / fetch / sockets</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>db</Badge>
+              <span className="text-white/60">database queries</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>dom</Badge>
+              <span className="text-white/60">DOM mutations</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>render</Badge>
+              <span className="text-white/60">HTML/JSX/SSR output</span>
+            </div>
           </div>
         </div>
         <div>
-          <div className="mb-1 font-medium text-white/80">Role badges</div>
-          <div className="flex flex-wrap gap-2">
-            <Badge>Entry point</Badge> <span className="text-white/60">receives request / starts flow</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>Orchestrator</Badge> <span className="text-white/60">coordinates other modules</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>Source</Badge> <span className="text-white/60">reads data / config</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>Sink</Badge> <span className="text-white/60">writes output / responds</span>
-          </div>
-          <div className="mt-1 flex flex-wrap gap-2">
-            <Badge>Key file</Badge> <span className="text-white/60">high-impact edit target</span>
+          <div className="mb-2 font-medium text-white/80">Role badges</div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Badge>Entry point</Badge>
+              <span className="text-white/60">receives request / starts flow</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>Orchestrator</Badge>
+              <span className="text-white/60">coordinates other modules</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>Source</Badge>
+              <span className="text-white/60">reads data / config</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>Sink</Badge>
+              <span className="text-white/60">writes output / responds</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge>Key file</Badge>
+              <span className="text-white/60">high-impact edit target</span>
+            </div>
           </div>
         </div>
       </div>
@@ -299,333 +90,43 @@ function Legend() {
   );
 }
 
-/** -----------------------------
- * Folder tree (collapsible)
- * -----------------------------*/
+// ---------- Type definitions ----------
+export type FileNode = { 
+  id: string; 
+  label: string; 
+  purpose: string; 
+  lines: number;
+  role?: string;
+  lane?: string;
+};
 
-function TreeItem({ node, onSelect }: { node: FolderNode | FileNode; onSelect: (n: any) => void }) {
-  const isFolder = (n: any): n is FolderNode => (n as FolderNode).children !== undefined;
-  const [open, setOpen] = useState(true);
+export type FolderNode = { 
+  id: string; 
+  label: string; 
+  purpose: string; 
+  children?: (FolderNode | FileNode)[] 
+};
 
-  if (isFolder(node)) {
-    return (
-      <div className="mb-1">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="group flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left hover:bg-white/5"
-        >
-          <div className="flex items-center gap-2">
-            <FolderIcon size={16} className="text-white/80" />
-            <div>
-              <div className="text-sm text-white/90">{node.path}</div>
-              <div className="text-xs text-white/50">{node.purpose}</div>
-            </div>
-          </div>
-          <ChevronDown size={16} className={`transition-transform ${open ? "rotate-0" : "-rotate-90"} text-white/60`} />
-        </button>
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="ml-5 border-l border-white/10 pl-3">
-              {(node.children as any[]).map((child) => (
-                <TreeItem key={(child as any).id} node={child} onSelect={onSelect} />
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
+type CapabilityStep = {
+  title: string;
+  description: string;
+  fileId?: string;
+};
 
-  return (
-    <button onClick={() => onSelect(node)} className="group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white/5">
-      <FileIcon size={16} className="text-white/70" />
-      <div>
-        <div className="text-sm text-white/90">{node.path}</div>
-        <div className="text-xs text-white/50">{node.purpose}</div>
-      </div>
-    </button>
-  );
-}
+type Capability = {
+  id: string;
+  name: string;
+  desc: string;
+  steps: CapabilityStep[];
+  entryPoints: string[];
+  keyFiles: string[];
+  dataIn: string[];
+  dataOut: string[];
+  sources: string[];
+  sinks: string[];
+};
 
-/** -----------------------------
- * Data Flow Bar (for capabilities)
- * -----------------------------*/
-function DataFlowBar({ cap }: { cap: Capability | null }) {
-  if (!cap) return null;
-  return (
-    <div className="mb-3 rounded-xl border border-white/10 bg-white/5 p-2 text-xs text-white/80">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge>Entry: {cap.entryPoints.map(f => f.split('/').pop()).join(', ')}</Badge>
-        <Badge>Data in: {cap.dataIn.join(', ') || '—'}</Badge>
-        <Badge>Data out: {cap.dataOut.join(', ') || '—'}</Badge>
-        <Badge>Sources: {cap.sources.map(f => f.split('/').pop()).join(', ') || '—'}</Badge>
-        <Badge>Sinks: {cap.sinks.map(s => (s.includes('/') ? s.split('/').pop() : s)).join(', ') || '—'}</Badge>
-      </div>
-    </div>
-  );
-}
-
-/** -----------------------------
- * Simple Flow Graph (SVG)
- * -----------------------------*/
-
-type GraphNode = { id: string; label: string; x: number; y: number };
-
-type GraphEdge = { from: string; to: string };
-
-function buildDemoGraph(focus: string | null) {
-  const layout: GraphNode[] = [
-    { id: "app/page.tsx", label: "page.tsx", x: 80, y: 170 },
-    { id: "pages/api/compileDeck.ts", label: "compileDeck.ts", x: 250, y: 170 },
-    { id: "deck/compile.ts", label: "compile.ts", x: 430, y: 170 },
-    { id: "slides/buildOutline.ts", label: "buildOutline.ts", x: 620, y: 120 },
-    { id: "templates/mdToHtml.ts", label: "mdToHtml.ts", x: 620, y: 220 },
-    { id: "content/sections.ts", label: "sections.ts", x: 800, y: 120 },
-    { id: "styles/print.css", label: "print.css", x: 800, y: 240 },
-  ];
-  const edges: GraphEdge[] = [
-    { from: "app/page.tsx", to: "pages/api/compileDeck.ts" },
-    { from: "pages/api/compileDeck.ts", to: "deck/compile.ts" },
-    { from: "deck/compile.ts", to: "slides/buildOutline.ts" },
-    { from: "deck/compile.ts", to: "templates/mdToHtml.ts" },
-    { from: "slides/buildOutline.ts", to: "content/sections.ts" },
-    { from: "deck/compile.ts", to: "styles/print.css" },
-  ];
-  return { nodes: layout, edges, focus };
-}
-
-function FlowGraph({ focus, highlighted = [], onSelect }: { focus: string | null; highlighted?: string[]; onSelect?: (id: string) => void }) {
-  const graph = useMemo(() => buildDemoGraph(focus), [focus]);
-  return (
-    <div className="relative h-[360px] w-full rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-white/0 p-3 backdrop-blur">
-      <svg className="h-full w-full">
-        {graph.edges.map((e, i) => {
-          const a = graph.nodes.find((n) => n.id === e.from)!;
-          const b = graph.nodes.find((n) => n.id === e.to)!;
-          const edgeHot = [focus, ...highlighted].includes(e.from) || [focus, ...highlighted].includes(e.to);
-          return (
-            <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="currentColor" className={edgeHot ? "text-emerald-300" : "text-white/30"} strokeWidth={edgeHot ? 2 : 1.5} markerEnd="url(#arrow)" />
-          );
-        })}
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L6,3 z" fill="currentColor" className="text-white/30" />
-          </marker>
-        </defs>
-        {graph.nodes.map((n) => {
-          const isFocus = focus === n.id;
-          const isHi = highlighted.includes(n.id);
-          return (
-            <g key={n.id} transform={`translate(${n.x - 36}, ${n.y - 18})`} onClick={() => onSelect?.(n.id)} style={{ cursor: 'pointer' }}>
-              <rect width="120" height="32" rx="8" stroke="currentColor" strokeWidth={isFocus || isHi ? 2 : 1} className={`fill-white/10 ${isFocus || isHi ? 'text-emerald-300' : 'text-white/20'}`} />
-              <text x="10" y="20" className="fill-white text-xs">{n.label}</text>
-            </g>
-          );
-        })}
-      </svg>
-      <div className="absolute left-3 top-3 flex items-center gap-2 text-xs text-white/70">
-        <GitBranch size={14} /> Focused feature flow
-      </div>
-    </div>
-  );
-}
-
-/** -----------------------------
- * Details / Steps / Suggestions
- * -----------------------------*/
-
-function FileCard({ file, selectedCap, novice }: { file: FileNode; selectedCap: Capability | null; novice: boolean }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
-      <div className="mb-1 flex items-center gap-2 text-sm font-medium">
-        <FileIcon size={16} className="text-white/70" /> {file.path}
-      </div>
-      <p className="mb-2 text-xs text-white/70">{file.purpose}</p>
-      <div className="flex flex-wrap items-center gap-2">
-        {file.exports.length > 0 && <Badge>exports: {file.exports.join(", ")}</Badge>}
-        {file.functions.length > 0 && <Badge>funcs: {file.functions.length}</Badge>}
-        {file.imports.length > 0 && <Badge>imports: {file.imports.length}</Badge>}
-        {/* role badges based on selected capability */}
-        {selectedCap && selectedCap.entryPoints.includes(file.path) && <Badge>Entry point</Badge>}
-        {selectedCap && selectedCap.orchestrators.some(o => o.split('#')[0] === file.path) && <Badge>Orchestrator</Badge>}
-        {selectedCap && selectedCap.sources.includes(file.path) && <Badge>Source</Badge>}
-        {selectedCap && selectedCap.sinks.includes(file.path) && <Badge>Sink</Badge>}
-        {selectedCap && selectedCap.keyFiles.includes(file.path) && <Badge>Key file</Badge>}
-      </div>
-      {novice && (
-        <div className="mt-2 rounded-xl bg-white/5 p-2 text-xs text-white/80">
-          <span className="font-medium">In plain English:</span> {file.purpose}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StepsPanel({
-  steps,
-  onHover,
-  onSelect,
-  selectedCapability,
-}: {
-  steps: { title: string; description: string; fileId?: string }[];
-  onHover?: (fileId?: string) => void;
-  onSelect?: (fileId?: string) => void;
-  selectedCapability?: Capability | null;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
-      <SectionTitle icon={ListTree} title="Narrated steps" />
-      
-      {selectedCapability ? (
-        <div className="mt-2 mb-3 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-          <div className="text-xs font-medium text-emerald-200">{selectedCapability.name}</div>
-          <div className="text-xs text-emerald-200/70">{selectedCapability.purpose}</div>
-        </div>
-      ) : (
-        <div className="mt-2 mb-3 p-3 bg-white/5 border border-white/10 rounded-lg text-center">
-          <div className="text-xs text-white/60">Select a capability below to see its step-by-step process</div>
-        </div>
-      )}
-      
-      <ol className="mt-2 space-y-2 text-sm">
-        {steps.map((s, i) => (
-          <li 
-            key={i} 
-            className={`flex items-start gap-2 rounded-lg p-1 ${
-              s.fileId ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
-            }`} 
-            onMouseEnter={() => s.fileId && onHover?.(s.fileId)} 
-            onMouseLeave={() => onHover?.(undefined)} 
-            onClick={() => s.fileId && onSelect?.(s.fileId)}
-          >
-            <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-xs text-white/80 flex-shrink-0">{i + 1}</span>
-            <div>
-              <div className="font-medium">{s.title}</div>
-              <div className="text-white/70 text-xs">{s.description}</div>
-              {s.fileId && <div className="text-white/50 text-xs mt-1">📁 {s.fileId}</div>}
-            </div>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-function CapabilityCard({ cap, onFocus, onSelect, isSelected }: { cap: Capability; onFocus: () => void; onSelect: () => void; isSelected?: boolean }) {
-  return (
-    <div className={`rounded-xl border p-3 text-white/90 transition-all ${
-      isSelected 
-        ? 'border-emerald-500/50 bg-emerald-500/10 shadow-lg shadow-emerald-500/10' 
-        : 'border-white/10 bg-white/5 hover:border-white/20'
-    }`}>
-      <div className="mb-1 text-sm font-semibold flex items-center gap-2">
-        {cap.name}
-        {isSelected && <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>}
-      </div>
-      <div className="mb-2 text-xs text-white/70">{cap.purpose}</div>
-      <div className="mb-2 flex flex-wrap gap-2 text-xs">
-        <Badge>entry: {cap.entryPoints.length}</Badge>
-        <Badge>orchestrators: {cap.orchestrators.length}</Badge>
-        <Badge>sources: {cap.sources.length}</Badge>
-        <Badge>sinks: {cap.sinks.length}</Badge>
-      </div>
-      <div className="text-xs text-white/60">Data in: {cap.dataIn.join(', ')}<br/>Data out: {cap.dataOut.join(', ')} </div>
-      <div className="mt-3 flex gap-2">
-        <button onClick={onFocus} className="rounded-md bg-white/10 px-2 py-1 text-xs hover:bg-white/15">Focus in graph</button>
-        <button 
-          onClick={onSelect} 
-          className={`rounded-md px-2 py-1 text-xs transition-colors ${
-            isSelected 
-              ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30' 
-              : 'bg-white/10 hover:bg-white/15'
-          }`}
-        >
-          {isSelected ? 'Selected' : 'Show steps'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Suggestions({ items, onSelect }: { items: { fileId: string; rationale: string; confidence: "High" | "Med" | "Low" }[]; onSelect?: (fileId: string) => void }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
-      <SectionTitle icon={Wand2} title="Edit suggestions" />
-      <ul className="mt-2 space-y-2 text-sm">
-        {items.map((it, i) => (
-          <li key={i} className="flex cursor-pointer items-start justify-between gap-3 rounded-xl bg-white/5 p-2 hover:bg-white/10" onClick={() => onSelect?.(it.fileId)}>
-            <div>
-              <div className="font-medium">{it.fileId}</div>
-              <div className="text-white/70">{it.rationale}</div>
-            </div>
-            <Chip>{it.confidence}</Chip>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/** -----------------------------
- * Lightweight self-tests (debug aid)
- * -----------------------------*/
-
-type TestResult = { name: string; pass: boolean; details?: string };
-
-function runSelfTests(): TestResult[] {
-  const results: TestResult[] = [];
-  try {
-    // T1: file ids match paths
-    const t1 = Object.values(MOCK_FILES).every((f) => f.id === f.path);
-    results.push({ name: "File ids match paths", pass: t1, details: t1 ? "ok" : "mismatch found" });
-
-    // T2: imports exist (allow externals like pkg:*)
-    const missingImports: string[] = [];
-    Object.values(MOCK_FILES).forEach((f) => {
-      f.imports.forEach((imp) => {
-        if (!imp.startsWith("pkg:") && !MOCK_FILES[imp]) missingImports.push(`${f.path} -> ${imp}`);
-      });
-    });
-    results.push({ name: "Imports resolve", pass: missingImports.length === 0, details: missingImports.join(", ") });
-
-    // T3: capability steps reference existing files
-    const badSteps = MOCK_CAPABILITIES.flatMap((c) => c.steps.map((s) => s.fileId!).filter((id) => !MOCK_FILES[id]));
-    results.push({ name: "Capability steps point to files", pass: badSteps.length === 0, details: badSteps.join(", ") });
-
-    // T4: graph nodes exist in mock files
-    const nodes = buildDemoGraph(null).nodes.map((n) => n.id);
-    const missingNodes = nodes.filter((n) => !MOCK_FILES[n]);
-    results.push({ name: "Graph nodes exist", pass: missingNodes.length === 0, details: missingNodes.join(", ") });
-  } catch (e: any) {
-    results.push({ name: "Self-test runner crashed", pass: false, details: String(e?.message || e) });
-  }
-  return results;
-}
-
-function TestsPanel({ results }: { results: TestResult[] }) {
-  const allPass = results.every((r) => r.pass);
-  return (
-    <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
-      <SectionTitle icon={PanelsTopLeft} title="Self-tests" />
-      <div className="mt-2 text-xs text-white/70">{allPass ? "All tests passed" : "Some tests failed (see below)"}</div>
-      <ul className="mt-2 space-y-1 text-xs">
-        {results.map((r, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <span className={`mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded ${r.pass ? 'bg-emerald-500/30' : 'bg-rose-500/30'}`}> {r.pass ? '✓' : '!'}</span>
-            <div>
-              <div className="font-medium">{r.name}</div>
-              {r.details && <div className="text-white/60">{r.details}</div>}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/** -----------------------------
- * Upload Interface
- * -----------------------------*/
+// ---------- Upload Interface ----------
 function UploadInterface({ onComplete }: { onComplete: (repoId: string) => void }) {
   const [status, setStatus] = useState<'idle' | 'uploading' | 'processing' | 'complete' | 'error'>('idle');
   const [progress, setProgress] = useState(0);
@@ -809,29 +310,414 @@ function UploadInterface({ onComplete }: { onComplete: (repoId: string) => void 
   );
 }
 
-/** -----------------------------
- * Main component
- * -----------------------------*/
+// ---------- Recursive folder/file viewer ----------
+function FolderTree({ node, onSelect }: { node: FolderNode | FileNode; onSelect: (n: FolderNode | FileNode) => void | Promise<void> }) {
+  const isFolder = (n: any): n is FolderNode => (n as FolderNode).children !== undefined;
+  
+  if (isFolder(node)) {
+    return (
+      <div className="ml-2 mt-1">
+        <button onClick={() => onSelect(node)} className="flex items-center gap-2 text-sm text-white/90 hover:underline">
+          <Folder size={14} /> {node.label}
+        </button>
+        <div className="ml-4 border-l border-white/10 pl-2">
+          {node.children?.map((c) => (
+            <FolderTree key={c.id} node={c} onSelect={onSelect} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="ml-6 mt-1 flex items-center gap-2 text-xs text-white/70">
+      <File size={12} className="opacity-70" />
+      <button onClick={() => onSelect(node)} className="hover:underline">{node.label}</button>
+    </div>
+  );
+}
 
-export default function ProvisUIDemo() {
+// ---------- File block display ----------
+function FileBlock({ file }: { file: FileNode }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/5 p-2">
+      <div className="text-xs font-medium text-white/90 flex items-center gap-2">
+        <File size={12} /> {file.label}
+      </div>
+      <div className="mt-1 text-[11px] text-white/60">{file.purpose}</div>
+      <div className="mt-1 text-[10px] text-white/50">
+        {file.role && file.lane && `${file.role} • ${file.lane}`}
+        {file.lines && ` • ~${file.lines} LOC`}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Enhanced File Details with LLM Summary ----------
+function FileDetails({ 
+  file, 
+  fileContent, 
+  loadingFile 
+}: { 
+  file: FileNode; 
+  fileContent: any; 
+  loadingFile: boolean; 
+}) {
+  return (
+    <div className="space-y-4">
+      <FileBlock file={file} />
+      
+      {/* LLM Summary Section */}
+      <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+        <div className="flex items-center gap-2 mb-3">
+          <File size={14} className="text-emerald-400" />
+          <h4 className="text-sm font-medium text-white/90">AI Summary</h4>
+        </div>
+        
+        {loadingFile ? (
+          <div className="flex items-center gap-2 text-white/60">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span className="text-xs">Loading file analysis...</span>
+          </div>
+        ) : fileContent ? (
+          <div className="space-y-3">
+            {fileContent.summary && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">Purpose</div>
+                <div className="text-xs text-white/70 bg-black/20 p-2 rounded">
+                  {fileContent.summary}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.exports && fileContent.exports.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">Exports</div>
+                <div className="flex flex-wrap gap-1">
+                  {fileContent.exports.map((exp: string, idx: number) => (
+                    <Badge key={idx}>{exp}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.imports && fileContent.imports.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">Key Imports</div>
+                <div className="flex flex-wrap gap-1">
+                  {fileContent.imports.slice(0, 5).map((imp: string, idx: number) => (
+                    <Badge key={idx}>{imp.split('/').pop() || imp}</Badge>
+                  ))}
+                  {fileContent.imports.length > 5 && (
+                    <Badge>+{fileContent.imports.length - 5} more</Badge>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.functions && fileContent.functions.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-white/80 mb-1">Functions ({fileContent.functions.length})</div>
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {fileContent.functions.slice(0, 3).map((func: any, idx: number) => (
+                    <div key={idx} className="text-xs bg-black/20 p-2 rounded">
+                      <div className="font-medium text-white/90">{func.name}</div>
+                      <div className="text-white/60">{func.summary}</div>
+                    </div>
+                  ))}
+                  {fileContent.functions.length > 3 && (
+                    <div className="text-xs text-white/50 text-center py-1">
+                      ... and {fileContent.functions.length - 3} more functions
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {fileContent.loc && (
+              <div className="flex justify-between text-xs text-white/50">
+                <span>Lines of code: {fileContent.loc}</span>
+                <span>Type: {fileContent.lang || 'Unknown'}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-xs text-white/50 text-center py-4">
+            Click on a file to see its AI-generated summary and analysis
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Capability Steps Panel ----------
+function CapabilitySteps({ 
+  capability, 
+  onFileSelect, 
+  qaResponse, 
+  onRunQuery, 
+  loading 
+}: { 
+  capability: Capability | null; 
+  onFileSelect: (fileId: string) => Promise<void>;
+  qaResponse: string | null;
+  onRunQuery: (query: string) => Promise<void>;
+  loading: boolean;
+}) {
+  const [query, setQuery] = useState('');
+
+  const handleAsk = async () => {
+    if (!query.trim() || loading) return;
+    await onRunQuery(query);
+    setQuery('');
+  };
+
+  if (!capability) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-center text-white/60">
+          <ListTree size={24} className="mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Select a capability to see its step-by-step process</p>
+        </div>
+        
+        {/* Ask section */}
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <h3 className="text-sm font-semibold text-white/90 mb-3">Ask about this repository</h3>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
+              placeholder="What does this repository do?"
+              className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-emerald-500/50"
+            />
+            <button
+              onClick={handleAsk}
+              disabled={loading || !query.trim()}
+              className="px-4 py-2 bg-emerald-500/20 text-emerald-200 rounded-lg hover:bg-emerald-500/30 transition-colors border border-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Asking...
+                </>
+              ) : (
+                'Ask'
+              )}
+            </button>
+          </div>
+          {qaResponse && (
+            <div className="mt-3 p-3 bg-black/20 border border-white/10 rounded-lg">
+              <div className="text-xs text-white/80 whitespace-pre-wrap max-h-40 overflow-auto">
+                {qaResponse}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <ListTree size={16} className="text-emerald-400" />
+          <h3 className="text-sm font-semibold text-white/90">Narrated Steps</h3>
+        </div>
+        
+        {/* Capability header */}
+        <div className="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
+          <div className="text-sm font-medium text-emerald-200">{capability.name}</div>
+          <div className="text-xs text-emerald-200/70">{capability.desc}</div>
+          <div className="mt-2 flex flex-wrap gap-2 text-xs">
+            <Badge>Entry: {capability.entryPoints.join(", ")}</Badge>
+            <Badge>Data in: {capability.dataIn.join(", ")}</Badge>
+            <Badge>Data out: {capability.dataOut.join(", ")}</Badge>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <div className="space-y-3">
+          {capability.steps.map((step, index) => (
+            <div
+              key={index}
+              className={`flex items-start gap-3 rounded-lg p-3 transition-colors ${
+                step.fileId ? 'cursor-pointer hover:bg-white/5' : ''
+              }`}
+              onClick={() => step.fileId && onFileSelect(step.fileId)}
+            >
+              <div className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-xs font-medium text-emerald-200">
+                {index + 1}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-white/90">{step.title}</span>
+                  {step.fileId && <ChevronRight size={12} className="text-white/40" />}
+                </div>
+                <div className="mt-1 text-xs text-white/70">{step.description}</div>
+                {step.fileId && (
+                  <div className="mt-1 flex items-center gap-1 text-xs text-emerald-300/60">
+                    <File size={10} />
+                    {step.fileId}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Ask section */}
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <h3 className="text-sm font-semibold text-white/90 mb-3">Ask about "{capability.name}"</h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
+            placeholder={`How does ${capability.name} work?`}
+            className="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:border-emerald-500/50"
+          />
+          <button
+            onClick={handleAsk}
+            disabled={loading || !query.trim()}
+            className="px-4 py-2 bg-emerald-500/20 text-emerald-200 rounded-lg hover:bg-emerald-500/30 transition-colors border border-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                Asking...
+              </>
+            ) : (
+              'Ask'
+            )}
+          </button>
+        </div>
+        {qaResponse && (
+          <div className="mt-3 p-3 bg-black/20 border border-white/10 rounded-lg">
+            <div className="text-xs text-white/80 whitespace-pre-wrap max-h-40 overflow-auto">
+              {qaResponse}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------- Main Overview ----------
+export default function RepoOverviewMockup() {
   // Real data states
   const [repoId, setRepoId] = useState<string | null>(null);
   const [capabilities, setCapabilities] = useState<CapabilitySummary[]>([]);
   const [currentCapability, setCurrentCapability] = useState<CapabilityDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [qaResponse, setQaResponse] = useState<string | null>(null);
-  
+
   // UI states
-  const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
+  const [focus, setFocus] = useState<FolderNode | FileNode | null>(null);
+  const [selectedCapability, setSelectedCapability] = useState<Capability | null>(null);
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<"understand" | "fix" | "add" | "remove">("understand");
-  const [fnView, setFnView] = useState<'code' | 'capabilities'>('capabilities');
-  const [selectedCap, setSelectedCap] = useState<Capability | null>(null);
-  const [manualFocus, setManualFocus] = useState<string | null>(null);
   const [novice, setNovice] = useState<boolean>(true);
-  const [highlighted, setHighlighted] = useState<string[]>([]);
-  const [scope, setScope] = useState<'all' | 'app' | 'pages' | 'deck' | 'slides' | 'templates' | 'content' | 'styles'>('all');
-  const [testResults, setTestResults] = useState<TestResult[]>([]);
+  const [fileContent, setFileContent] = useState<any>(null);
+  const [loadingFile, setLoadingFile] = useState(false);
+
+  // Build repository tree from nodeIndex
+  const repoTree = useMemo((): FolderNode => {
+    if (!currentCapability?.nodeIndex) {
+      return {
+        id: "root",
+        label: "/",
+        purpose: "Repository root",
+        children: []
+      };
+    }
+
+    const files = Object.entries(currentCapability.nodeIndex).map(([path, node]) => ({
+      id: path,
+      label: path.split('/').pop() || path,
+      purpose: `${node.role} component in ${node.lane} layer`,
+      lines: 0, // We don't have line count from the backend
+      role: node.role,
+      lane: node.lane
+    }));
+
+    // Group files by directory structure
+    const dirMap: { [key: string]: FileNode[] } = {};
+    files.forEach(file => {
+      const dir = file.id.includes('/') ? file.id.split('/').slice(0, -1).join('/') : 'root';
+      if (!dirMap[dir]) dirMap[dir] = [];
+      dirMap[dir].push(file);
+    });
+
+    // Create folder structure
+    const children: (FolderNode | FileNode)[] = [];
+    
+    // Add files in root
+    if (dirMap['root']) {
+      children.push(...dirMap['root']);
+    }
+
+    // Add directories
+    Object.entries(dirMap).forEach(([dir, dirFiles]) => {
+      if (dir !== 'root') {
+        children.push({
+          id: dir,
+          label: dir.split('/').pop() || dir,
+          purpose: `Directory containing ${dirFiles.length} files`,
+          children: dirFiles
+        });
+      }
+    });
+
+    return {
+      id: "root",
+      label: "/",
+      purpose: "Repository root",
+      children
+    };
+  }, [currentCapability]);
+
+  // Convert capabilities to UI format
+  const uiCapabilities = useMemo((): Capability[] => {
+    return capabilities.map(cap => ({
+      id: cap.id,
+      name: cap.name,
+      desc: cap.purpose,
+      steps: [],
+      entryPoints: cap.entryPoints,
+      keyFiles: cap.keyFiles,
+      dataIn: cap.dataIn,
+      dataOut: cap.dataOut,
+      sources: cap.sources,
+      sinks: cap.sinks
+    }));
+  }, [capabilities]);
+
+  // Extract integrations and dependencies from data
+  const integrations = useMemo(() => {
+    if (!currentCapability) return [];
+    return currentCapability.dataFlow?.externals?.map(ext => ext.name) || [];
+  }, [currentCapability]);
+
+  const dependencies = useMemo(() => {
+    if (!currentCapability?.nodeIndex) return [];
+    // Extract package names from imports that look like dependencies
+    const deps = new Set<string>();
+    Object.values(currentCapability.nodeIndex).forEach(node => {
+      node.incoming.forEach(inc => {
+        if (inc.includes('node_modules') || inc.startsWith('@') || !inc.includes('/')) {
+          deps.add(inc.split('/')[0]);
+        }
+      });
+    });
+    return Array.from(deps).slice(0, 8); // Limit to first 8
+  }, [currentCapability]);
 
   // Load repository data
   const loadRepositoryData = async (newRepoId: string) => {
@@ -845,29 +731,9 @@ export default function ProvisUIDemo() {
         // Load first capability detail if available
         if (capabilitiesResponse.data.length > 0) {
           const firstCap = capabilitiesResponse.data[0];
-          console.log('Loading first capability on startup:', firstCap.id);
           const detailResponse = await apiClient.getCapability(newRepoId, firstCap.id);
           if (detailResponse.data) {
-            console.log('First capability detail loaded:', detailResponse.data);
-            console.log('First capability steps:', detailResponse.data.steps);
             setCurrentCapability(detailResponse.data);
-            
-            // Convert to UI format
-            const convertedCap: Capability = {
-              id: detailResponse.data.id,
-              name: detailResponse.data.name,
-              purpose: detailResponse.data.purpose,
-              entryPoints: detailResponse.data.entryPoints,
-              orchestrators: detailResponse.data.orchestrators,
-              sources: detailResponse.data.sources,
-              sinks: detailResponse.data.sinks,
-              dataIn: detailResponse.data.dataIn,
-              dataOut: detailResponse.data.dataOut,
-              keyFiles: detailResponse.data.keyFiles,
-              steps: detailResponse.data.steps || []
-            };
-            console.log('Setting initial selectedCap with steps:', convertedCap.steps);
-            setSelectedCap(convertedCap);
           }
         }
       }
@@ -883,7 +749,7 @@ export default function ProvisUIDemo() {
     await loadRepositoryData(newRepoId);
   };
 
-  // naive query mode routing (demo)
+  // Mode detection from query
   const detectMode = (q: string) => {
     const lower = q.toLowerCase();
     if (/(fix|bug|issue|error)/.test(lower)) return "fix" as const;
@@ -896,97 +762,109 @@ export default function ProvisUIDemo() {
     if (!query.trim() || !repoId) return;
     
     setMode(detectMode(query));
-    setLoading(true);
+    await handleRunQuery(query);
+  };
+
+  const handleCapabilitySelect = async (capability: Capability) => {
+    if (!repoId) return;
     
+    setLoading(true);
     try {
-      // Use the QA endpoint to ask questions about the repository
-      const response = await apiClient.askQuestion(repoId, query);
-      if (response.data) {
-        console.log('QA Response:', response.data);
-        setQaResponse(JSON.stringify(response.data, null, 2));
-      } else if (response.error) {
-        console.error('QA Error:', response.error);
-        setQaResponse(`Error: ${response.error}`);
+      const detailResponse = await apiClient.getCapability(repoId, capability.id);
+      if (detailResponse.data) {
+        const convertedCap: Capability = {
+          id: detailResponse.data.id,
+          name: detailResponse.data.name,
+          desc: detailResponse.data.purpose,
+          entryPoints: detailResponse.data.entryPoints,
+          keyFiles: detailResponse.data.keyFiles,
+          dataIn: detailResponse.data.dataIn,
+          dataOut: detailResponse.data.dataOut,
+          sources: detailResponse.data.sources,
+          sinks: detailResponse.data.sinks,
+          steps: detailResponse.data.steps || []
+        };
+        setSelectedCapability(convertedCap);
       }
     } catch (error) {
-      console.error('Failed to process query:', error);
+      console.error('Failed to load capability details:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // demo: pick focus based on keywords or manual selection
-  const focusFileId = useMemo(() => {
-    if (manualFocus) return manualFocus;
-    const q = query.toLowerCase();
-    if (q.includes("outline")) return "slides/buildOutline.ts";
-    if (q.includes("markdown") || q.includes("html")) return "templates/mdToHtml.ts";
-    if (q.includes("print") || q.includes("css")) return "styles/print.css";
-    if (q.includes("api")) return "pages/api/compileDeck.ts";
-    return "deck/compile.ts";
-  }, [query, manualFocus]);
-
-  const steps = useMemo(() => {
-    if (selectedCap && selectedCap.steps && selectedCap.steps.length > 0) {
-      return selectedCap.steps;
-    }
+  const loadFileContent = async (filePath: string) => {
+    if (!repoId) return null;
     
-    // If no selected capability or no steps, show a default message
-    return [
-      { 
-        title: "No capability selected", 
-        description: "Click on a capability below to see its detailed step-by-step process", 
-        fileId: undefined 
+    setLoadingFile(true);
+    try {
+      const response = await apiClient.getFile(repoId, filePath);
+      if (response.data) {
+        setFileContent(response.data);
+        return response.data;
       }
-    ];
-  }, [selectedCap]);
-
-  const scopedTree = useMemo(() => {
-    if (scope === 'all') return MOCK_TREE;
-    const child = (MOCK_TREE.children as any[]).find((n) => (n as any).path === scope);
-    return { id: 'root', path: '/', purpose: MOCK_TREE.purpose, children: child ? [child] : [] } as FolderNode;
-  }, [scope]);
-
-  const suggestions = useMemo(() => {
-    if (mode === "fix") {
-      return [
-        { fileId: "templates/mdToHtml.ts", rationale: "Handles image tags and layout; likely source of rendering glitches", confidence: "High" as const },
-        { fileId: "styles/print.css", rationale: "Print margins/overflow may clip slides", confidence: "Med" as const },
-        { fileId: "deck/compile.ts", rationale: "Orchestrates rendering; adjust pipeline or sanitization", confidence: "Med" as const },
-      ];
+    } catch (error) {
+      console.error('Failed to load file content:', error);
+    } finally {
+      setLoadingFile(false);
     }
-    if (mode === "add") {
-      return [
-        { fileId: "pages/api/compileDeck.ts", rationale: "Add endpoint parameter to support new deck variant", confidence: "High" as const },
-        { fileId: "deck/compile.ts", rationale: "Insert branching to call new renderer", confidence: "High" as const },
-        { fileId: "templates/mdToHtml.ts", rationale: "Implement renderer for new slide block type", confidence: "Med" as const },
-      ];
-    }
-    if (mode === "remove") {
-      return [
-        { fileId: "slides/buildOutline.ts", rationale: "Removing an outline feature affects callers in compile.ts", confidence: "Med" as const },
-        { fileId: "content/sections.ts", rationale: "Update section map to avoid dead references", confidence: "Med" as const },
-      ];
-    }
-    return [
-      { fileId: "deck/compile.ts", rationale: "Central orchestrator — start here to grasp the flow", confidence: "High" as const },
-      { fileId: "slides/buildOutline.ts", rationale: "Explains the structure of slides", confidence: "High" as const },
-    ];
-  }, [mode]);
+    return null;
+  };
 
-  // Run self-tests on mount and check for existing repo
-  useEffect(() => {
-    const results = runSelfTests();
-    setTestResults(results);
-    const summary = results.map((r) => `${r.pass ? 'PASS' : 'FAIL'}: ${r.name}${r.details ? ' — ' + r.details : ''}`).join('\n');
-    // eslint-disable-next-line no-console
-    console.log('[Provis self-tests]\n' + summary);
+  const handleFileSelect = async (fileId: string) => {
+    if (!currentCapability?.nodeIndex[fileId]) return;
     
-    // Try to load existing repository
-    const existingRepoId = 'repo_6e5a3029'; // The repository we know exists
+    const node = currentCapability.nodeIndex[fileId];
+    const file: FileNode = {
+      id: fileId,
+      label: fileId.split('/').pop() || fileId,
+      purpose: `${node.role} component in ${node.lane} layer`,
+      lines: 0,
+      role: node.role,
+      lane: node.lane
+    };
+    setFocus(file);
+    
+    // Load file content and summary
+    await loadFileContent(fileId);
+  };
+
+  const handleRunQuery = async (query: string) => {
+    if (!repoId) return;
+    
+    setLoading(true);
+    setQaResponse(null);
+    
+    try {
+      const response = await apiClient.askQuestion(repoId, query);
+      if (response.data) {
+        setQaResponse(JSON.stringify(response.data, null, 2));
+      } else if (response.error) {
+        setQaResponse(`Error: ${response.error}`);
+      }
+    } catch (error) {
+      console.error('Failed to process query:', error);
+      setQaResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isFolder = (n: any): n is FolderNode => (n as FolderNode).children !== undefined;
+
+  // Load existing repository on mount
+  useEffect(() => {
+    const existingRepoId = 'repo_6e5a3029';
     setRepoId(existingRepoId);
     loadRepositoryData(existingRepoId);
   }, []);
+
+  // Clear file content when changing focus to non-file items
+  useEffect(() => {
+    if (!focus || (focus as any).children) {
+      setFileContent(null);
+    }
+  }, [focus]);
 
   // Show upload interface if no repository is loaded
   if (!repoId) {
@@ -1008,19 +886,16 @@ export default function ProvisUIDemo() {
   }
 
   return (
-    <div className="min-h-[720px] w-full bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 text-white">
-      {/* Header */}
-      <div className="mx-auto max-w-6xl">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 text-white">
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-white/10 px-3 py-1.5 font-semibold tracking-wide backdrop-blur">Provis</div>
             <div className="hidden text-sm text-white/60 md:block">Drop a repo. Understand. Fix. Add. Remove.</div>
           </div>
           <div className="text-xs text-white/50">
-            {currentCapability ? 
-              `Repository ${repoId} • ${Object.keys(currentCapability.nodeIndex || {}).length} files • ${capabilities.length} capabilities` :
-              `Repository ${repoId} • Loading...`
-            }
+            Repository {repoId} • {Object.keys(currentCapability?.nodeIndex || {}).length} files • {capabilities.length} capabilities
           </div>
         </div>
 
@@ -1028,7 +903,13 @@ export default function ProvisUIDemo() {
         <div className="mb-6 flex items-center gap-2">
           <div className="flex flex-1 items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur">
             <Search size={16} className="text-white/60" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === "Enter" && runQuery()} placeholder="Ask anything: how does the deck render? fix images cut off? add speaker notes?" className="w-full bg-transparent text-sm text-white placeholder:text-white/50 focus:outline-none" />
+            <input 
+              value={query} 
+              onChange={(e) => setQuery(e.target.value)} 
+              onKeyDown={(e) => e.key === "Enter" && runQuery()} 
+              placeholder="Ask anything: how does the deck render? fix images cut off? add speaker notes?" 
+              className="w-full bg-transparent text-sm text-white placeholder:text-white/50 focus:outline-none" 
+            />
             <button 
               onClick={runQuery} 
               disabled={loading || !query.trim()}
@@ -1043,16 +924,32 @@ export default function ProvisUIDemo() {
                 'Ask'
               )}
             </button>
-            <button onClick={() => setNovice(v => !v)} className={`rounded-xl px-3 py-1.5 text-sm ${novice ? 'bg-emerald-400/20 text-emerald-200' : 'bg-white/10 text-white'} hover:bg-white/15`} title="Show plain-English explanations and data flow">{novice ? 'Novice mode: ON' : 'Novice mode: OFF'}</button>
+            <button 
+              onClick={() => setNovice(v => !v)} 
+              className={`rounded-xl px-3 py-1.5 text-sm ${novice ? 'bg-emerald-400/20 text-emerald-200' : 'bg-white/10 text-white'} hover:bg-white/15`} 
+              title="Show plain-English explanations and data flow"
+            >
+              {novice ? 'Novice mode: ON' : 'Novice mode: OFF'}
+            </button>
           </div>
           <div className="hidden items-center gap-2 md:flex">
-            <div className="inline-flex items-center gap-1"><PanelsTopLeft size={14} className="mr-1" /> <span className="text-xs">{mode}</span></div>
+            <div className="inline-flex items-center gap-1">
+              <PanelsTopLeft size={14} className="mr-1" /> 
+              <span className="text-xs">{mode}</span>
+            </div>
           </div>
         </div>
+
         {/* Starter & mode chips */}
         <div className="-mt-4 mb-4 flex flex-wrap gap-2 text-xs text-white/70">
           {['understand','fix','add','remove'].map(m => (
-            <button key={m} onClick={() => setMode(m as any)} className={`rounded-md px-2 py-0.5 ${mode===m ? 'bg-white/15' : 'bg-white/5'} hover:bg-white/10`}>{m}</button>
+            <button 
+              key={m} 
+              onClick={() => setMode(m as any)} 
+              className={`rounded-md px-2 py-0.5 ${mode===m ? 'bg-white/15' : 'bg-white/5'} hover:bg-white/10`}
+            >
+              {m}
+            </button>
           ))}
           <span className="mx-2 opacity-50">•</span>
           {[
@@ -1061,199 +958,188 @@ export default function ProvisUIDemo() {
             {q: 'where does data come from?', f: 'content/sections.ts'},
             {q: 'add speaker notes', f: 'templates/mdToHtml.ts'},
           ].map((s) => (
-            <button key={s.q} onClick={() => { setQuery(s.q); setManualFocus(s.f); }} className="rounded-md bg-white/5 px-2 py-0.5 hover:bg-white/10">{s.q}</button>
+            <button 
+              key={s.q} 
+              onClick={() => { setQuery(s.q); }} 
+              className="rounded-md bg-white/5 px-2 py-0.5 hover:bg-white/10"
+            >
+              {s.q}
+            </button>
           ))}
         </div>
 
         <Legend />
 
-        {/* Main grid */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
-          {/* Left: Folder map */}
-          <div className="md:col-span-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur">
-              <SectionTitle icon={FolderIcon} title="Folder map" />
-              <div className="mt-3 max-h-[420px] overflow-auto pr-2">
-                <div className="mb-2 flex flex-wrap gap-2 text-xs">
-                  {['all','app','pages','deck','slides','templates','content','styles'].map((s) => (
-                    <button key={s} onClick={() => setScope(s as any)} className={`rounded-md px-2 py-0.5 ${scope===s ? 'bg-white/15' : 'bg-white/5'} hover:bg-white/10`}>{s}</button>
-                  ))}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* Left column - Repository structure */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Repo structure */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/90">
+                <Folder size={16}/> Repository Structure
+              </h2>
+              {currentCapability ? (
+                <FolderTree node={repoTree} onSelect={async (node) => {
+                  const isFolder = (n: any): n is FolderNode => (n as FolderNode).children !== undefined;
+                  if (!isFolder(node)) {
+                    // It's a file - load its content
+                    await handleFileSelect(node.id);
+                  } else {
+                    // It's a folder - just set focus
+                    setFocus(node);
+                    setFileContent(null);
+                  }
+                }} />
+              ) : (
+                <div className="text-center text-white/50 py-8">Loading repository structure...</div>
+              )}
+            </div>
+
+            {/* Integrations and dependencies */}
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/90">
+                  <Globe size={16}/> External Integrations
+                </h2>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {integrations.length > 0 ? (
+                    integrations.map(integration => (
+                      <Badge key={integration}>{integration}</Badge>
+                    ))
+                  ) : (
+                    <div className="text-white/50 text-xs">No external integrations detected</div>
+                  )}
                 </div>
-                {currentCapability ? (
-                  <div className="space-y-2">
-                    {Object.entries(currentCapability.nodeIndex).map(([path, node]) => (
-                      <button 
-                        key={path}
-                        onClick={() => {
-                          const mockFile: FileNode = {
-                            id: path,
-                            path: path,
-                            purpose: `${node.role} component in ${node.lane} layer`,
-                            exports: [],
-                            imports: node.incoming || [],
-                            functions: []
-                          };
-                          setSelectedFile(mockFile);
-                          setManualFocus(path);
-                        }}
-                        className="group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-white/5 text-left"
-                      >
-                        <FileIcon size={16} className="text-white/70" />
-                        <div>
-                          <div className="text-sm text-white/90">{path.split('/').pop()}</div>
-                          <div className="text-xs text-white/50">{node.role} • {node.lane}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-white/50 py-8">Loading repository structure...</div>
-                )}
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white/90">
+                  <Package size={16}/> Dependencies
+                </h2>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {dependencies.length > 0 ? (
+                    dependencies.map(dep => (
+                      <Badge key={dep}>{dep}</Badge>
+                    ))
+                  ) : (
+                    <div className="text-white/50 text-xs">No dependencies detected</div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Center: Flow graph */}
-          <div className="md:col-span-4">
-            <SectionTitle icon={GitBranch} title="Focused flow" />
-            <div className="mt-3">
-              <DataFlowBar cap={selectedCap} />
-              {currentCapability ? (
-                <div className="relative h-[360px] w-full rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-white/0 p-3 backdrop-blur">
-                  <div className="text-center text-white/70 flex items-center justify-center h-full">
-                    <div>
-                      <GitBranch size={24} className="mx-auto mb-2 opacity-50" />
-                      <div className="text-sm">Flow visualization coming soon</div>
-                      <div className="text-xs text-white/50 mt-1">
-                        {Object.keys(currentCapability.nodeIndex).length} nodes • {capabilities.length} capabilities
-                      </div>
+          {/* Middle column - Focused node */}
+          <div className="lg:col-span-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+              <div className="text-sm font-semibold text-white/90">
+                Focus: {focus ? (isFolder(focus) ? focus.label : focus.label) : "Select a file or folder"}
+              </div>
+              <div className="mt-1 text-xs text-white/70">
+                {focus ? focus.purpose : "Click on items in the repository structure to see details"}
+              </div>
+              {focus ? (
+                <div className="mt-4">
+                  {isFolder(focus) ? (
+                    <div className="grid grid-cols-1 gap-2">
+                      {focus.children?.map((c) => {
+                        if (isFolder(c)) {
+                          return (
+                            <div key={c.id} className="rounded-lg border border-white/10 bg-white/5 p-2 text-xs text-white/70">
+                              <Folder size={12} className="mb-1 text-white/80" />
+                              <div className="font-medium text-white/90">{c.label}</div>
+                              <div>{c.purpose}</div>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div key={c.id} className="cursor-pointer" onClick={() => handleFileSelect(c.id)}>
+                              <FileBlock file={c} />
+                            </div>
+                          );
+                        }
+                      })}
                     </div>
-                  </div>
+                  ) : (
+                    <FileDetails 
+                      file={focus} 
+                      fileContent={fileContent} 
+                      loadingFile={loadingFile} 
+                    />
+                  )}
                 </div>
               ) : (
-                <div className="h-[360px] w-full rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center">
-                  <RefreshCw className="w-6 h-6 animate-spin text-white/50" />
+                <div className="mt-4 text-center text-white/50 py-8">
+                  Select a file or folder to see details
                 </div>
               )}
-              <div className="mt-2 flex flex-wrap gap-2 text-xs text-white/70">
-                <Chip>Group by folder</Chip>
-                <Chip>Hide externals</Chip>
-                <Chip>Focus mode</Chip>
-              </div>
             </div>
           </div>
 
-          {/* Right: Details */}
-          <div className="md:col-span-4">
-            <div className="space-y-3">
-              {selectedFile ? <FileCard file={selectedFile} selectedCap={selectedCap} novice={novice} /> : (
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-white/70">Select a file from the folder map to see details.</div>
-              )}
-              <StepsPanel 
-                steps={steps} 
-                selectedCapability={selectedCap}
-                onHover={(fid) => setHighlighted(fid ? [fid] : [])} 
-                onSelect={(fid) => { 
-                  if (!fid || !currentCapability) return; 
-                  // Find the file in the current capability's node index
-                  const nodeInfo = currentCapability.nodeIndex[fid];
-                  if (nodeInfo) {
-                    const mockFile: FileNode = {
-                      id: fid,
-                      path: fid,
-                      purpose: `${nodeInfo.role} component in ${nodeInfo.lane} layer`,
-                      exports: [],
-                      imports: nodeInfo.incoming || [],
-                      functions: []
-                    };
-                    setSelectedFile(mockFile);
-                    setManualFocus(fid);
-                  }
-                }} 
-              />
-              <Suggestions items={suggestions} onSelect={(fid) => { const f = (MOCK_FILES as any)[fid]; if (f) setSelectedFile(f); setManualFocus(fid); }} />
-            </div>
+          {/* Right column - Steps panel */}
+          <div className="lg:col-span-4">
+            <CapabilitySteps 
+              capability={selectedCapability} 
+              onFileSelect={async (fileId) => {
+                await handleFileSelect(fileId);
+              }}
+              qaResponse={qaResponse}
+              onRunQuery={handleRunQuery}
+              loading={loading}
+            />
           </div>
         </div>
 
-        {/* Functions & Capabilities */}
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-          <SectionTitle icon={ListTree} title="Functions & Capabilities" />
-          <div className="mt-3">
-            {/* Toggle */}
-            <div className="mb-3 inline-flex overflow-hidden rounded-xl border border-white/10 text-xs">
-              <button onClick={() => setFnView('capabilities')} className={`px-3 py-1.5 ${fnView==='capabilities' ? 'bg-white/15' : 'bg-white/5'}`}>Capabilities</button>
-              <button onClick={() => setFnView('code')} className={`px-3 py-1.5 ${fnView==='code' ? 'bg-white/15' : 'bg-white/5'}`}>Code functions</button>
-            </div>
-
-            {fnView === 'capabilities' ? (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {capabilities.map((cap) => {
-                  const uiCap: Capability = {
-                    id: cap.id,
-                    name: cap.name,
-                    purpose: cap.purpose,
-                    entryPoints: cap.entryPoints,
-                    orchestrators: [],
-                    sources: cap.sources,
-                    sinks: cap.sinks,
-                    dataIn: cap.dataIn,
-                    dataOut: cap.dataOut,
-                    keyFiles: cap.keyFiles,
-                    steps: []
-                  };
-                  return (
-                    <CapabilityCard 
-                      key={cap.id} 
-                      cap={uiCap} 
-                      isSelected={selectedCap?.id === cap.id}
-                      onFocus={() => setManualFocus(cap.keyFiles[0])} 
-                      onSelect={async () => {
-                        if (repoId) {
-                          const detailResponse = await apiClient.getCapability(repoId, cap.id);
-                          if (detailResponse.data) {
-                            const convertedCap: Capability = {
-                              id: detailResponse.data.id,
-                              name: detailResponse.data.name,
-                              purpose: detailResponse.data.purpose,
-                              entryPoints: detailResponse.data.entryPoints,
-                              orchestrators: detailResponse.data.orchestrators,
-                              sources: detailResponse.data.sources,
-                              sinks: detailResponse.data.sinks,
-                              dataIn: detailResponse.data.dataIn,
-                              dataOut: detailResponse.data.dataOut,
-                              keyFiles: detailResponse.data.keyFiles,
-                              steps: detailResponse.data.steps || []
-                            };
-                            setSelectedCap(convertedCap);
-                          }
-                        }
-                      }} 
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {Object.values(MOCK_FILES).flatMap((f) => f.functions.map((fn) => ({ fn, file: f }))).map(({ fn, file }) => (
-                  <div key={fn.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <div className="mb-1 text-sm font-medium">{fn.name} <span className="text-white/50">in</span> {file.path}</div>
-                    <div className="text-xs text-white/70">{fn.summary}</div>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {fn.sideEffects.map((s) => (<Badge key={s}>{s}</Badge>))}
-                    </div>
+        {/* Repo capabilities */}
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white/90">
+            <GitBranch size={16}/> Capabilities
+          </h2>
+          {capabilities.length > 0 ? (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {uiCapabilities.map((cap) => (
+                <div
+                  key={cap.id}
+                  className={`cursor-pointer rounded-lg border p-3 transition-all ${
+                    selectedCapability?.id === cap.id
+                      ? 'border-emerald-500/50 bg-emerald-500/10 shadow-lg shadow-emerald-500/10'
+                      : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                  }`}
+                  onClick={() => handleCapabilitySelect(cap)}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="font-medium text-white/90 text-sm">{cap.name}</div>
+                    {selectedCapability?.id === cap.id && (
+                      <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                    )}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  <div className="mt-1 text-xs text-white/70">{cap.desc}</div>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <Badge>entry: {cap.entryPoints.length}</Badge>
+                    <Badge>files: {cap.keyFiles.length}</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center text-white/50 py-8">
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Loading capabilities...
+                </div>
+              ) : (
+                'No capabilities found'
+              )}
+            </div>
+          )}
         </div>
 
-        {/* QA Response */}
+        {/* QA Response from main query */}
         {qaResponse && (
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-white/90">
             <SectionTitle icon={Search} title="Query Response" />
-            <div className="mt-2 text-xs text-white/70">
+            <div className="mt-3 text-xs text-white/70">
               <pre className="whitespace-pre-wrap bg-black/20 p-3 rounded-lg overflow-auto max-h-60">
                 {qaResponse}
               </pre>
@@ -1266,9 +1152,6 @@ export default function ProvisUIDemo() {
             </button>
           </div>
         )}
-
-        {/* Self-tests */}
-        <TestsPanel results={testResults} />
       </div>
     </div>
   );

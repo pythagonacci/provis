@@ -176,14 +176,42 @@ def get_file_details(repo_id: str, path: str):
     if not f.exists():
         raise HTTPException(404, detail="files.json not found")
     data = json.loads(f.read_text())
+    
     for entry in data.get("files", []):
         if entry.get("path") == path:
-            return {
+            result = {
+                "path": path,
                 "purpose": entry.get("purpose") or entry.get("blurb") or "",
                 "exports": entry.get("exports", []),
                 "imports": [i.get("resolved") or i.get("raw") for i in entry.get("imports", [])],
                 "functions": entry.get("symbols", {}).get("functions", []),
+                "loc": entry.get("loc", 0),
+                "lang": entry.get("lang", ""),
             }
+            
+            # Try to load LLM summary from cache
+            try:
+                content_hash = entry.get("contentHash")
+                if content_hash:
+                    cache_file = base / "cache_llm" / f"{content_hash}.json"
+                    if cache_file.exists():
+                        llm_data = json.loads(cache_file.read_text())
+                        result.update({
+                            "summary": llm_data.get("purpose") or llm_data.get("dev_summary") or result["purpose"],
+                            "title": llm_data.get("title", ""),
+                            "key_functions": llm_data.get("key_functions", []),
+                            "how_to_modify": llm_data.get("how_to_modify", ""),
+                            "risks": llm_data.get("risks", ""),
+                            "blurb": llm_data.get("blurb", ""),
+                            "vibecoder_summary": llm_data.get("vibecoder_summary", ""),
+                            "edit_points": llm_data.get("edit_points", ""),
+                        })
+            except Exception as e:
+                # If LLM cache loading fails, just use the basic data
+                pass
+            
+            return result
+    
     raise HTTPException(404, detail="file not found")
 
 @app.get("/v1/repo/{repo_id}/capabilities/{cap_id}", tags=["v1"], response_model=CapabilityDetailModel)
