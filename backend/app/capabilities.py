@@ -58,71 +58,97 @@ def _has_output(data_flow, kind_substr):
 
 def build_steps(cap) -> list[dict]:
     """
-    Produce a single, deduped sequence tailored for repo→graph→capabilities→deck/pdf→email flows.
-    Ensures canonical anchors required by tests:
-      - Receive Request
-      - Fetch Prospect Data
-      - Generate Deck Content
-      - Return Success
+    Generate capability-specific steps based on the actual flow and purpose.
     """
+    cap_name = cap.get("name", "").lower()
+    cap_purpose = cap.get("purpose", "").lower()
     entry = cap.get("entrypoints", [])
     df = cap.get("data_flow", {})
-
-    routes = {e.get("route", "") for e in entry}
-    output_types = [o.get("type") for o in df.get("outputs", [])]
-    artifact_names = {o.get("name") for o in df.get("outputs", []) if o.get("type") == "artifact"}
-
-    titles = []
-
-    # Canonical anchors up front
-    titles.append("Receive Request")
-    titles.append("Validate Input")
-    titles.append("Fetch Prospect Data")  # ← required anchor
-
-    # Repo analysis sequence (kept as before)
-    if any(r.startswith("/repo/") or r.startswith("/v1/repo/") for r in routes):
-        titles.append("Parse Repository Snapshot")
-        titles.append("Build Graph")
-        titles.append("Extract Capabilities")
-
-    # Deck generation anchors
-    titles.append("Generate Deck Content")  # ← required anchor
-    if "pdf" in artifact_names:
-        titles.append("Render Deck PDF")
-    if "slides" in artifact_names:
-        titles.append("Generate Slides")
-
-    # Optional email
-    if "email" in output_types:
-        titles.append("Send Confirmation Email")
-
-    # Canonical end anchor (rename from "Return Success Response")
-    titles.append("Return Success")
-
-    # Dedupe preserving order
-    seen = set()
-    descriptions = {
-        "Receive Request": "The API receives a request (health, repo introspection, or artifact listing).",
-        "Validate Input": "Validate path/query/body fields for required shape and types.",
-        "Fetch Prospect Data": "Load repo/snapshot context and any needed metadata for processing.",
-        "Parse Repository Snapshot": "Load and prepare files for parsing.",
-        "Build Graph": "Construct dependency and symbol graphs across the codebase.",
-        "Extract Capabilities": "Infer capabilities, swimlanes, nodes, and edges from parsed code.",
-        "Generate Deck Content": "Use the LLM and templates to produce deck sections.",
-        "Render Deck PDF": "Render the generated deck into a PDF artifact.",
-        "Generate Slides": "Generate slide artifacts for web viewing or export.",
-        "Send Confirmation Email": "Send a transactional email with status and artifact links.",
-        "Return Success": "Return a 2xx with payload (overview, capabilities, or artifacts).",
-    }
-
-    result = []
-    for t in titles:
-        if t in seen: 
-            continue
-        seen.add(t)
-        result.append({"title": t, "description": descriptions.get(t, t), "fileId": None})
-
-    return result
+    
+    # Determine capability type from name and purpose
+    is_email_flow = "email" in cap_name or "email" in cap_purpose
+    is_deck_flow = "deck" in cap_name or "deck" in cap_purpose or "slides" in cap_purpose
+    is_prospect_flow = "prospect" in cap_name or "prospect" in cap_purpose
+    is_web_app = "web" in cap_name or "frontend" in cap_name or any("page.tsx" in e.get("path", "") for e in entry)
+    is_router = "router" in cap_name
+    is_main_workflow = "main" in cap_name or "workflow" in cap_name
+    
+    # Get entry point files for fileId references
+    entry_files = [e.get("path", "") for e in entry if e.get("path")]
+    
+    steps = []
+    
+    if is_email_flow:
+        steps = [
+            {"title": "Receive Email Request", "description": "API endpoint receives request to generate an email", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Load Prospect Data", "description": "Fetch prospect information from the database or request payload", "fileId": "backend/app/models/prospect.py"},
+            {"title": "Generate Email Content", "description": "Use templates and LLM to create personalized email content", "fileId": None},
+            {"title": "Send via SMTP", "description": "Deliver the generated email through SMTP service", "fileId": None},
+            {"title": "Return Confirmation", "description": "Return success response with email status", "fileId": entry_files[0] if entry_files else None}
+        ]
+    elif is_deck_flow:
+        steps = [
+            {"title": "Receive Deck Request", "description": "API endpoint receives request to generate a deck", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Load Prospect Data", "description": "Fetch prospect information needed for deck generation", "fileId": "backend/app/models/prospect.py"},
+            {"title": "Generate Deck Outline", "description": "Create structure and sections for the presentation deck", "fileId": None},
+            {"title": "Populate Deck Content", "description": "Fill deck sections with prospect-specific content using LLM", "fileId": None},
+            {"title": "Render to PDF", "description": "Convert the deck content into a PDF document", "fileId": "backend/app/services/pdf.py"},
+            {"title": "Generate Slides", "description": "Create slide artifacts for web viewing", "fileId": "backend/app/services/slides.py"},
+            {"title": "Return Deck Artifacts", "description": "Return the generated PDF and slide links", "fileId": entry_files[0] if entry_files else None}
+        ]
+    elif is_prospect_flow:
+        steps = [
+            {"title": "Receive Prospect Request", "description": "API endpoint receives prospect-related request", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Validate Prospect Data", "description": "Validate the prospect information against schemas", "fileId": "backend/app/models/prospect.py"},
+            {"title": "Process Prospect", "description": "Handle prospect creation, update, or retrieval logic", "fileId": None},
+            {"title": "Store to Database", "description": "Persist prospect data to the database", "fileId": None},
+            {"title": "Return Prospect Response", "description": "Return the processed prospect information", "fileId": entry_files[0] if entry_files else None}
+        ]
+    elif is_web_app:
+        steps = [
+            {"title": "Load Application", "description": "Initialize the Next.js frontend application", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Render Layout", "description": "Render the main application layout and navigation", "fileId": "offdeal-frontend/src/app/layout.tsx"},
+            {"title": "Handle Client Interactions", "description": "Process user interactions and state changes", "fileId": None},
+            {"title": "Make API Calls", "description": "Communicate with backend APIs for data", "fileId": "offdeal-frontend/src/lib/api.ts"},
+            {"title": "Update UI", "description": "Re-render components based on data and state changes", "fileId": None}
+        ]
+    elif is_router:
+        # Extract the specific router type from the entry point
+        router_type = "API"
+        if entry_files and "prospect" in entry_files[0]:
+            router_type = "Prospect"
+        elif entry_files and "deck" in entry_files[0]:
+            router_type = "Deck"
+        elif entry_files and "email" in entry_files[0]:
+            router_type = "Email"
+        
+        steps = [
+            {"title": f"Initialize {router_type} Router", "description": f"Set up FastAPI router for {router_type.lower()} endpoints", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Define Route Handlers", "description": f"Implement HTTP method handlers for {router_type.lower()} operations", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Validate Request Data", "description": "Validate incoming request data against Pydantic schemas", "fileId": None},
+            {"title": "Execute Business Logic", "description": f"Process {router_type.lower()}-specific business operations", "fileId": None},
+            {"title": "Return API Response", "description": "Format and return the appropriate HTTP response", "fileId": entry_files[0] if entry_files else None}
+        ]
+    elif is_main_workflow:
+        steps = [
+            {"title": "Initialize Application", "description": "Start the FastAPI application and load configuration", "fileId": "backend/app/main.py"},
+            {"title": "Setup Middleware", "description": "Configure CORS, authentication, and request middleware", "fileId": None},
+            {"title": "Register Routes", "description": "Mount API routers for prospects, decks, and emails", "fileId": None},
+            {"title": "Handle Requests", "description": "Route incoming requests to appropriate handlers", "fileId": None},
+            {"title": "Process Business Logic", "description": "Execute the core application functionality", "fileId": None},
+            {"title": "Return Responses", "description": "Send formatted responses back to clients", "fileId": None}
+        ]
+    else:
+        # Generic fallback for unknown capability types
+        steps = [
+            {"title": "Initialize Component", "description": f"Set up the {cap.get('name', 'component')} functionality", "fileId": entry_files[0] if entry_files else None},
+            {"title": "Process Input", "description": "Handle and validate incoming data or requests", "fileId": None},
+            {"title": "Execute Logic", "description": "Perform the core processing logic for this capability", "fileId": None},
+            {"title": "Generate Output", "description": "Produce the expected output or response", "fileId": None},
+            {"title": "Complete Operation", "description": "Finalize the operation and return results", "fileId": entry_files[0] if entry_files else None}
+        ]
+    
+    return steps
 
 def ensure_contract_coverage(cap):
     """
@@ -311,7 +337,8 @@ def _get_source_root(repo_dir: Path) -> Path:
     if not snap.exists():
         return repo_dir
     try:
-        subdirs = [p for p in snap.iterdir() if p.is_dir()]
+        # Ignore the capabilities directory when determining source root
+        subdirs = [p for p in snap.iterdir() if p.is_dir() and p.name != "capabilities"]
         if len(subdirs) == 1:
             return subdirs[0]
     except Exception:
@@ -456,6 +483,18 @@ async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
 
     # Baseline capability
     main_cap = build_capability(repo_dir)
+    main_cap["id"] = "cap_main_workflow"
+    main_cap["name"] = "Main Application Workflow"
+    main_cap["purpose"] = "Primary application functionality and data processing"
+    
+    # Rebuild steps with proper capability context
+    main_cap["steps"] = build_steps({
+        "name": "Main Application Workflow",
+        "purpose": "Primary application functionality and data processing",
+        "entrypoints": main_cap.get("entrypoints", []),
+        "data_flow": main_cap.get("data_flow", {})
+    })
+    
     write_capability(repo_dir, main_cap)
     capabilities.append(main_cap)
 
@@ -479,6 +518,15 @@ async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
                 "framework": fw,
             }]
             cap["orchestrators"] = compute_orchestrators({"entrypoints": cap["entrypoints"]}, repo_dir)
+            
+            # Rebuild steps with proper capability context
+            cap["steps"] = build_steps({
+                "name": cap_name,
+                "purpose": cap_name,
+                "entrypoints": cap["entrypoints"],
+                "data_flow": cap.get("data_flow", {})
+            })
+            
             write_capability(repo_dir, cap)
             capabilities.append(cap)
 
@@ -494,6 +542,15 @@ async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
             "method": "GET",
             "framework": "nextjs",
         }]
+        
+        # Rebuild steps with proper capability context
+        cap["steps"] = build_steps({
+            "name": "Web Application",
+            "purpose": "Next.js frontend application",
+            "entrypoints": cap["entrypoints"],
+            "data_flow": cap.get("data_flow", {})
+        })
+        
         write_capability(repo_dir, cap)
         capabilities.append(cap)
 
@@ -519,6 +576,15 @@ async def build_all_capabilities(repo_dir: Path) -> Dict[str, Any]:
                     "framework": "fastapi",
                 }]
                 cap["orchestrators"] = compute_orchestrators({"entrypoints": cap["entrypoints"]}, repo_dir)
+                
+                # Rebuild steps with proper capability context
+                cap["steps"] = build_steps({
+                    "name": f"Router: {py.stem}",
+                    "purpose": f"API flow for {py.stem}",
+                    "entrypoints": cap["entrypoints"],
+                    "data_flow": cap.get("data_flow", {})
+                })
+                
                 write_capability(repo_dir, cap)
                 capabilities.append(cap)
     except Exception:

@@ -465,21 +465,44 @@ function StepsPanel({
   steps,
   onHover,
   onSelect,
+  selectedCapability,
 }: {
   steps: { title: string; description: string; fileId?: string }[];
   onHover?: (fileId?: string) => void;
   onSelect?: (fileId?: string) => void;
+  selectedCapability?: Capability | null;
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-white/90">
       <SectionTitle icon={ListTree} title="Narrated steps" />
+      
+      {selectedCapability ? (
+        <div className="mt-2 mb-3 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+          <div className="text-xs font-medium text-emerald-200">{selectedCapability.name}</div>
+          <div className="text-xs text-emerald-200/70">{selectedCapability.purpose}</div>
+        </div>
+      ) : (
+        <div className="mt-2 mb-3 p-3 bg-white/5 border border-white/10 rounded-lg text-center">
+          <div className="text-xs text-white/60">Select a capability below to see its step-by-step process</div>
+        </div>
+      )}
+      
       <ol className="mt-2 space-y-2 text-sm">
         {steps.map((s, i) => (
-          <li key={i} className="flex cursor-pointer items-start gap-2 rounded-lg p-1 hover:bg-white/5" onMouseEnter={() => onHover?.(s.fileId)} onMouseLeave={() => onHover?.(undefined)} onClick={() => onSelect?.(s.fileId)}>
-            <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-xs text-white/80">{i + 1}</span>
+          <li 
+            key={i} 
+            className={`flex items-start gap-2 rounded-lg p-1 ${
+              s.fileId ? 'cursor-pointer hover:bg-white/5' : 'cursor-default'
+            }`} 
+            onMouseEnter={() => s.fileId && onHover?.(s.fileId)} 
+            onMouseLeave={() => onHover?.(undefined)} 
+            onClick={() => s.fileId && onSelect?.(s.fileId)}
+          >
+            <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-xs text-white/80 flex-shrink-0">{i + 1}</span>
             <div>
               <div className="font-medium">{s.title}</div>
-              <div className="text-white/70">{s.description}</div>
+              <div className="text-white/70 text-xs">{s.description}</div>
+              {s.fileId && <div className="text-white/50 text-xs mt-1">📁 {s.fileId}</div>}
             </div>
           </li>
         ))}
@@ -488,10 +511,17 @@ function StepsPanel({
   );
 }
 
-function CapabilityCard({ cap, onFocus, onSelect }: { cap: Capability; onFocus: () => void; onSelect: () => void }) {
+function CapabilityCard({ cap, onFocus, onSelect, isSelected }: { cap: Capability; onFocus: () => void; onSelect: () => void; isSelected?: boolean }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-white/90">
-      <div className="mb-1 text-sm font-semibold">{cap.name}</div>
+    <div className={`rounded-xl border p-3 text-white/90 transition-all ${
+      isSelected 
+        ? 'border-emerald-500/50 bg-emerald-500/10 shadow-lg shadow-emerald-500/10' 
+        : 'border-white/10 bg-white/5 hover:border-white/20'
+    }`}>
+      <div className="mb-1 text-sm font-semibold flex items-center gap-2">
+        {cap.name}
+        {isSelected && <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>}
+      </div>
       <div className="mb-2 text-xs text-white/70">{cap.purpose}</div>
       <div className="mb-2 flex flex-wrap gap-2 text-xs">
         <Badge>entry: {cap.entryPoints.length}</Badge>
@@ -502,7 +532,16 @@ function CapabilityCard({ cap, onFocus, onSelect }: { cap: Capability; onFocus: 
       <div className="text-xs text-white/60">Data in: {cap.dataIn.join(', ')}<br/>Data out: {cap.dataOut.join(', ')} </div>
       <div className="mt-3 flex gap-2">
         <button onClick={onFocus} className="rounded-md bg-white/10 px-2 py-1 text-xs hover:bg-white/15">Focus in graph</button>
-        <button onClick={onSelect} className="rounded-md bg-white/10 px-2 py-1 text-xs hover:bg-white/15">Show steps</button>
+        <button 
+          onClick={onSelect} 
+          className={`rounded-md px-2 py-1 text-xs transition-colors ${
+            isSelected 
+              ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-500/30' 
+              : 'bg-white/10 hover:bg-white/15'
+          }`}
+        >
+          {isSelected ? 'Selected' : 'Show steps'}
+        </button>
       </div>
     </div>
   );
@@ -806,8 +845,11 @@ export default function ProvisUIDemo() {
         // Load first capability detail if available
         if (capabilitiesResponse.data.length > 0) {
           const firstCap = capabilitiesResponse.data[0];
+          console.log('Loading first capability on startup:', firstCap.id);
           const detailResponse = await apiClient.getCapability(newRepoId, firstCap.id);
           if (detailResponse.data) {
+            console.log('First capability detail loaded:', detailResponse.data);
+            console.log('First capability steps:', detailResponse.data.steps);
             setCurrentCapability(detailResponse.data);
             
             // Convert to UI format
@@ -822,8 +864,9 @@ export default function ProvisUIDemo() {
               dataIn: detailResponse.data.dataIn,
               dataOut: detailResponse.data.dataOut,
               keyFiles: detailResponse.data.keyFiles,
-              steps: detailResponse.data.steps
+              steps: detailResponse.data.steps || []
             };
+            console.log('Setting initial selectedCap with steps:', convertedCap.steps);
             setSelectedCap(convertedCap);
           }
         }
@@ -884,12 +927,17 @@ export default function ProvisUIDemo() {
   }, [query, manualFocus]);
 
   const steps = useMemo(() => {
-    if (selectedCap) return selectedCap.steps;
+    if (selectedCap && selectedCap.steps && selectedCap.steps.length > 0) {
+      return selectedCap.steps;
+    }
+    
+    // If no selected capability or no steps, show a default message
     return [
-      { title: "Orchestrate deck build", description: "deck/compile.ts coordinates outline and rendering, then writes output", fileId: "deck/compile.ts" },
-      { title: "Build slide outline", description: "slides/buildOutline.ts reads content/sections.ts to form structure", fileId: "slides/buildOutline.ts" },
-      { title: "Render markdown to HTML", description: "templates/mdToHtml.ts converts markdown using markdown-it", fileId: "templates/mdToHtml.ts" },
-      { title: "Serve via API", description: "pages/api/compileDeck.ts invokes compile() and returns HTML", fileId: "pages/api/compileDeck.ts" },
+      { 
+        title: "No capability selected", 
+        description: "Click on a capability below to see its detailed step-by-step process", 
+        fileId: undefined 
+      }
     ];
   }, [selectedCap]);
 
@@ -1101,7 +1149,28 @@ export default function ProvisUIDemo() {
               {selectedFile ? <FileCard file={selectedFile} selectedCap={selectedCap} novice={novice} /> : (
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-white/70">Select a file from the folder map to see details.</div>
               )}
-              <StepsPanel steps={steps} onHover={(fid) => setHighlighted(fid ? [fid] : [])} onSelect={(fid) => { if (!fid) return; const f = (MOCK_FILES as any)[fid]; if (f) setSelectedFile(f); setManualFocus(fid); }} />
+              <StepsPanel 
+                steps={steps} 
+                selectedCapability={selectedCap}
+                onHover={(fid) => setHighlighted(fid ? [fid] : [])} 
+                onSelect={(fid) => { 
+                  if (!fid || !currentCapability) return; 
+                  // Find the file in the current capability's node index
+                  const nodeInfo = currentCapability.nodeIndex[fid];
+                  if (nodeInfo) {
+                    const mockFile: FileNode = {
+                      id: fid,
+                      path: fid,
+                      purpose: `${nodeInfo.role} component in ${nodeInfo.lane} layer`,
+                      exports: [],
+                      imports: nodeInfo.incoming || [],
+                      functions: []
+                    };
+                    setSelectedFile(mockFile);
+                    setManualFocus(fid);
+                  }
+                }} 
+              />
               <Suggestions items={suggestions} onSelect={(fid) => { const f = (MOCK_FILES as any)[fid]; if (f) setSelectedFile(f); setManualFocus(fid); }} />
             </div>
           </div>
@@ -1137,6 +1206,7 @@ export default function ProvisUIDemo() {
                     <CapabilityCard 
                       key={cap.id} 
                       cap={uiCap} 
+                      isSelected={selectedCap?.id === cap.id}
                       onFocus={() => setManualFocus(cap.keyFiles[0])} 
                       onSelect={async () => {
                         if (repoId) {
@@ -1153,7 +1223,7 @@ export default function ProvisUIDemo() {
                               dataIn: detailResponse.data.dataIn,
                               dataOut: detailResponse.data.dataOut,
                               keyFiles: detailResponse.data.keyFiles,
-                              steps: detailResponse.data.steps
+                              steps: detailResponse.data.steps || []
                             };
                             setSelectedCap(convertedCap);
                           }
