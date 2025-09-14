@@ -55,3 +55,4 @@ test_repo.zip
 # Logs
 *.log
 logs/
+domain-locker/
