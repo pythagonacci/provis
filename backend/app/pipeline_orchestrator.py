@@ -15,7 +15,7 @@ import logging
 from .config import settings
 from .models import Phase, StatusPayload, WarningItem, EvidenceSpan
 from .observability import get_metrics_collector, record_fallback
-from .events import event_manager
+from .events import get_event_stream
 from .preflight import run_preflight_scan
 from .language_services import get_ts_program_service, get_python_cst_service
 from .detectors import DetectorRegistry
@@ -156,7 +156,8 @@ class PipelineOrchestrator:
         await self._create_pipeline_tasks(job_id, repo_id, repo_path)
         
         # Publish initial event
-        await event_manager.publish(job_id, "job_started", {
+        event_stream = get_event_stream()
+        await event_stream.emit_event(job_id, "job_started", {
             "job_id": job_id,
             "repo_id": repo_id,
             "phase": "queued"
@@ -735,10 +736,8 @@ class PipelineOrchestrator:
                 self.job_progress[task.job_id]["current_phase"] = task.phase.value
                 
                 # Publish event
-                await event_manager.publish(task.job_id, "phase_changed", {
-                    "phase": task.phase.value,
-                    "task_id": task_id
-                })
+                event_stream = get_event_stream()
+                await event_stream.emit_phase_change(task.job_id, task.phase.value, task.progress, f"Phase: {task.phase.value}")
                 
                 # Run task
                 asyncio.create_task(self._run_task(task))
@@ -770,7 +769,8 @@ class PipelineOrchestrator:
             )
             
             # Publish completion event
-            await event_manager.publish(task.job_id, "task_completed", {
+            event_stream = get_event_stream()
+            await event_stream.emit_event(task.job_id, "task_completed", {
                 "task_id": task.task_id,
                 "result": result
             })
@@ -791,7 +791,8 @@ class PipelineOrchestrator:
                 self.failed_tasks.add(task.task_id)
                 
                 # Publish failure event
-                await event_manager.publish(task.job_id, "task_failed", {
+                event_stream = get_event_stream()
+                await event_stream.emit_event(task.job_id, "task_failed", {
                     "task_id": task.task_id,
                     "error": str(e)
                 })
@@ -894,7 +895,8 @@ class PipelineOrchestrator:
     
     async def get_job_events(self, job_id: str):
         """Get event stream for a job."""
-        async for event in event_manager.subscribe(job_id):
+        event_stream = get_event_stream()
+        async for event in event_stream.create_stream(job_id):
             yield event
     
     def get_pipeline_stats(self) -> Dict[str, Any]:
