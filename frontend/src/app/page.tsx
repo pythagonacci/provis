@@ -853,9 +853,9 @@ export default function RepoOverviewMockup() {
     setFocus(file);
     
     // Map nodeIndex path to actual file path
-    // NodeIndex paths are like "backend/app/routers/deck.py"
-    // But files.json paths are like "OCEE-bdr copy/backend/app/routers/deck.py"
-    const fullPath = `OCEE-bdr copy/${fileId}`;
+    // NodeIndex paths are like "src/app/utils/pg-api.util.ts"
+    // But files.json paths are like "domain-locker/src/app/utils/pg-api.util.ts"
+    const fullPath = `domain-locker/${fileId}`;
     
     // Load file content and summary
     await loadFileContent(fullPath);
@@ -886,7 +886,7 @@ export default function RepoOverviewMockup() {
 
   // Load existing repository on mount
   useEffect(() => {
-    const existingRepoId = 'repo_6e5a3029';
+    const existingRepoId = 'repo_6d4eb310';
     setRepoId(existingRepoId);
     loadRepositoryData(existingRepoId);
   }, []);

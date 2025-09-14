@@ -214,16 +214,15 @@ def get_file_details(repo_id: str, path: str):
                 "lang": entry.get("lang", ""),
             }
             
-            # Always try to load from cache first to get rich LLM summaries
+            # Try to find cache file by looking for file-specific summaries
             cache_match = None
             try:
                 cache_dir = base / "cache_llm"
                 if cache_dir.exists():
                     filename = entry["path"].split("/")[-1]
                     file_base = filename.split(".")[0]
-                    file_type = entry.get("language", "")
                     
-                    # Look through ALL cache files for file summaries
+                    # Look through cache files for ones that match this specific file
                     best_match = None
                     best_score = 0
                     
@@ -242,51 +241,44 @@ def get_file_details(repo_id: str, path: str):
                             title = llm_data.get("title", "").lower()
                             purpose = llm_data.get("purpose", "").lower()
                             dev_summary = llm_data.get("dev_summary", "").lower()
-                            blurb = llm_data.get("blurb", "").lower()
                             
                             score = 0
                             
-                            # Exact filename match in title
+                            # Exact filename match in title (highest priority)
                             if filename.lower() in title:
-                                score += 20
+                                score += 100
                                 
                             # Base filename match in title
                             if file_base.lower() in title:
-                                score += 15
+                                score += 80
                                 
-                            # Exact filename match anywhere
-                            if filename.lower() in (purpose + dev_summary + blurb):
-                                score += 10
+                            # Exact filename match anywhere in content
+                            if filename.lower() in (purpose + dev_summary):
+                                score += 60
                                 
-                            # File type keywords matching
-                            if "router" in entry["path"].lower():
-                                if any(word in (title + purpose) for word in ["router", "route", "endpoint", "api"]):
-                                    score += 15
-                            elif "model" in entry["path"].lower():
-                                if any(word in (title + purpose) for word in ["model", "database", "schema", "data"]):
-                                    score += 15
-                            elif "service" in entry["path"].lower():
-                                if any(word in (title + purpose) for word in ["service", "business", "logic"]):
-                                    score += 15
-                            elif "main" in entry["path"].lower():
-                                if any(word in (title + purpose) for word in ["main", "entry", "application", "app"]):
-                                    score += 15
-                                    
-                            # Technology match
-                            if file_type == "py" and any(tech in purpose for tech in ["fastapi", "python", "django"]):
-                                score += 8
-                            elif file_type in ["ts", "js"] and any(tech in purpose for tech in ["next", "react", "typescript", "javascript"]):
-                                score += 8
+                            # Path-based matching for domain-locker files
+                            file_path = entry["path"].lower()
+                            if "domains" in file_path:
+                                if any(word in (title + purpose) for word in ["domain", "domains", "registration", "search", "add"]):
+                                    score += 40
+                                # Strong penalty for non-domain related summaries
+                                elif any(word in (title + purpose) for word in ["demo", "component", "navigation", "icon", "svg"]):
+                                    score -= 50
+                            elif "monitor" in file_path:
+                                if any(word in (title + purpose) for word in ["monitor", "monitoring", "status", "health", "uptime"]):
+                                    score += 40
+                            elif "utils" in file_path:
+                                if any(word in (title + purpose) for word in ["utility", "util", "helper", "tool", "pg-api"]):
+                                    score += 40
+                            elif "services" in file_path:
+                                if any(word in (title + purpose) for word in ["service", "business", "logic", "api", "database"]):
+                                    score += 40
+                            elif "components" in file_path:
+                                if any(word in (title + purpose) for word in ["component", "ui", "interface", "display"]):
+                                    score += 40
                                 
-                            # Quality content bonus
-                            if len(purpose) > 100 and "configures" in purpose:
-                                score += 5
-                            if len(dev_summary) > 50:
-                                score += 5
-                            if len(blurb) > 50 and ("think of" in blurb or "imagine" in blurb):
-                                score += 5
-                                
-                            if score > best_score and score >= 5:  # Lower threshold
+                            # Only use matches with high confidence
+                            if score > best_score and score >= 80:
                                 best_score = score
                                 best_match = llm_data
                                 
@@ -296,8 +288,9 @@ def get_file_details(repo_id: str, path: str):
                     # Use the best match if found
                     if best_match:
                         cache_match = best_match
-                        
-            except Exception:
+                            
+            except Exception as e:
+                # If cache matching fails, fall back to no cache match
                 pass
             
             # Apply cache data if found, otherwise use embedded summary
