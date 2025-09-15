@@ -1,0 +1,33 @@
+{
+  "test_info": {
+    "repository": "domain-locker",
+    "type": "Angular/TypeScript",
+    "total_files": 482,
+    "test_date": "2025-09-15 14:51:19"
+  },
+  "timing": {
+    "total_time": 7.1088690757751465,
+    "upload_time": 0.17279577255249023,
+    "preflight_time": 0.08060407638549805,
+    "parse_time": 6.850491046905518,
+    "graph_time": 0.004199028015136719,
+    "detect_time": 0.00015425682067871094,
+    "files_per_second": 70.35991970498634
+  },
+  "accuracy": {
+    "parse_accuracy": 44.190871369294605,
+    "function_accuracy": 28.42323651452282,
+    "import_accuracy": 1.7366136034732274,
+    "overall_accuracy": 26.724303583116658,
+    "files_with_imports": 213,
+    "files_with_functions": 137,
+    "total_imports": 1382,
+    "resolved_imports": 24
+  },
+  "requirements": {
+    "timing_ok": true,
+    "accuracy_ok": false,
+    "speed_ok": true,
+    "overall_pass": false
+  }
+}
