@@ -10,6 +10,14 @@ from app.config import settings
 from app.parsers.js_ts import parse_js_ts_file
 from app.parsers.python import parse_python_file
 from app.models import FileNodeModel, ImportModel, FunctionModel, ClassModel, RouteModel, SymbolsModel
+from typing import cast
+
+# Optional Ray support
+try:
+    import ray  # type: ignore
+    _RAY_AVAILABLE = True
+except Exception:
+    _RAY_AVAILABLE = False
 
 
 def generate_file_blurb(entry: Dict[str, Any]) -> str:
@@ -499,6 +507,7 @@ def _validate_and_normalize_file_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
         normalized = {
             "path": entry.get("path", ""),
             "language": entry.get("language", "other"),
+            "ext": entry.get("ext", ""),
             "exports": entry.get("exports", []),
             "imports": entry.get("imports", []),
             "functions": entry.get("functions", []),
@@ -526,6 +535,7 @@ def _validate_and_normalize_file_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
         return {
             "path": entry.get("path", ""),
             "language": entry.get("language", "other"),
+            "ext": entry.get("ext", ""),
             "exports": [],
             "imports": [],
             "functions": [],
@@ -545,7 +555,15 @@ def _validate_and_normalize_file_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def parse_files(snapshot: Path, discovered: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[str]]:
-    """Enhanced file parsing with caching and incremental updates."""
+    """Enhanced file parsing with caching and incremental updates.
+
+    Uses Ray to parallelize parsing when available, with a safe sequential fallback.
+    """
+    import time
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    start_time = time.time()
     warnings: List[str] = []
     out: List[Dict[str, Any]] = []
     
@@ -567,13 +585,140 @@ def parse_files(snapshot: Path, discovered: List[Dict[str, Any]]) -> Tuple[List[
     
     # Detect repo-wide framework context once
     ctx = detect_project_context(snapshot)
-    
+
+    # Determine which files need reparsing
+    to_reparse: List[Dict[str, Any]] = []
     for meta in discovered:
         file_path_str = meta["path"]
         cached_entry = cache.get(file_path_str)
-        
-        # Check if we need to reparse this file
         if _should_reparse_file(meta, cached_entry):
+            to_reparse.append(meta)
+
+    # Common inputs
+    available_files = [f["path"] for f in discovered if not f.get("skipped", False)]
+
+    # Ray-parallel path
+    results_by_path: Dict[str, Dict[str, Any]] = {}
+    if _RAY_AVAILABLE and to_reparse:
+        try:
+            if not ray.is_initialized():
+                ray.init(ignore_reinit_error=True, logging_level="ERROR")
+
+            @ray.remote(num_cpus=1, max_retries=2)
+            def _process_batch(metas: List[Dict[str, Any]], snapshot_str: str, available: List[str], ctx_in: Dict[str, Any]) -> Tuple[List[Dict[str, Any]], List[str]]:
+                batch_out: List[Dict[str, Any]] = []
+                batch_warnings: List[str] = []
+                snap = Path(snapshot_str)
+                for meta in metas:
+                    entry = {
+                        "path": meta["path"],
+                        "language": meta["language"],
+                        "ext": meta["ext"],
+                        "size": meta["size"],
+                        "lines": meta["lines"],
+                        "hash": meta.get("hash", ""),
+                        "mtime": meta.get("mtime", 0),
+                        "symbols": SymbolsModel(),
+                        "imports": [],
+                        "exports": [],
+                        "routes": [],
+                        "hints": {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False},
+                        "warnings": [],
+                    }
+                    try:
+                        if meta.get("skipped"):
+                            entry["warnings"].append(f"Skipped {meta['path']} due to {meta.get('skipReason','unknown')}.")
+                        else:
+                            file_path = snap / meta["path"]
+                            lang = meta["language"]
+                            if lang in ("js", "ts"):
+                                parsed = parse_js_ts_file(file_path, entry["ext"], snap, available)
+                            elif lang == "py":
+                                parsed = parse_python_file(file_path, snap, available)
+                            else:
+                                parsed = {"imports": [], "exports": [], "functions": [], "classes": [], "routes": [], "symbols": {}, "hints": {}}
+                            entry["imports"] = parsed.get("imports", [])
+                            entry["exports"] = parsed.get("exports", [])
+                            entry["functions"] = parsed.get("functions", [])
+                            entry["classes"] = parsed.get("classes", [])
+                            entry["routes"] = parsed.get("routes", [])
+                            parsed_symbols = parsed.get("symbols", {})
+                            if isinstance(parsed_symbols, dict):
+                                entry["symbols"] = SymbolsModel(
+                                    constants=parsed_symbols.get("constants", []),
+                                    hooks=parsed_symbols.get("hooks", []),
+                                    dbModels=parsed_symbols.get("dbModels", []),
+                                    middleware=parsed_symbols.get("middleware", []),
+                                    components=parsed_symbols.get("components", []),
+                                    utilities=parsed_symbols.get("utilities", [])
+                                )
+                            else:
+                                entry["symbols"] = parsed_symbols
+                            hints = parsed.get("hints", {})
+                            entry["hints"].update({k: v for k, v in hints.items() if v is not None})
+                            if ctx_in.get("nextjs") and entry["hints"].get("framework") is None and entry["ext"] in (".tsx", ".jsx"):
+                                entry["hints"]["framework"] = "nextjs"
+                    except Exception as e:  # noqa: BLE001
+                        msg = f"Parse failed for {meta['path']}: {e}"
+                        entry["warnings"].append(msg)
+                        batch_warnings.append(msg)
+                    # blurb + validate
+                    entry["blurb"] = generate_file_blurb(entry)
+                    entry = _validate_and_normalize_file_entry(entry)
+                    batch_out.append(entry)
+                return batch_out, batch_warnings
+
+            # Configurable batch size via environment variable
+            import os
+            batch_size = int(os.getenv('BATCH_SIZE', 50))
+            batches = [to_reparse[i:i + batch_size] for i in range(0, len(to_reparse), batch_size)]
+            futures = [_process_batch.remote(batch, str(snapshot), available_files, ctx) for batch in batches]
+            
+            # Process results with per-batch error handling
+            for fut in futures:
+                try:
+                    batch_out, batch_warn = ray.get(fut)
+                    warnings.extend(batch_warn)
+                    for entry in batch_out:
+                        results_by_path[entry["path"]] = entry
+                        cache[entry["path"]] = entry
+                except Exception as e:
+                    # Log batch failure but don't crash - create fallback entries
+                    batch_warning = f"Batch processing failed: {e}"
+                    warnings.append(batch_warning)
+                    # Create minimal fallback entries for failed batch
+                    for meta in batches[futures.index(fut)]:
+                        fallback_entry = {
+                            "path": meta["path"],
+                            "language": meta["language"],
+                            "ext": meta["ext"],
+                            "size": meta["size"],
+                            "lines": meta["lines"],
+                            "hash": meta.get("hash", ""),
+                            "mtime": meta.get("mtime", 0),
+                            "symbols": SymbolsModel(),
+                            "imports": [],
+                            "exports": [],
+                            "routes": [],
+                            "hints": {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False},
+                            "warnings": [f"Batch processing failed: {e}"],
+                            "blurb": f"File {meta['path']} (processing failed)"
+                        }
+                        fallback_entry = _validate_and_normalize_file_entry(fallback_entry)
+                        results_by_path[meta["path"]] = fallback_entry
+                        cache[meta["path"]] = fallback_entry
+            
+            # Explicit Ray shutdown for cleanup
+            ray.shutdown()
+            cache_updated = True
+        except Exception:
+            # Fall back to sequential path
+            results_by_path = {}
+
+    # Sequential path for any remaining files or when Ray is unavailable
+    if not results_by_path and to_reparse:
+        for meta in to_reparse:
+            file_path_str = meta["path"]
             # Parse the file
             entry = {
                 "path": meta["path"],
@@ -590,80 +735,69 @@ def parse_files(snapshot: Path, discovered: List[Dict[str, Any]]) -> Tuple[List[
                 "hints": {"framework": None, "isRoute": False, "isReactComponent": False, "isAPI": False},
                 "warnings": [],
             }
-            
             if meta.get("skipped"):
                 entry["warnings"].append(f"Skipped {meta['path']} due to {meta.get('skipReason','unknown')}.")
-                entry["blurb"] = generate_file_blurb(entry)
-                out.append(entry)
-                cache[file_path_str] = entry
-                cache_updated = True
-                continue
-            
-            file_path = snapshot / meta["path"]
-            lang = meta["language"]
-            
-            try:
-                # Get list of available files for import resolution
-                available_files = [f["path"] for f in discovered if not f.get("skipped", False)]
-                
-                if lang in ("js", "ts"):
-                    parsed = parse_js_ts_file(file_path, entry["ext"], snapshot, available_files)
-                elif lang == "py":
-                    parsed = parse_python_file(file_path, snapshot, available_files)
-                else:
-                    parsed = {"imports": [], "exports": [], "functions": [], "classes": [], "routes": [], "symbols": {}, "hints": {}}
-                
-                # Merge parsed results with unified schema
-                entry["imports"] = parsed.get("imports", [])
-                entry["exports"] = parsed.get("exports", [])
-                entry["functions"] = parsed.get("functions", [])
-                entry["classes"] = parsed.get("classes", [])
-                entry["routes"] = parsed.get("routes", [])
-                # Convert parsed symbols to SymbolsModel if it's a dict
-                parsed_symbols = parsed.get("symbols", {})
-                if isinstance(parsed_symbols, dict):
-                    entry["symbols"] = SymbolsModel(
-                        constants=parsed_symbols.get("constants", []),
-                        hooks=parsed_symbols.get("hooks", []),
-                        dbModels=parsed_symbols.get("dbModels", []),
-                        middleware=parsed_symbols.get("middleware", []),
-                        components=parsed_symbols.get("components", []),
-                        utilities=parsed_symbols.get("utilities", [])
-                    )
-                else:
-                    entry["symbols"] = parsed_symbols
-                
-                hints = parsed.get("hints", {})
-                entry["hints"].update({k: v for k, v in hints.items() if v is not None})
-                
-                # Project context inheritance
-                if ctx.get("nextjs") and entry["hints"].get("framework") is None and entry["ext"] in (".tsx", ".jsx"):
-                    entry["hints"]["framework"] = "nextjs"
-                
-            except Exception as e:
-                msg = f"Parse failed for {meta['path']}: {e}"
-                entry["warnings"].append(msg)
-                warnings.append(msg)
-            
-            # Generate blurb
+            else:
+                file_path = snapshot / meta["path"]
+                lang = meta["language"]
+                try:
+                    if lang in ("js", "ts"):
+                        parsed = parse_js_ts_file(file_path, entry["ext"], snapshot, available_files)
+                    elif lang == "py":
+                        parsed = parse_python_file(file_path, snapshot, available_files)
+                    else:
+                        parsed = {"imports": [], "exports": [], "functions": [], "classes": [], "routes": [], "symbols": {}, "hints": {}}
+                    entry["imports"] = parsed.get("imports", [])
+                    entry["exports"] = parsed.get("exports", [])
+                    entry["functions"] = parsed.get("functions", [])
+                    entry["classes"] = parsed.get("classes", [])
+                    entry["routes"] = parsed.get("routes", [])
+                    parsed_symbols = parsed.get("symbols", {})
+                    if isinstance(parsed_symbols, dict):
+                        entry["symbols"] = SymbolsModel(
+                            constants=parsed_symbols.get("constants", []),
+                            hooks=parsed_symbols.get("hooks", []),
+                            dbModels=parsed_symbols.get("dbModels", []),
+                            middleware=parsed_symbols.get("middleware", []),
+                            components=parsed_symbols.get("components", []),
+                            utilities=parsed_symbols.get("utilities", [])
+                        )
+                    else:
+                        entry["symbols"] = parsed_symbols
+                    hints = parsed.get("hints", {})
+                    entry["hints"].update({k: v for k, v in hints.items() if v is not None})
+                    if ctx.get("nextjs") and entry["hints"].get("framework") is None and entry["ext"] in (".tsx", ".jsx"):
+                        entry["hints"]["framework"] = "nextjs"
+                except Exception as e:
+                    msg = f"Parse failed for {meta['path']}: {e}"
+                    entry["warnings"].append(msg)
+                    warnings.append(msg)
             entry["blurb"] = generate_file_blurb(entry)
-            
-            # Validate and normalize entry
             entry = _validate_and_normalize_file_entry(entry)
-            
-            # Update cache
+            results_by_path[file_path_str] = entry
             cache[file_path_str] = entry
             cache_updated = True
-            
+
+    # Build output in discovered order, mixing in cached entries where appropriate
+    for meta in discovered:
+        file_path_str = meta["path"]
+        if file_path_str in results_by_path:
+            out.append(results_by_path[file_path_str])
         else:
-            # Use cached result and validate it
-            entry = _validate_and_normalize_file_entry(cached_entry.copy())
-        
-        out.append(entry)
+            cached_entry = cache.get(file_path_str)
+            if cached_entry:
+                out.append(_validate_and_normalize_file_entry(cached_entry.copy()))
+            else:
+                # Should not happen; produce minimal entry
+                out.append(_validate_and_normalize_file_entry({"path": file_path_str, "language": meta.get("language", "other")}))
     
     # Save updated cache
     if cache_updated:
         _save_parse_cache(cache_path, cache)
+    
+    # Log timing metrics
+    parse_time = time.time() - start_time
+    logger.info(f"Parsed {len(out)} files in {parse_time:.2f}s using {'Ray' if _RAY_AVAILABLE else 'sequential'} processing")
     
     return out, warnings
 

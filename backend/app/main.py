@@ -2,7 +2,7 @@ from __future__ import annotations
 import asyncio
 import json
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
@@ -57,6 +57,9 @@ async def ingest_repo(file: UploadFile = File(...), bg: BackgroundTasks = None):
     if not file.filename.lower().endswith(".zip"):
         raise HTTPException(400, detail="Only .zip uploads supported")
 
+    import time
+    start_time = time.time()
+    
     repo_id = short_id("repo")
     job_id = short_id("job")
     snapshot_id = short_id("snap")
@@ -67,10 +70,25 @@ async def ingest_repo(file: UploadFile = File(...), bg: BackgroundTasks = None):
     store = StatusStore(rdir)
     store.update(jobId=job_id, repoId=repo_id, phase="queued", pct=0, filesParsed=0, imports=0, warnings=[])
 
+    # Time the upload stage
+    upload_start = time.time()
     tmp_zip = await stage_upload(rdir, file)
+    upload_time = time.time() - upload_start
+    
     try:
+        # Time the extraction stage
+        extract_start = time.time()
         count = extract_snapshot(tmp_zip, snapshot)
-        store.update(filesParsed=count)
+        extract_time = time.time() - extract_start
+        
+        # Track Ray usage and timing for observability
+        try:
+            from app.parsers.base import _RAY_AVAILABLE
+            store.update(filesParsed=count, ray_used=_RAY_AVAILABLE, 
+                        upload_time=upload_time, extract_time=extract_time)
+        except ImportError:
+            store.update(filesParsed=count, ray_used=False,
+                        upload_time=upload_time, extract_time=extract_time)
     except Exception as e:
         store.update(phase="failed", pct=100, error=str(e))
         raise HTTPException(400, detail=f"Extraction failed: {e}")
@@ -339,13 +357,16 @@ def get_cap_v1(repo_id: str, cap_id: str):
         cap = read_capability_by_id(base, cap_id)
     except FileNotFoundError:
         raise HTTPException(404, detail="capability not found")
-    # Ensure camelCase mirrors
+    # Ensure camelCase mirrors and required fields
     if "control_flow" in cap and "controlFlow" not in cap:
         cap["controlFlow"] = cap.get("control_flow")
     if "data_flow" in cap and "dataFlow" not in cap:
         cap["dataFlow"] = cap.get("data_flow")
     if "entryPoints" not in cap and "entrypoints" in cap:
         cap["entryPoints"] = [e.get("path") if isinstance(e, dict) else e for e in cap.get("entrypoints", [])]
+    # Guarantee required fields for response model
+    cap.setdefault("purpose", "")
+    cap.setdefault("title", cap.get("name", ""))
     # Ensure swimlanes present and complete
     swim = cap.get("swimlanes") or {}
     for k in ("web","api","workers","other"):
@@ -375,6 +396,69 @@ def get_cap_v1(repo_id: str, cap_id: str):
             role = "entrypoint" if n in entry_set else ("sink" if len(outgoing) == 0 else "handler")
             node_index[n] = {"lane": lane_for.get(n, "other"), "role": role, "incoming": incoming, "outgoing": outgoing}
         cap["nodeIndex"] = node_index
+    # Compute ordered progression across lanes for this capability
+    try:
+        swim = cap.get("swimlanes", {}) or {}
+        entry_points: list[str] = cap.get("entryPoints", []) or []
+        control_flow: list[dict] = cap.get("controlFlow", []) or []
+
+        # Normalize entries possibly as dicts
+        def _as_path(x):
+            return x if isinstance(x, str) else (x.get("path") if isinstance(x, dict) else None)
+
+        entry_points = [p for p in [ _as_path(e) for e in entry_points ] if p]
+        lane_for: dict[str, str] = {}
+        for lane, nodes in swim.items():
+            for it in (nodes or []):
+                p = _as_path(it)
+                if p:
+                    lane_for[p] = lane
+        out_map: dict[str, list[str]] = {}
+        for e in control_flow:
+            f = _as_path(e.get("from"))
+            t = _as_path(e.get("to"))
+            if f and t:
+                out_map.setdefault(f, []).append(t)
+
+        # Walk from each entry, greedily taking first unseen edge to build a path
+        visited: set[str] = set()
+        best_path: list[str] = []
+        for start in entry_points or list(out_map.keys()):
+            cur = start
+            path: list[str] = []
+            local_seen: set[str] = set()
+            steps_guard = 0
+            while cur and cur not in local_seen and steps_guard < 1000:
+                steps_guard += 1
+                path.append(cur)
+                local_seen.add(cur)
+                nexts = [n for n in out_map.get(cur, []) if n not in local_seen]
+                if not nexts:
+                    break
+                # Prefer nodes that eventually lead to no outgoing (sinks)
+                cur = nexts[0]
+            if len(path) > len(best_path):
+                best_path = path
+
+        # Group by lane for presentation
+        progression: list[dict] = []
+        if best_path:
+            current_lane = None
+            current_nodes: list[str] = []
+            for node in best_path:
+                lane = lane_for.get(node, "other")
+                if current_lane is None:
+                    current_lane = lane
+                if lane != current_lane:
+                    progression.append({"lane": current_lane, "nodes": current_nodes})
+                    current_lane = lane
+                    current_nodes = []
+                current_nodes.append(node)
+            if current_nodes:
+                progression.append({"lane": current_lane, "nodes": current_nodes})
+        cap["progression"] = progression
+    except Exception:
+        cap.setdefault("progression", [])
     # Guarantee presence of optional arrays/objects
     cap.setdefault("steps", [])
     cap.setdefault("nodeIndex", {})
@@ -504,6 +588,11 @@ def get_suggestions(repo_id: str, capability: str = None):
         "suggestions": suggestions[:20],  # Limit to top 20
         "generatedAt": datetime.now(timezone.utc).isoformat()
     }
+
+# V1 alias for suggestions endpoint
+@app.get("/v1/repo/{repo_id}/suggestions", tags=["v1"])
+def get_suggestions_v1(repo_id: str, capability: str | None = None):
+    return get_suggestions(repo_id, capability)
 
 @app.get("/repo/{repo_id}/capabilities")
 def get_capabilities(repo_id: str):
