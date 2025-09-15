@@ -44,7 +44,27 @@ def repo_dir(repo_id: str) -> Path:
 
 @app.get("/health")
 def health():
-    return {"ok": True}
+    # Check Tree-sitter and Ray availability
+    tree_sitter_available = False
+    ray_available = False
+    
+    try:
+        from app.parsers.tree_sitter_utils import is_tree_sitter_available
+        tree_sitter_available = is_tree_sitter_available()
+    except ImportError:
+        pass
+    
+    try:
+        from app.parsers.base import _RAY_AVAILABLE
+        ray_available = _RAY_AVAILABLE
+    except ImportError:
+        pass
+    
+    return {
+        "ok": True,
+        "tree_sitter": tree_sitter_available,
+        "ray": ray_available
+    }
 
 def require_done(repo_id: str):
     store = StatusStore(repo_dir(repo_id))

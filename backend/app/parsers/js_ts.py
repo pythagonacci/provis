@@ -5,6 +5,16 @@ import json
 import subprocess
 import tempfile
 from typing import Dict, Any, List, Optional
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Import Tree-sitter utilities
+try:
+    from .tree_sitter_utils import parse_with_tree_sitter, is_tree_sitter_available
+    _TREE_SITTER_AVAILABLE = is_tree_sitter_available()
+except ImportError:
+    _TREE_SITTER_AVAILABLE = False
 
 # Fallback regex patterns for when ts-morph fails
 RE_IMPORT = re.compile(r'^\s*import\s+(?:[^"\']+from\s+)?[\'"]([^\'"]+)[\'"]', re.MULTILINE)
@@ -635,15 +645,32 @@ def _detect_side_effects(text: str, ext: str) -> List[str]:
 
 
 def parse_js_ts_file(p: Path, ext: str, snapshot: Path = None, available_files: List[str] = None) -> Dict[str, Any]:
-    """Parse JavaScript/TypeScript file with robust AST parsing and framework awareness."""
+    """Parse JavaScript/TypeScript file with Tree-sitter → ts-morph → regex fallback chain."""
     text = _read_text(p)
     file_path = str(p).replace("\\", "/")
     filename = p.name
     
-    # Try ts-morph first, fallback to regex
-    parsed = _parse_with_ts_morph(text, file_path, available_files)
+    # Try Tree-sitter first (highest accuracy)
+    parsed = None
+    if _TREE_SITTER_AVAILABLE:
+        try:
+            lang = "typescript" if ext in [".ts", ".tsx"] else "javascript"
+            parsed = parse_with_tree_sitter(text, lang, file_path)
+            logger.debug(f"Tree-sitter parsing successful for {file_path}")
+        except Exception as e:
+            logger.warning(f"Tree-sitter parsing failed for {file_path}: {e}")
+            parsed = None
+    
+    # Fallback to ts-morph if Tree-sitter failed
+    if not parsed:
+        parsed = _parse_with_ts_morph(text, file_path, available_files)
+        if parsed:
+            logger.debug(f"ts-morph parsing successful for {file_path}")
+    
+    # Final fallback to regex
     if not parsed:
         parsed = _parse_with_regex_fallback(text)
+        logger.debug(f"Regex fallback parsing used for {file_path}")
     
     # Detect routes
     routes = []
@@ -659,12 +686,16 @@ def parse_js_ts_file(p: Path, ext: str, snapshot: Path = None, available_files: 
     # Detect framework hints
     hints = _detect_framework_hints(file_path, text, ext)
     
+    # Merge Tree-sitter hints with existing hints
+    if parsed.get("hints"):
+        hints.update(parsed["hints"])
+    
     # Add side effects to functions
     side_effects = _detect_side_effects(text, ext)
     for func in parsed.get("functions", []):
         func["sideEffects"] = side_effects
     
-    # Use imports from ts-morph (already resolved) or fallback
+    # Use imports from Tree-sitter/ts-morph (already resolved) or fallback
     resolved_imports = parsed.get("imports", [])
     
     # Detect React hooks
@@ -697,8 +728,18 @@ def parse_js_ts_file(p: Path, ext: str, snapshot: Path = None, available_files: 
         is_client_component = True
         hints["isClientComponent"] = True
     
+    # Flag capability entries (files with routes, APIs, or significant functionality)
+    capability_entry = False
+    if (hints.get("isRoute") or 
+        hints.get("isAPI") or 
+        routes or 
+        re.search(r'@(app|router)\.(get|post|put|delete|patch)', text) or
+        any(p in str(file_path).lower() for p in ["/api/", "/page"]) or
+        any(func.get("name") in ["GET", "POST", "PUT", "DELETE", "PATCH"] for func in parsed.get("functions", []))):
+        capability_entry = True
+    
     # Normalize to unified schema
-    return {
+    result = {
         "imports": resolved_imports,
         "exports": parsed.get("exports", []),
         "functions": parsed.get("functions", []),
@@ -714,3 +755,9 @@ def parse_js_ts_file(p: Path, ext: str, snapshot: Path = None, available_files: 
         },
         "hints": hints
     }
+    
+    # Add capability_entry flag if this is a significant file
+    if capability_entry:
+        result["capability_entry"] = True
+    
+    return result

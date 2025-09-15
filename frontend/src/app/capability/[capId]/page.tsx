@@ -413,6 +413,67 @@ export default function CapabilityDashboard() {
     return results;
   }, [dossier]);
 
+  // Build lane-labeled progression (exact file path sequence)
+  const progression = useMemo(() => {
+    if (!dossier) return [] as Array<{ lane: string; nodes: string[] }>;
+
+    // Map lane for quick lookups
+    const laneFor: Record<string, string> = {};
+    Object.entries(dossier.swimlanes || {}).forEach(([lane, nodes]: any) => {
+      (nodes || []).forEach((n: any) => {
+        const p = typeof n === 'string' ? n : n?.path;
+        if (p) laneFor[p] = lane;
+      });
+    });
+
+    // Adjacency
+    const outMap: Record<string, string[]> = {};
+    (dossier.control_flow || []).forEach((e: any) => {
+      const f = e.from, t = e.to;
+      if (f && t) {
+        (outMap[f] ||= []).push(t);
+      }
+    });
+
+    // Entrypoints
+    const entryPaths: string[] = (dossier.entrypoints || []).map((e: any) => e?.path).filter(Boolean);
+
+    // Walk a best-effort single path (greedy, avoids cycles)
+    const seen = new Set<string>();
+    let best: string[] = [];
+    const starts = entryPaths.length ? entryPaths : Object.keys(outMap);
+    for (const start of starts) {
+      let cur = start;
+      const path: string[] = [];
+      const local = new Set<string>();
+      let guard = 0;
+      while (cur && !local.has(cur) && guard < 1000) {
+        guard++; path.push(cur); local.add(cur); seen.add(cur);
+        const nexts = (outMap[cur] || []).filter(n => !local.has(n));
+        if (!nexts.length) break;
+        cur = nexts[0];
+      }
+      if (path.length > best.length) best = path;
+    }
+
+    // Group contiguous by lane
+    const segments: Array<{ lane: string; nodes: string[] }> = [];
+    if (best.length) {
+      let currentLane = laneFor[best[0]] || 'other';
+      let bucket: string[] = [];
+      for (const n of best) {
+        const lane = laneFor[n] || 'other';
+        if (lane !== currentLane && bucket.length) {
+          segments.push({ lane: currentLane, nodes: bucket });
+          currentLane = lane; bucket = [];
+        }
+        bucket.push(n);
+      }
+      if (bucket.length) segments.push({ lane: currentLane, nodes: bucket });
+    }
+    return segments;
+  }, [dossier]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 text-slate-100 flex items-center justify-center">
@@ -475,6 +536,29 @@ export default function CapabilityDashboard() {
           </div>
         </Section>
 
+        {/* Progression (lane-labeled exact files) */}
+        <Section title={<span className="flex items-center gap-2"><GitCommitVertical className="w-4 h-4"/> Capability Progression</span>}>
+          {progression.length ? (
+            <div className="text-xs text-slate-300 space-y-2">
+              {progression.map((seg, i) => (
+                <div key={i} className="flex items-start gap-2">
+                  <span className="min-w-[70px] uppercase text-slate-500">{seg.lane}</span>
+                  <div className="font-mono whitespace-pre-wrap break-words">
+                    {seg.nodes.map((n, idx) => (
+                      <span key={idx}>
+                        {n}
+                        {idx < seg.nodes.length - 1 ? '  ->  ' : ''}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-slate-500 text-sm">No progression detected from control flow.</div>
+          )}
+        </Section>
+
         {/* Swimlane flow */}
         <SwimlaneFlow edges={dossier.control_flow} swimlanes={dossier.swimlanes} onSelect={setSelectedNode} selected={selectedNode} />
 
@@ -530,17 +614,7 @@ export default function CapabilityDashboard() {
           </Section>
         )}
 
-        {/* Narrative */}
-        <Section title={<span className="flex items-center gap-2"><ChevronDown className="w-4 h-4"/> End-to-End Flow (Scenario-aware)</span>}>
-          <ol className="list-decimal ml-5 space-y-2 text-sm">
-            {narrative.map((s: any, i: number) => (
-              <li key={i} className="bg-slate-950/50 border border-slate-800 rounded-xl p-3">
-                <div className="text-slate-200 font-medium">{s.label}</div>
-                {s.detail && <div className="text-slate-400 mt-1 font-mono text-xs break-words">{s.detail}</div>}
-              </li>
-            ))}
-          </ol>
-        </Section>
+        {/* Removed numbered narrative; progression above shows exact file path flow */}
 
         {/* Data, externals, suspects */}
         <div className="grid grid-cols-12 gap-6">

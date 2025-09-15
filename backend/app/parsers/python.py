@@ -3,6 +3,16 @@ from pathlib import Path
 import ast
 import re
 from typing import Dict, Any, List, Optional
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Import Tree-sitter utilities
+try:
+    from .tree_sitter_utils import parse_with_tree_sitter, is_tree_sitter_available
+    _TREE_SITTER_AVAILABLE = is_tree_sitter_available()
+except ImportError:
+    _TREE_SITTER_AVAILABLE = False
 
 try:
     import libcst as cst
@@ -1413,44 +1423,79 @@ def extract_pydantic_models(text: str, path: str) -> List[Dict[str, Any]]:
     models = []
     try:
         tree = ast.parse(text)
+        
+        # First pass: collect all class definitions
+        class_definitions = {}
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 base_names = [getattr(b, "id", getattr(b, "attr", "")) for b in node.bases]
-                if any("BaseModel" in str(b) or "BaseSettings" in str(b) for b in base_names):
-                    fields = []
-                    
-                    for n in ast.walk(node):
-                        if isinstance(n, ast.AnnAssign) and hasattr(n.target, "id"):
-                            field_info = {
-                                "name": n.target.id,
-                                "type": "Any",
-                                "required": True,
-                                "default": None
-                            }
-                            
-                            # Extract type annotation
-                            if n.annotation:
-                                if hasattr(n.annotation, "id"):
-                                    field_info["type"] = n.annotation.id
-                                elif hasattr(n.annotation, "slice"):  # Optional[Type]
-                                    if hasattr(n.annotation.value, "id") and n.annotation.value.id == "Optional":
-                                        field_info["required"] = False
-                                        if hasattr(n.annotation.slice, "id"):
-                                            field_info["type"] = n.annotation.slice.id
-                                elif hasattr(n.annotation, "elts"):  # Union types
-                                    field_info["type"] = "Union"
-                            
-                            # Extract default value
-                            if n.value:
-                                field_info["default"] = _ast_value_to_py(n.value)
-                            
-                            fields.append(field_info)
-                    
-                    models.append({
-                        "name": node.name,
-                        "fields": fields,
-                        "path": path
-                    })
+                class_definitions[node.name] = {
+                    'node': node,
+                    'bases': base_names,
+                    'is_pydantic': False
+                }
+        
+        # Second pass: check for direct BaseModel inheritance
+        for class_name, class_info in class_definitions.items():
+            if any("BaseModel" in str(b) or "BaseSettings" in str(b) for b in class_info['bases']):
+                class_info['is_pydantic'] = True
+        
+        # Third pass: check for transitive inheritance
+        def is_pydantic_class(class_name):
+            if class_name not in class_definitions:
+                return False
+            class_info = class_definitions[class_name]
+            if class_info['is_pydantic']:
+                return True
+            # Check if any base class is Pydantic
+            for base_name in class_info['bases']:
+                if is_pydantic_class(base_name):
+                    class_info['is_pydantic'] = True
+                    return True
+            return False
+        
+        # Mark all Pydantic classes (including transitive)
+        for class_name in class_definitions:
+            is_pydantic_class(class_name)
+        
+        # Extract Pydantic models
+        for class_name, class_info in class_definitions.items():
+            if class_info['is_pydantic']:
+                node = class_info['node']
+                fields = []
+                
+                for n in ast.walk(node):
+                    if isinstance(n, ast.AnnAssign) and hasattr(n.target, "id"):
+                        field_info = {
+                            "name": n.target.id,
+                            "type": "Any",
+                            "required": True,
+                            "default": None
+                        }
+                        
+                        # Extract type annotation
+                        if n.annotation:
+                            if hasattr(n.annotation, "id"):
+                                field_info["type"] = n.annotation.id
+                            elif hasattr(n.annotation, "slice"):  # Optional[Type]
+                                if hasattr(n.annotation.value, "id") and n.annotation.value.id == "Optional":
+                                    field_info["required"] = False
+                                    if hasattr(n.annotation.slice, "id"):
+                                        field_info["type"] = n.annotation.slice.id
+                            elif hasattr(n.annotation, "elts"):  # Union types
+                                field_info["type"] = "Union"
+                        
+                        # Extract default value
+                        if n.value:
+                            field_info["default"] = _ast_value_to_py(n.value)
+                        
+                        fields.append(field_info)
+                
+                models.append({
+                    "name": node.name,
+                    "fields": fields,
+                    "path": path
+                })
     except Exception:
         pass
     return models
@@ -1750,12 +1795,28 @@ def extract_fastapi_routes(text: str, path: str) -> List[Dict[str, Any]]:
     return routes
 
 def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str] = None) -> Dict[str, Any]:
-    """Parse Python file with robust libcst parsing and framework awareness."""
+    """Parse Python file with Tree-sitter → libcst → ast fallback chain."""
     text = _read_text(p)
     file_path = str(p).replace("\\", "/")
     
-    # Try libcst first, fallback to ast
-    parsed = _parse_with_libcst(text, file_path)
+    # Try Tree-sitter first (highest accuracy)
+    parsed = None
+    if _TREE_SITTER_AVAILABLE:
+        try:
+            parsed = parse_with_tree_sitter(text, "python", file_path)
+            logger.debug(f"Tree-sitter parsing successful for {file_path}")
+        except Exception as e:
+            logger.warning(f"Tree-sitter parsing failed for {file_path}: {e}")
+            parsed = None
+    
+    # Fallback to libcst if Tree-sitter failed
+    if not parsed:
+        parsed = _parse_with_libcst(text, file_path)
+        if parsed:
+            logger.debug(f"libcst parsing successful for {file_path}")
+    
+    # Final fallback to ast
+    tree = None  # Initialize tree for later use
     if not parsed:
         try:
             tree = ast.parse(text)
@@ -1773,8 +1834,9 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
         
         # Fallback to ast parsing
         parsed = _parse_with_ast_fallback(text, tree)
+        logger.debug(f"AST fallback parsing used for {file_path}")
     
-    # Use parsed results from libcst or ast fallback
+    # Use parsed results from Tree-sitter/libcst/ast fallback
     imports = parsed.get("imports", [])
     functions = parsed.get("functions", [])
     classes = parsed.get("classes", [])
@@ -1787,12 +1849,25 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
     routes = []
     hints = _detect_framework_hints(imports, text, file_path)
     
-    if hints["framework"] == "fastapi":
-        routes = _detect_fastapi_routes(tree)
-    elif hints["framework"] == "flask":
-        routes = _detect_flask_routes(tree)
-    elif hints["framework"] == "django":
-        routes = _detect_django_routes(text, file_path, snapshot, available_files)
+    # Merge Tree-sitter hints with existing hints
+    if parsed.get("hints"):
+        hints.update(parsed["hints"])
+    
+    # Ensure tree is available for AST-based route detection if not already parsed by AST fallback
+    if tree is None:
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            logger.warning(f"Could not parse file with AST for route detection: {file_path}")
+            tree = None
+
+    if tree:  # Only proceed if AST tree is available
+        if hints["framework"] == "fastapi":
+            routes = _detect_fastapi_routes(tree)
+        elif hints["framework"] == "flask":
+            routes = _detect_flask_routes(tree)
+        elif hints["framework"] == "django":
+            routes = _detect_django_routes(text, file_path, snapshot, available_files)
     
     # Update hints based on detected routes
     if routes:
@@ -1856,7 +1931,18 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
     fastapi_policies = extract_fastapi_policies(text, file_path)
     fastapi_routes = extract_fastapi_routes(text, file_path)
 
-    return {
+    # Flag capability entries (files with routes, APIs, or significant functionality)
+    capability_entry = False
+    if (hints.get("isRoute") or 
+        hints.get("isAPI") or 
+        routes or 
+        re.search(r'@(app|router)\.(get|post|put|delete|patch)', text) or
+        any(func.get("name") in ["GET", "POST", "PUT", "DELETE", "PATCH"] for func in functions) or
+        pydantic_models or
+        sqlalchemy_models):
+        capability_entry = True
+
+    result = {
         "imports": resolved_imports,
         "exports": [],  # Python doesn't use explicit exports
         "functions": functions,
@@ -1879,3 +1965,9 @@ def parse_python_file(p: Path, snapshot: Path = None, available_files: List[str]
         },
         "hints": hints
     }
+    
+    # Add capability_entry flag if this is a significant file
+    if capability_entry:
+        result["capability_entry"] = True
+    
+    return result
