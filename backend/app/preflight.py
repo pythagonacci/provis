@@ -22,7 +22,7 @@ class FrameworkDetection:
 @dataclass
 class WorkspaceInfo:
     """Workspace/monorepo information."""
-    type: str  # "single", "pnpm", "yarn", "turbo", "nx"
+    type: str  # "single", "pnpm", "yarn", "turbo", "nx", "poetry", "pants"
     root: str
     packages: List[str]
     config_files: List[str]
@@ -198,6 +198,31 @@ def detect_workspace(snapshot_dir: Path) -> WorkspaceInfo:
             root=str(snapshot_dir),
             packages=[],
             config_files=["nx.json"]
+        )
+    
+    # Check for Poetry
+    pyproject_toml = snapshot_dir / "pyproject.toml"
+    if pyproject_toml.exists():
+        try:
+            content = pyproject_toml.read_text()
+            if "[tool.poetry]" in content:
+                return WorkspaceInfo(
+                    type="poetry",
+                    root=str(snapshot_dir),
+                    packages=[],
+                    config_files=["pyproject.toml"]
+                )
+        except Exception:
+            pass
+    
+    # Check for Pants
+    pants_toml = snapshot_dir / "pants.toml"
+    if pants_toml.exists():
+        return WorkspaceInfo(
+            type="pants",
+            root=str(snapshot_dir),
+            packages=[],
+            config_files=["pants.toml"]
         )
     
     # Default to single package

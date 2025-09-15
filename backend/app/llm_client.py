@@ -14,7 +14,7 @@ import logging
 from .config import settings
 from .models import EvidenceSpan, WarningItem
 from .observability import record_llm_call
-from .events import event_manager
+from .events import get_event_stream
 
 logger = logging.getLogger(__name__)
 
@@ -151,11 +151,8 @@ class LLMClient:
             logger.warning(error_msg)
             
             if request.job_id:
-                await event_manager.publish(request.job_id, "llm_budget", {
-                    "used": self.used_tokens,
-                    "budget": self.token_budget,
-                    "exceeded": True
-                })
+                event_stream = get_event_stream()
+                await event_stream.emit_llm_budget(request.job_id, self.used_tokens, self.token_budget - self.used_tokens)
             
             return LLMResponse(
                 content={},
@@ -199,11 +196,8 @@ class LLMClient:
             
             # Publish token usage event
             if request.job_id:
-                await event_manager.publish(request.job_id, "llm_budget", {
-                    "used": self.used_tokens,
-                    "budget": self.token_budget,
-                    "remaining": self.token_budget - self.used_tokens
-                })
+                event_stream = get_event_stream()
+                await event_stream.emit_llm_budget(request.job_id, self.used_tokens, self.token_budget - self.used_tokens)
             
             response.processing_time_ms = processing_time_ms
             response.validation_passed = validation_passed

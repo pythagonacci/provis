@@ -13,7 +13,7 @@ import logging
 from .config import settings
 from .models import GraphEdge, RouteModel, EvidenceSpan, WarningItem
 from .observability import record_llm_call, record_detector_hit
-from .events import event_manager
+from .events import get_event_stream
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +60,8 @@ class LLMClient:
             logger.warning(error_msg)
             
             if job_id:
-                await event_manager.publish(job_id, "llm_budget", {
-                    "used": self.used_tokens,
-                    "budget": self.token_budget,
-                    "exceeded": True
-                })
+                event_stream = get_event_stream()
+                await event_stream.emit_llm_budget(job_id, self.used_tokens, self.token_budget - self.used_tokens)
             
             return LLMCompletionResponse(
                 content={},
@@ -104,11 +101,8 @@ class LLMClient:
             
             # Publish token usage event
             if job_id:
-                await event_manager.publish(job_id, "llm_budget", {
-                    "used": self.used_tokens,
-                    "budget": self.token_budget,
-                    "remaining": self.token_budget - self.used_tokens
-                })
+                event_stream = get_event_stream()
+                await event_stream.emit_llm_budget(job_id, self.used_tokens, self.token_budget - self.used_tokens)
             
             return response
             

@@ -16,7 +16,7 @@ from .models import (
     EvidenceSpan, WarningItem, RouteModel, ImportModel
 )
 from .observability import record_detector_hit, record_fallback
-from .events import event_manager
+from .events import get_event_stream
 
 logger = logging.getLogger(__name__)
 

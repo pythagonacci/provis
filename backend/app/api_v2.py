@@ -12,7 +12,7 @@ from .models import IngestResponse, StatusPayload
 from .pipeline_orchestrator import PipelineOrchestrator
 from .status_manager import StatusManager, JobStatus
 from .storage import ArtifactStorage
-from .events import event_manager
+from .events import get_event_stream
 
 logger = logging.getLogger(__name__)
 

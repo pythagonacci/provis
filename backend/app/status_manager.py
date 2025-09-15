@@ -12,7 +12,7 @@ from enum import Enum
 import logging
 
 from .models import StatusPayload, Phase, WarningItem
-from .events import event_manager
+from .events import get_event_stream
 
 logger = logging.getLogger(__name__)
 
@@ -392,7 +392,8 @@ class StatusManager:
         self.events[job_id].append(event)
         
         # Publish to event manager for real-time streaming
-        asyncio.create_task(event_manager.publish(job_id, event_type, data))
+        event_stream = get_event_stream()
+        asyncio.create_task(event_stream.emit_event(job_id, event_type, data))
         
         # Limit events per job to prevent memory issues
         max_events = 1000
@@ -527,5 +528,6 @@ class StatusManager:
             yield json.dumps(event)
         
         # Stream new events
-        async for event in event_manager.subscribe(job_id):
+        event_stream = get_event_stream()
+        async for event in event_stream.create_stream(job_id):
             yield event

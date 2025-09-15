@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Set
 from dataclasses import dataclass
 import logging
+import pickle
+from collections import defaultdict
+import os
 
 from .config import settings
 from .observability import record_fallback, record_detector_hit
@@ -40,23 +43,83 @@ class TypeScriptResolver:
         self.repo_root = repo_root
         self.tsconfig_paths = tsconfig_paths
         self.node_modules_cache: Set[str] = set()
+        # In-memory resolution cache: key=(import, from_dir)
+        self._resolution_cache: Dict[Tuple[str, str], ResolutionResult] = {}
+        # Trie of project files for O(log n) prefix lookups
+        self.file_trie: Dict[str, Any] = {}
+        # Trie of node_modules packages
+        self.modules_trie: Dict[str, Any] = {}
         self._build_resolution_cache()
+        self._maybe_load_pickle_cache()
     
     def _build_resolution_cache(self):
         """Build cache of available modules and paths."""
-        # Cache node_modules
+        # Cache node_modules and build node_modules trie (first-level packages only)
         for node_modules in self.repo_root.rglob("node_modules"):
-            if node_modules.is_dir():
-                self.node_modules_cache.add(str(node_modules))
+            if not node_modules.is_dir():
+                continue
+            self.node_modules_cache.add(str(node_modules))
+            for pkg_dir in node_modules.iterdir():
+                # support scoped packages
+                if pkg_dir.name.startswith('@') and pkg_dir.is_dir():
+                    for scoped in pkg_dir.iterdir():
+                        self._trie_insert(self.modules_trie, scoped.name.split('/'), str(scoped))
+                else:
+                    if pkg_dir.is_dir():
+                        self._trie_insert(self.modules_trie, pkg_dir.name.split('/'), str(pkg_dir))
+        # Build file trie for project sources
+        exts = {'.ts', '.tsx', '.js', '.jsx'}
+        for f in self.repo_root.rglob('*'):
+            if f.is_file() and f.suffix in exts:
+                rel = f.relative_to(self.repo_root)
+                parts = list(rel.parts[:-1])  # directory parts
+                self._trie_insert(self.file_trie, parts, str(rel))
         
         record_detector_hit("ts_resolver")
+
+    def _pickle_path(self) -> Path:
+        return self.repo_root / ".provis_cache" / "ts_import_cache.pkl"
+
+    def _maybe_load_pickle_cache(self) -> None:
+        try:
+            if os.getenv("IMPORT_CACHE_PICKLE") != "1":
+                return
+            p = self._pickle_path()
+            if p.exists():
+                data = pickle.load(open(p, 'rb'))
+                if isinstance(data, dict):
+                    self._resolution_cache.update(data)
+        except Exception:
+            pass
+
+    def _maybe_save_pickle_cache(self) -> None:
+        try:
+            if os.getenv("IMPORT_CACHE_PICKLE") != "1":
+                return
+            p = self._pickle_path()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            pickle.dump(self._resolution_cache, open(p, 'wb'))
+        except Exception:
+            pass
+
+    def _trie_insert(self, trie: Dict[str, Any], parts: List[str], relpath: str) -> None:
+        cur = trie
+        for p in parts:
+            if p not in cur:
+                cur[p] = {}
+            cur = cur[p]
+        cur.setdefault('files', []).append(relpath)
     
     def resolve_import(self, import_path: str, from_file: Path) -> ResolutionResult:
         """Resolve an import path to a file."""
         try:
+            cache_key = (import_path, str(from_file.parent))
+            if cache_key in self._resolution_cache:
+                return self._resolution_cache[cache_key]
             # Try different resolution strategies
             strategies = [
                 self._resolve_relative,
+                self._resolve_trie,
                 self._resolve_tsconfig_paths,
                 self._resolve_node_modules,
                 self._resolve_package_json,
@@ -66,16 +129,21 @@ class TypeScriptResolver:
             for strategy in strategies:
                 result = strategy(import_path, from_file)
                 if result.resolved_path and result.confidence > 0.5:
+                    self._resolution_cache[cache_key] = result
+                    self._maybe_save_pickle_cache()
                     return result
             
             # All strategies failed
-            return ResolutionResult(
+            result = ResolutionResult(
                 resolved_path=None,
                 confidence=0.0,
                 hypothesis=True,
                 reason_code="alias-miss",
                 evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
             )
+            self._resolution_cache[cache_key] = result
+            self._maybe_save_pickle_cache()
+            return result
             
         except Exception as e:
             logger.warning(f"Import resolution failed for {import_path} in {from_file}: {e}")
@@ -109,6 +177,55 @@ class TypeScriptResolver:
                     evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
                 )
         
+        return ResolutionResult(None, 0.0, False, None, [])
+
+    def _resolve_trie(self, import_path: str, from_file: Path) -> ResolutionResult:
+        """Resolve using trie for workspace files and node_modules packages (O(log n))."""
+        # Try node_modules first for bare imports
+        if not import_path.startswith(('.', '/')):
+            parts = import_path.split('/')
+            cur = self.modules_trie
+            for p in parts:
+                cur = cur.get(p, {})
+            # If we have a direct package dir recorded, try typical entrypoints
+            pkg_dirs = cur.get('files', [])
+            for base in pkg_dirs:
+                # package.json main or index files will be handled by _resolve_node_modules
+                candidate = Path(base) / 'index.js'
+                if Path(candidate).exists():
+                    return ResolutionResult(
+                        resolved_path=str(Path(candidate).relative_to(self.repo_root)),
+                        confidence=0.7,
+                        hypothesis=False,
+                        reason_code=None,
+                        evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
+                    )
+        # Try project file trie for alias-like absolute paths
+        parts = [p for p in import_path.split('/') if p]
+        cur = self.file_trie
+        for p in parts:
+            cur = cur.get(p, {})
+        candidates = cur.get('files', [])
+        if candidates:
+            # choose the deepest (longest) path as best match
+            best = max(candidates, key=len)
+            # Try common extensions and index
+            base = self.repo_root / best
+            if base.exists():
+                return ResolutionResult(
+                    resolved_path=str(Path(best)),
+                    confidence=0.7,
+                    hypothesis=False,
+                    reason_code=None,
+                    evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
+                )
+            for ext in ['.ts', '.tsx', '.js', '.jsx']:
+                if Path(str(base) + ext).exists():
+                    rel = str((Path(str(base) + ext)).relative_to(self.repo_root))
+                    return ResolutionResult(rel, 0.7, False, None, [EvidenceSpan(file=str(from_file), start=1, end=1)])
+            index_try = (self.repo_root / Path(best).with_suffix('')) / 'index.ts'
+            if index_try.exists():
+                return ResolutionResult(str(index_try.relative_to(self.repo_root)), 0.65, False, None, [EvidenceSpan(file=str(from_file), start=1, end=1)])
         return ResolutionResult(None, 0.0, False, None, [])
     
     def _resolve_tsconfig_paths(self, import_path: str, from_file: Path) -> ResolutionResult:
@@ -266,6 +383,10 @@ class PythonResolver:
         self.repo_root = repo_root
         self.pyproject_packages = pyproject_packages
         self.python_paths: Set[str] = set()
+        # In-memory resolution cache
+        self._resolution_cache: Dict[Tuple[str, str], ResolutionResult] = {}
+        # Trie of python packages/files
+        self.file_trie: Dict[str, Any] = {}
         self._build_python_paths()
     
     def _build_python_paths(self):
@@ -275,15 +396,60 @@ class PythonResolver:
             if py_file.name == "__init__.py":
                 package_dir = py_file.parent
                 self.python_paths.add(str(package_dir.relative_to(self.repo_root)))
+        # Build trie of dirs containing python files
+        for f in self.repo_root.rglob('*.py'):
+            rel = f.relative_to(self.repo_root)
+            parts = list(rel.parts[:-1])
+            self._trie_insert(self.file_trie, parts, str(rel))
         
         record_detector_hit("python_resolver")
+
+    def _pickle_path(self) -> Path:
+        return self.repo_root / ".provis_cache" / "py_import_cache.pkl"
+
+    def _maybe_load_pickle_cache(self) -> None:
+        try:
+            if os.getenv("IMPORT_CACHE_PICKLE") != "1":
+                return
+            p = self._pickle_path()
+            if p.exists():
+                data = pickle.load(open(p, 'rb'))
+                if isinstance(data, dict):
+                    self._resolution_cache.update(data)
+        except Exception:
+            pass
+
+    def _maybe_save_pickle_cache(self) -> None:
+        try:
+            if os.getenv("IMPORT_CACHE_PICKLE") != "1":
+                return
+            p = self._pickle_path()
+            p.parent.mkdir(parents=True, exist_ok=True)
+            pickle.dump(self._resolution_cache, open(p, 'wb'))
+        except Exception:
+            pass
+
+    def _trie_insert(self, trie: Dict[str, Any], parts: List[str], relpath: str) -> None:
+        cur = trie
+        for p in parts:
+            if p not in cur:
+                cur[p] = {}
+            cur = cur[p]
+        cur.setdefault('files', []).append(relpath)
     
     def resolve_import(self, import_path: str, from_file: Path) -> ResolutionResult:
         """Resolve a Python import."""
         try:
+            cache_key = (import_path, str(from_file.parent))
+            if cache_key in self._resolution_cache:
+                return self._resolution_cache[cache_key]
+            # Load cache from disk if enabled (first call lazily loads)
+            if not self._resolution_cache:
+                self._maybe_load_pickle_cache()
             # Try different resolution strategies
             strategies = [
                 self._resolve_relative,
+                self._resolve_trie,
                 self._resolve_absolute,
                 self._resolve_package,
                 self._resolve_brute_force
@@ -292,16 +458,21 @@ class PythonResolver:
             for strategy in strategies:
                 result = strategy(import_path, from_file)
                 if result.resolved_path and result.confidence > 0.5:
+                    self._resolution_cache[cache_key] = result
+                    self._maybe_save_pickle_cache()
                     return result
             
             # All strategies failed
-            return ResolutionResult(
+            result = ResolutionResult(
                 resolved_path=None,
                 confidence=0.0,
                 hypothesis=True,
                 reason_code="alias-miss",
                 evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
             )
+            self._resolution_cache[cache_key] = result
+            self._maybe_save_pickle_cache()
+            return result
             
         except Exception as e:
             logger.warning(f"Python import resolution failed for {import_path} in {from_file}: {e}")
@@ -346,6 +517,46 @@ class PythonResolver:
                     evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
                 )
         
+        return ResolutionResult(None, 0.0, False, None, [])
+
+    def _resolve_trie(self, import_path: str, from_file: Path) -> ResolutionResult:
+        """Resolve using a trie built from repository python modules/packages."""
+        # Map python dotted to path segments
+        parts = [p for p in import_path.replace('.', '/').split('/') if p]
+        cur = self.file_trie
+        for p in parts:
+            cur = cur.get(p, {})
+        candidates = cur.get('files', [])
+        # If no candidates at full path node, try parent dir and filter filenames
+        if not candidates and len(parts) >= 1:
+            parent = self.file_trie
+            for p in parts[:-1]:
+                parent = parent.get(p, {})
+            parent_files = parent.get('files', [])
+            target = parts[-1]
+            candidates = [f for f in parent_files if f.endswith(f"/{target}.py") or f.endswith(f"/{target}/__init__.py")]
+        if candidates:
+            best = max(candidates, key=len)
+            # Try direct file
+            candidate = self.repo_root / best
+            if candidate.exists():
+                return ResolutionResult(
+                    resolved_path=str(candidate.relative_to(self.repo_root)),
+                    confidence=0.7,
+                    hypothesis=False,
+                    reason_code=None,
+                    evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
+                )
+            # Try package __init__.py
+            init_file = (self.repo_root / Path(best).with_suffix('')) / '__init__.py'
+            if init_file.exists():
+                return ResolutionResult(
+                    resolved_path=str(init_file.relative_to(self.repo_root)),
+                    confidence=0.7,
+                    hypothesis=False,
+                    reason_code=None,
+                    evidence=[EvidenceSpan(file=str(from_file), start=1, end=1)]
+                )
         return ResolutionResult(None, 0.0, False, None, [])
     
     def _resolve_absolute(self, import_path: str, from_file: Path) -> ResolutionResult:
