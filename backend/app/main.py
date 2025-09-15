@@ -2,6 +2,7 @@ from __future__ import annotations
 import asyncio
 import json
 import hashlib
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -579,3 +580,223 @@ async def post_qa(repo_id: str, body: dict):
         return res
     except Exception as e:
         raise HTTPException(500, detail=f"QA failed: {e}")
+
+@app.post("/v1/repo/{repo_id}/capabilities/{cap_id}/scenarios")
+async def generate_scenario_analysis(repo_id: str, cap_id: str, scenario: str = "happy"):
+    """Generate LLM-powered scenario analysis for a capability"""
+    try:
+        # Load capability data
+        base = Path(f"data/{repo_id}")
+        cap_file = base / "capabilities" / cap_id / "capability.json"
+        
+        if not cap_file.exists():
+            raise HTTPException(404, detail=f"Capability {cap_id} not found")
+        
+        capability_data = json.loads(cap_file.read_text())
+        
+        # Prepare context for LLM
+        # Normalize lists that may contain strings or {path} objects
+        def _norm_list(items):
+            out = []
+            for it in (items or []):
+                if isinstance(it, str):
+                    out.append(it)
+                elif isinstance(it, dict):
+                    p = it.get("path") or it.get("file") or it.get("name")
+                    if isinstance(p, str):
+                        out.append(p)
+            return out
+
+        entry_points = _norm_list(capability_data.get("entryPoints"))
+        sources = _norm_list(capability_data.get("sources"))
+        sinks = _norm_list(capability_data.get("sinks"))
+        data_in = _norm_list(capability_data.get("dataIn"))
+        data_out = _norm_list(capability_data.get("dataOut"))
+        steps = capability_data.get("steps", [])
+        control_flow = capability_data.get("controlFlow") or capability_data.get("control_flow") or []
+        swimlanes = capability_data.get("swimlanes", {})
+
+        # Build an allowlist of file paths relevant to this capability
+        allowed_files_set = set()
+        for lane_nodes in (swimlanes or {}).values():
+            for it in (lane_nodes or []):
+                allowed_files_set.add(it if isinstance(it, str) else (it.get("path") or ""))
+        for e in (control_flow or []):
+            if isinstance(e, dict):
+                if e.get("from"):
+                    allowed_files_set.add(e.get("from"))
+                if e.get("to"):
+                    allowed_files_set.add(e.get("to"))
+        for st in (steps or []):
+            fid = st.get("fileId")
+            if isinstance(fid, str):
+                allowed_files_set.add(fid)
+        # Remove empties
+        allowed_files = sorted([p for p in allowed_files_set if p])
+        
+        # Build context for scenario analysis
+        context = f"""
+Capability: {capability_data.get("name", cap_id)}
+Purpose: {capability_data.get("purpose", "No description available")}
+
+Entry Points: {', '.join(entry_points)}
+Data Sources: {', '.join(sources)}
+Data Sinks: {', '.join(sinks)}
+Input Data: {', '.join(data_in)}
+Output Data: {', '.join(data_out)}
+
+Steps:
+"""
+        for i, step in enumerate(steps, 1):
+            context += f"{i}. {step.get('title', 'Unknown step')}: {step.get('description', 'No description')}\n"
+            if step.get('fileId'):
+                context += f"   File: {step['fileId']}\n"
+
+        # Add compact control flow and lanes
+        context += "\nControl Flow (from -> to):\n"
+        for e in control_flow:
+            try:
+                context += f"- {e.get('from')} -> {e.get('to')} ({e.get('kind','call')})\n"
+            except Exception:
+                continue
+
+        context += "\nSwimlanes:\n"
+        for lane, nodes in (swimlanes or {}).items():
+            context += f"- {lane}: {', '.join([n if isinstance(n, str) else n.get('path','') for n in (nodes or [])])}\n"
+
+        context += "\nAllowed Files (strict):\n" + "\n".join([f"- {p}" for p in allowed_files]) + "\n"
+        
+        # Generate scenario-specific analysis
+        messages = [
+            {
+                "role": "system",
+                "content": """You are an expert software architect analyzing application flows. Respond STRICTLY as minified JSON matching the provided schema. Do not include commentary or markdown. Generate a detailed scenario analysis that includes:
+
+1. **Happy Path**: The ideal execution flow with all components working correctly
+2. **Edge Cases**: Common failure scenarios and how the system handles them
+3. **Error Handling**: What happens when things go wrong
+4. **Dependencies**: External systems and potential points of failure
+
+Be specific about the actual files and components involved. Use the exact file paths and component names provided in the context. Only reference files present in the 'Allowed Files (strict)' list. Do NOT talk about generic app initialization, middleware setup, or unrelated routes. Focus only on this capability's end-to-end flow. Output schema:
+{
+  "happy_path": string[],
+  "edge_cases": string[],
+  "analysis"?: string
+}
+"""
+            },
+            {
+                "role": "user", 
+                "content": f"""Analyze this capability for the "{scenario}" scenario:
+
+{context}
+
+Please provide:
+1. **Happy Path Flow**: Step-by-step execution when everything works
+2. **Edge Cases**: 3-4 specific failure scenarios with how they're handled
+3. **Error Recovery**: What happens when components fail
+4. **Dependencies**: Critical external dependencies that could cause issues
+
+Focus on realistic scenarios based on the actual codebase structure."""
+            }
+        ]
+        
+        # Use the LLM client to generate structured analysis
+        from app.llm.client import LLMClient
+        llm = LLMClient(cache_dir=base / "cache_llm")
+
+        schema = {
+            "type": "object",
+            "properties": {
+                "happy_path": {"type": "array", "items": {"type": "string"}},
+                "edge_cases": {"type": "array", "items": {"type": "string"}},
+                "analysis": {"type": "string"}
+            },
+            "required": ["happy_path", "edge_cases"],
+            "additionalProperties": True
+        }
+
+        payload = await llm.acomplete_json(messages=messages, schema=schema)
+        # Prefer structured result
+        happy_path = payload.get("happy_path") or []
+        edge_cases = payload.get("edge_cases") or []
+        analysis = payload.get("analysis") or ""
+
+        # If analysis is not a string, serialize minimally
+        if not isinstance(analysis, str):
+            try:
+                analysis = json.dumps(analysis)
+            except Exception:
+                analysis = ""
+        
+        # Prefer structured result if present
+        if isinstance(payload, dict):
+            hp = payload.get("happy_path")
+            ec = payload.get("edge_cases")
+            if isinstance(hp, list) and isinstance(ec, list) and hp and ec:
+                happy_path = hp
+                edge_cases = ec
+
+        # Post-filter out generic/unrelated items and enforce allowed files
+        def _is_generic(line: str) -> bool:
+            l = (line or "").lower()
+            generic_terms = [
+                "initialize application", "start the fastapi", "setup middleware",
+                "register routes", "mount api routers", "prospects, decks, and emails",
+            ]
+            return any(g in l for g in generic_terms)
+
+        def _mentions_allowed(line: str) -> bool:
+            if not allowed_files:
+                return True
+            for p in allowed_files:
+                if p and p in (line or ""):
+                    return True
+            return False
+
+        happy_path = [s for s in happy_path if not _is_generic(s) and _mentions_allowed(s)]
+        edge_cases = [s for s in edge_cases if not _is_generic(s)]
+
+        # If too sparse, synthesize from steps
+        if len(happy_path) < 3 and steps:
+            synth = []
+            for st in steps:
+                title = st.get("title") or "Step"
+                desc = st.get("description") or ""
+                fid = st.get("fileId") or ""
+                piece = title
+                if desc:
+                    piece += f": {desc}"
+                if fid:
+                    piece += f" (file: {fid})"
+                synth.append(piece)
+            if synth:
+                happy_path = synth[:6]
+
+        # If still empty, provide a minimal fallback
+        if not happy_path and not edge_cases:
+            # Attempt to parse any lines from analysis for robustness
+            if isinstance(analysis, str) and analysis:
+                for raw in analysis.split('\n'):
+                    line = raw.strip()
+                    if not line:
+                        continue
+                    if any(k in line.lower() for k in ["happy", "ideal path"]):
+                        happy_path.append(line)
+                    elif any(k in line.lower() for k in ["edge", "failure", "error"]):
+                        edge_cases.append(line)
+            if not happy_path and not edge_cases:
+                happy_path = ["Flow generated, but details unavailable."]
+                edge_cases = ["Edge cases not extracted."]
+        
+        return {
+            "scenario": scenario,
+            "capability_id": cap_id,
+            "analysis": analysis,
+            "happy_path": happy_path,
+            "edge_cases": edge_cases,
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        
+    except Exception as e:
+        raise HTTPException(500, detail=f"Scenario analysis failed: {e}")
